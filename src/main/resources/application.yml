@@ -1,0 +1,10 @@
+server:
+  port: 8086
+spring:
+  main:
+    allow-bean-definition-overriding: true
+userConfig:
+  # 多个选项用空格隔开
+  botNames: ''
+  qqList: ''
+  pwList: ''
