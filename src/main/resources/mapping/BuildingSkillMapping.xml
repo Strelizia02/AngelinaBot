@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.BuildingSkillMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.BuildingSkill">
+        <result column="operator_id" property="operatorId" jdbcType="INTEGER"/>
+        <result column="phase" property="phase" jdbcType="INTEGER"/>
+        <result column="level" property="level" jdbcType="INTEGER"/>
+        <result column="buff_name" property="buffName" jdbcType="VARCHAR"/>
+        <result column="room_type" property="roomType" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getBuildingSkillByInfo" resultMap="BaseResultMap">
+        SELECT
+            operator_id,phase,level,buff_name,room_type,description
+        FROM
+            t_operator_building_skill
+        WHERE
+            operator_id = (
+                SELECT
+                    operator_id
+                FROM
+                    t_operator
+                WHERE
+                    operator_name = #{Info}
+            )
+        OR buff_name = #{Info}
+        OR room_type = #{Info}
+    </select>
+
+    <select id="getAllBuildingSkill" resultMap="BaseResultMap">
+        SELECT
+            operator_id,phase,level,buff_name,room_type,description
+        FROM
+            t_operator_building_skill
+    </select>
+
+    <insert id="insertBuildingSkill">
+        INSERT INTO t_operator_building_skill
+            (operator_id,phase,level,buff_name,room_type,description)
+        VALUES
+            (
+            #{operatorId,jdbcType=INTEGER},
+            #{phase,jdbcType=INTEGER},
+            #{level,jdbcType=INTEGER},
+            #{buffName,jdbcType=VARCHAR},
+            #{roomType,jdbcType=VARCHAR},
+            #{description,jdbcType=VARCHAR}
+            )
+    </insert>
+</mapper>

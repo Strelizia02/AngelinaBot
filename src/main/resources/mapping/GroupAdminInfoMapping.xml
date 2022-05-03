@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.GroupAdminInfoMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.GroupAdminInfo">
+        <result column="group_id" property="groupId" jdbcType="BIGINT"/>
+        <result column="found" property="found" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+    <select id="getGroupAdminNum" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+            `found`
+        FROM
+            a_group_admin
+        WHERE
+            group_id = #{groupId}
+    </select>
+
+    <select id="getAllGroupAdmin" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        SELECT
+            group_id,`found`
+        FROM
+            a_group_admin
+        limit 10 offset #{current}
+    </select>
+
+    <select id="getAllGroupAdminCount" resultType="java.lang.Integer">
+        SELECT
+            count(*) as count
+        FROM
+            a_group_admin
+    </select>
+
+    <select id="existGroupId" resultType="java.lang.Integer">
+        select count(*) as count from a_group_admin where group_id = #{groupId}
+    </select>
+
+    <insert id="insertGroupId">
+        insert into a_group_admin (group_id) VALUES (#{groupId})
+    </insert>
+
+    <update id="updateGroupAdmin" parameterType="top.strelitzia.model.GroupAdminInfo">
+        update a_group_admin
+        set
+            `found` = #{found}
+        where
+            group_id = #{groupId}
+    </update>
+</mapper>

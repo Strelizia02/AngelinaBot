@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.AgentMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.AgentInfo">
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="star" property="star" jdbcType="INTEGER"/>
+        <result column="pool" property="pool" jdbcType="VARCHAR"/>
+        <result column="limit" property="limit" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="selectAgentByStar" resultMap="BaseResultMap">
+        select name,star,pool
+        from a_agent
+        where star = #{star} and pool = #{pool} and `limit` != 3;
+    </select>
+
+    <select id="selectLimitAgentByPool" resultMap="BaseResultMap">
+        select name,star,pool
+        from a_agent
+        where star = 6 and pool = #{pool} and `limit` = 3;
+    </select>
+
+    <select id="selectPoolIsExit" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+            pool
+        FROM
+            a_agent
+        WHERE
+            pool = #{pool}
+    </select>
+
+    <select id="selectLimitAgent" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        SELECT
+            name,
+            star,
+            pool
+        FROM
+            a_agent
+        WHERE
+            star = 6
+        AND
+            `limit` = #{limit};
+    </select>
+
+    <select id="selectPoolLimit" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT
+            `limit`
+        FROM
+            a_agent
+        WHERE
+            pool = #{pool}
+        AND
+            `limit` != 3
+        ORDER BY
+	        `limit` DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectPool" resultType="java.lang.String">
+        SELECT
+        pool
+        FROM
+        a_agent
+        WHERE
+            pool != '凭证兑换'
+        AND pool != '活动'
+        AND pool != '公招'
+        AND pool != '初始'
+        AND pool like '%'||#{pool}||'%'
+        GROUP BY
+            pool
+    </select>
+
+    <select id="selectPoolByPage" resultType="java.lang.String">
+        SELECT
+            pool
+        FROM
+            a_agent
+        WHERE pool like '%'||#{pool}||'%'
+        GROUP BY
+            pool
+        limit 10 offset #{current}
+    </select>
+
+    <select id="selectPoolCount" resultType="java.lang.Integer">
+        SELECT
+            count(DISTINCT(pool)) as count
+        FROM
+            a_agent
+        WHERE
+            pool like '%'||#{pool}||'%'
+    </select>
+
+    <select id="selectPoolAgent" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+            name,star,pool,`limit`
+        FROM
+            a_agent
+        WHERE
+            pool = #{pool}
+        ORDER BY star DESC
+    </select>
+
+    <insert id="insertAgentPool" parameterType="top.strelitzia.model.AgentInfo">
+        insert into a_agent
+        values
+            (#{name}, #{star}, #{pool}, #{limit});
+    </insert>
+
+    <delete id="deleteAgentPool">
+        delete from a_agent
+        where
+            pool = #{pool}
+            and pool != '凭证兑换'
+            AND pool != '活动'
+            AND pool != '公招'
+            AND pool != '初始'
+    </delete>
+</mapper>

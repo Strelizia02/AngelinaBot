@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.MaterialMadeMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.MaterialInfo">
+        <result column="material_name" property="materialName" jdbcType="VARCHAR"/>
+        <result column="use_number" property="materialNum" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <resultMap id="SourceResultMap" type="top.strelitzia.model.SourcePlace">
+        <result column="zone_name" property="zoneName" jdbcType="VARCHAR"/>
+        <result column="ap_cost" property="apCost" jdbcType="INTEGER"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="rate" property="rate" jdbcType="DOUBLE"/>
+    </resultMap>
+
+    <resultMap id="MatrixResultMap" type="top.strelitzia.model.MapMatrixInfo">
+        <result column="material_name" property="materialName" jdbcType="VARCHAR"/>
+        <result column="rate" property="rate" jdbcType="DOUBLE"/>
+        <result column="quantity" property="quantity" jdbcType="INTEGER"/>
+        <result column="times" property="times" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <resultMap id="MapResultMap" type="top.strelitzia.model.MapCostInfo">
+        <result column="zone_name" property="zoneName" jdbcType="VARCHAR"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="ap_cost" property="apCost" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="selectMadeMater" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+            b.material_name,a.use_number
+        FROM
+            t_material_made a
+        LEFT JOIN t_material b ON a.use_material_id = b.material_id
+        WHERE
+            a.material_id = (
+                SELECT
+                    material_id
+                FROM
+                    t_material
+                WHERE
+                    material_name = #{name}
+            )
+    </select>
+
+    <select id="selectMaterialPicByName" parameterType="java.lang.String" resultType="java.lang.String">
+        select material_pic from t_material where material_name = #{name}
+    </select>
+
+    <select id="selectMaterSource" parameterType="java.lang.String" resultMap="SourceResultMap">
+        SELECT
+            z.zone_name,
+            s.code,
+            s.ap_cost,
+            x.rate
+        FROM
+            t_matrix x
+        LEFT JOIN t_stage s ON x.stage_id = s.stage_id
+        LEFT JOIN t_material m ON x.item_id = m.material_id
+        LEFT JOIN t_zone z ON s.zone_id = z.zone_id
+        WHERE
+            (LEFT(z.zone_id,4) = 'main' OR
+            LEFT(z.zone_id,4) = 'week')AND
+            m.material_name = #{name}
+        ORDER BY
+            rate DESC
+        LIMIT 10
+    </select>
+
+    <select id="selectMaterSourceAllStage" parameterType="java.lang.String" resultMap="SourceResultMap">
+        SELECT
+            z.zone_name,
+            s.code,
+            s.ap_cost,
+            x.rate
+        FROM
+            t_matrix x
+        LEFT JOIN t_stage s ON x.stage_id = s.stage_id
+        LEFT JOIN t_material m ON x.item_id = m.material_id
+        LEFT JOIN t_zone z ON s.zone_id = z.zone_id
+        WHERE
+            m.material_name = #{name}
+        ORDER BY
+            rate DESC
+        LIMIT 10
+    </select>
+
+    <select id="selectMatrixByMap" parameterType="java.lang.String" resultMap="MatrixResultMap">
+        SELECT
+            m.material_name,
+            x.rate,
+            x.quantity,
+            x.times
+        FROM
+            t_matrix x
+        LEFT JOIN t_stage s ON x.stage_id = s.stage_id
+        LEFT JOIN t_material m ON x.item_id = m.material_id
+        LEFT JOIN t_zone z ON s.zone_id = z.zone_id
+        WHERE
+            s.code = #{MapId}
+        ORDER BY x.rate DESC
+    </select>
+
+    <select id="selectStageCost" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select ap_cost from t_stage where code = #{MapId} limit 1
+    </select>
+
+    <select id="selectAllZone" resultType="java.lang.String">
+        SELECT zone_name from t_zone
+    </select>
+
+    <select id="selectAllMap" resultMap="MapResultMap">
+        SELECT
+            z.zone_name,s.code,s.ap_cost
+        FROM
+            t_stage s
+        LEFT JOIN t_zone z ON s.zone_id = z.zone_id
+    </select>
+
+    <select id="selectAllZoneId" resultType="java.lang.String">
+        SELECT zone_id from t_zone
+    </select>
+
+    <select id="selectAllMapId" resultType="java.lang.String">
+        SELECT
+            stage_id
+        FROM
+            t_stage
+    </select>
+
+    <select id="selectMapByZone" parameterType="java.lang.String" resultMap="MapResultMap">
+        SELECT
+            z.zone_name,s.`code`,s.ap_cost
+        FROM
+            t_stage s
+        LEFT JOIN t_zone z ON s.zone_id = z.zone_id
+        WHERE z.zone_name = #{zoneName}
+    </select>
+
+    <select id="selectAllMaterId" resultType="java.lang.String">
+        select material_id from t_material
+    </select>
+
+    <select id="selectAllMaterIconId" resultType="java.lang.String">
+        select material_icon from t_material where material_id = #{id}
+    </select>
+
+    <select id="selectMaterialPicById" parameterType="java.lang.String" resultType="java.lang.String">
+        select material_pic from t_material where material_id = #{id}
+    </select>
+
+    <update id="updateBase64ById">
+        UPDATE t_material set material_pic = #{base64} where material_id = #{id}
+    </update>
+</mapper>

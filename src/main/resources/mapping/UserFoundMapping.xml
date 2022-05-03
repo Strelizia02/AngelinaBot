@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.UserFoundMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.UserFoundInfo">
+        <result column="qq" property="qq" jdbcType="BIGINT"/>
+        <result column="found_count" property="foundCount" jdbcType="INTEGER"/>
+        <result column="today_count" property="todayCount" jdbcType="INTEGER"/>
+        <result column="all_count" property="allCount" jdbcType="INTEGER"/>
+        <result column="all_six" property="allSix" jdbcType="INTEGER"/>
+        <result column="all_five" property="allFive" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--  根据qq查询抽卡信息  -->
+    <select id="selectUserFoundByQQ" resultMap="BaseResultMap">
+        select qq,found_count,today_count,all_count,all_six,all_five
+        from a_user_found WHERE qq = #{qq}
+    </select>
+
+    <select id="selectTodaySearchByQQ" resultType="java.lang.Integer">
+        SELECT search from a_user_found WHERE qq = #{qq} LIMIT 1
+    </select>
+
+    <!--  插入新qq，若已存在，则更新垫刀数和今日抽卡次数  -->
+    <update id="updateUserFoundByQQ">
+        INSERT INTO a_user_found (qq, name, found_count, group_id, today_count ,all_count)
+        VALUES
+            (#{qq,jdbcType=VARCHAR}, #{name}, #{foundCount,jdbcType=INTEGER}, #{groupId}, 1 , 1)
+        ON CONFLICT(qq)
+        DO update set
+        group_id = #{groupId},
+        name = #{name},
+        found_count = #{foundCount,jdbcType=INTEGER},
+        today_count = today_count + 1,
+        all_count = all_count + 1
+    </update>
+
+    <update id="updateFiveByQq">
+        INSERT INTO a_user_found (
+            qq,
+            all_five
+        )
+        VALUES
+            (#{qq}, 1) ON CONFLICT(qq)
+        DO update set
+        all_five = all_five + 1
+    </update>
+
+    <update id="updateSixByQq">
+        INSERT INTO a_user_found (
+            qq,
+            today_six,
+            all_six
+        )
+        VALUES
+            (#{qq}, 1, 1) ON CONFLICT(qq)
+        DO update set
+        today_six = today_six + 1, all_six = all_six + 1
+    </update>
+
+    <update id="cleanTodayCount">
+        UPDATE a_user_found SET today_count = 0, today_six = 0;
+    </update>
+
+    <select id="selectCakeGroups" resultType="java.lang.Long">
+        SELECT group_id from a_group_bili_rel where uid = #{uid}
+    </select>
+</mapper>

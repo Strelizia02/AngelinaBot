@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.UpdateMapper">
+
+    <select id="selectOperatorIdByName" resultType="java.lang.Integer">
+        SELECT
+            operator_id
+        FROM
+            t_operator
+        WHERE
+            operator_name = #{name}
+        AND operator_class is not null
+        ORDER BY
+            operator_id DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectSkillIdByName" resultType="java.lang.Integer">
+        SELECT
+            skill_id
+        FROM
+            t_operator_skill
+        WHERE
+            skill_name = #{SkillName}
+        ORDER BY
+            skill_id DESC
+        LIMIT 1
+    </select>
+
+    <select id="getVersion" resultType="java.lang.String">
+        select data_version from a_data_version
+    </select>
+
+    <select id="getVersionStatus" resultType="java.lang.Integer">
+        select status from a_data_version limit 1
+    </select>
+
+    <update id="doingUpdateVersion">
+        update a_data_version set status = 1;
+    </update>
+
+    <update id="doingDownloadVersion">
+        update a_data_version set status = 2;
+    </update>
+
+    <update id="doneUpdateVersion">
+        update a_data_version set status = 0;
+    </update>
+
+    <update id="updateVersion" parameterType="java.lang.String">
+        update a_data_version set data_version = #{newVersion}
+    </update>
+
+    <insert id="updateTags">
+        insert into t_operator_tags_relation
+        (operator_name,operator_rarity,operator_tags)
+        values (#{name},#{rarity},#{tags})
+    </insert>
+
+    <insert id="insertOperator" parameterType="top.strelitzia.model.OperatorInfo">
+        INSERT INTO t_operator (
+            operator_name,
+            operator_rarity,
+            operator_class,
+            available,
+            in_limit
+        )
+        VALUES
+            (#{operator_name},
+            #{operator_rarity},
+            #{operator_class},
+            #{available},
+            #{in_limit})
+    </insert>
+
+    <insert id="insertOperatorEvolve" parameterType="top.strelitzia.model.OperatorEvolveInfo">
+        INSERT INTO t_operator_evolve_costs (
+            operator_id,
+            evolve_level,
+            use_material_id,
+            use_number
+        )
+        VALUES
+            (#{operatorId},
+            #{evolveLevel},
+            #{useMaterialId},
+            #{useNumber})
+    </insert>
+
+    <insert id="insertOperatorSkill" parameterType="top.strelitzia.model.OperatorSkillInfo">
+        INSERT INTO t_operator_skill (
+            operator_id,skill_index,skill_name, skill_id_yj
+        )
+        VALUES
+            (#{operatorId},
+            #{skillIndex},
+            #{skillName},
+            #{skillIdYj})
+    </insert>
+
+    <insert id="updateStageData">
+        INSERT INTO t_stage
+        (stage_id,zone_id,code,ap_cost)
+        VALUES
+        (
+            #{stageId},#{zoneId},#{code},#{apCost}
+        )
+    </insert>
+
+    <insert id="updateZoneData">
+        INSERT INTO t_zone
+            (zone_id,zone_name)
+        VALUES
+        (
+            #{zoneId},#{zoneName}
+        )
+    </insert>
+
+    <insert id="updateItemData">
+        INSERT INTO t_material
+            (material_id,material_name,material_icon)
+        VALUES
+        (
+            #{id},#{name},#{icon}
+        )
+    </insert>
+
+    <insert id="updateMatrixData">
+        INSERT INTO t_matrix
+            (stage_id,item_id,quantity,times,rate)
+        VALUES
+        (
+            #{stageId},#{itemId},#{quantity},#{times},(#{quantity}/#{times}*100)
+        )
+    </insert>
+
+    <insert id="insertSkillMater" parameterType="top.strelitzia.model.SkillMaterInfo">
+        INSERT INTO t_operator_skill_mastery_costs (
+            skill_id,mastery_level,use_material_id,use_number
+        )
+        VALUES
+            (#{skillId},#{materLevel},
+            #{useMaterialId},#{useNumber})
+    </insert>
+
+    <insert id="updateEnemy" parameterType="top.strelitzia.model.EnemyInfo">
+        INSERT INTO t_enemy(
+            enemy_id,
+            name,
+            atk,
+            baseAttackTime,
+            def,
+            hpRecoveryPerSec,
+            magicResistance,
+            massLevel,
+            maxHp,
+            moveSpeed,
+            rangeRadius,
+            level,
+            silenceImmune,
+            sleepImmune,
+            stunImmune)
+        VALUES(
+            #{enemyId},
+            #{name},
+            #{atk},
+            #{baseAttackTime},
+            #{def},
+            #{hpRecoveryPerSec},
+            #{magicResistance},
+            #{massLevel},
+            #{maxHp},
+            #{moveSpeed},
+            #{rangeRadius},
+            #{level},
+            #{silenceImmune},
+            #{sleepImmune},
+            #{stunImmune}
+            )
+    </insert>
+
+    <insert id="insertOperatorTalent" parameterType="top.strelitzia.model.TalentInfo">
+        INSERT INTO t_operator_talent (
+            operator_id,
+            talent_name,
+            description,
+            phase,
+            level,
+            potential
+        )
+        VALUES
+            (#{operatorId},
+            #{talentName},
+            #{description},
+            #{phase},
+            #{level},
+            #{potential})
+    </insert>
+
+    <insert id="updateSkillDecs" parameterType="top.strelitzia.model.SkillDesc">
+        INSERT INTO t_operator_skill_desc (
+            skill_id,
+            skill_type,
+            sp_type,
+            sp_cost,
+            sp_init,
+            duration,
+            description,
+            skill_level,
+            max_charge
+        )
+        VALUES
+            (#{skillId},
+            #{skillType},
+            #{spType},
+            #{spCost},
+            #{spInit},
+            #{duration},
+            #{description},
+            #{skillLevel},
+            #{maxCharge})
+    </insert>
+
+    <insert id="insertMaterialMade">
+        INSERT INTO t_material_made (
+            material_id,
+            use_material_id,
+            use_number
+        )
+        VALUES
+            (#{materialId},
+            #{useMaterialId},
+            #{useNumber})
+    </insert>
+
+    <update id="updateOperatorData" parameterType="top.strelitzia.model.OperatorData">
+        UPDATE t_operator
+        SET atk = #{atk},
+         def= #{def},
+         magicResistance= #{magicResistance},
+         maxHp= #{maxHp},
+         blockCnt= #{blockCnt},
+         cost= #{cost},
+         baseAttackTime= #{baseAttackTime},
+         respawnTime= #{respawnTime}
+        WHERE
+            operator_id = #{id}
+    </update>
+
+    <update id="updateOperatorInfo" parameterType="top.strelitzia.model.OperatorBasicInfo">
+        UPDATE t_operator
+        SET char_id=#{charId},
+        draw_name = #{drawName},
+        info_name = #{infoName},
+        code_name = #{codeName},
+        sex = #{sex},
+        come_from = #{comeFrom},
+        birthday = #{birthday},
+        race = #{race},
+        height = #{height},
+        infection = #{infection},
+        comprehensive_test = #{comprehensiveTest},
+        objective_resume = #{objectiveResume},
+        clinical_diagnosis = #{clinicalDiagnosis},
+        archives1 = #{archives1},
+        archives2 = #{archives2},
+        archives3 = #{archives3},
+        archives4 = #{archives4},
+        promotion_info = #{promotionInfo}
+        where operator_id = #{operatorId}
+    </update>
+
+    <delete id="clearOperatorData">
+        DELETE FROM t_equip;
+        DELETE FROM t_equip_buff;
+        DELETE FROM t_equip_cost;
+        DELETE FROM t_equip_mission;
+        DELETE FROM t_operator;
+        DELETE FROM t_operator_building_skill;
+        DELETE FROM t_operator_evolve_costs;
+        DELETE FROM t_operator_skill;
+        DELETE FROM t_operator_skill_desc;
+        DELETE FROM t_operator_skill_mastery_costs;
+        DELETE FROM t_operator_tags_relation;
+        DELETE FROM t_operator_talent;
+    </delete>
+
+    <delete id="clearMatrixData">
+        DELETE FROM t_matrix;
+    </delete>
+
+    <insert id="initDataTable">
+        DROP TABLE IF EXISTS `a_nick_name`;
+        CREATE TABLE `a_nick_name`  (
+        `nick_name` varchar(255) NOT NULL,
+        `name` varchar(255) NOT NULL,
+        PRIMARY KEY (`nick_name`)
+        );
+
+        DROP TABLE IF EXISTS `t_enemy`;
+        CREATE TABLE `t_enemy`  (
+        `enemy_id` varchar(255) NOT NULL,
+        `name` varchar(255) DEFAULT NULL,
+        `atk` int(0) NULL DEFAULT 0,
+        `baseAttackTime` double NULL DEFAULT 0,
+        `def` int(0) NULL DEFAULT 0,
+        `hpRecoveryPerSec` int(0) NULL DEFAULT 0,
+        `magicResistance` int(0) NULL DEFAULT 0,
+        `massLevel` int(0) NULL DEFAULT 0,
+        `maxHp` int(0) NULL DEFAULT 0,
+        `moveSpeed` double(255, 1) NULL DEFAULT 0.0,
+        `rangeRadius` double(255, 1) NULL DEFAULT 0.0,
+        `level` int(0) NOT NULL DEFAULT 0,
+        `silenceImmune` int(0) NULL DEFAULT 0,
+        `sleepImmune` int(0) NULL DEFAULT 0,
+        `stunImmune` int(0) NULL DEFAULT 0,
+        PRIMARY KEY (`enemy_id`, `level`)
+        );
+
+        -- ----------------------------
+        -- Table structure for t_equip
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_equip`;
+        CREATE TABLE `t_equip`  (
+        `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `equip_id` varchar(255) NOT NULL,
+        `equip_name` varchar(255) NOT NULL,
+        `char_id` varchar(255)NULL DEFAULT NULL,
+        `phase` int(0) NULL DEFAULT NULL,
+        `level` int(0) NULL DEFAULT NULL,
+        `desc` varchar(255)NULL DEFAULT NULL
+        );
+
+        -- ----------------------------
+        -- Table structure for t_equip_buff
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_equip_buff`;
+        CREATE TABLE `t_equip_buff`  (
+        `buff_id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `equip_id` varchar(255) NULL DEFAULT NULL,
+        `buff_name` varchar(255) NULL DEFAULT NULL,
+        `value` double(255, 2) NULL DEFAULT NULL
+        );
+
+        -- ----------------------------
+        -- Table structure for t_equip_cost
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_equip_cost`;
+        CREATE TABLE `t_equip_cost`  (
+        `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `equip_id` varchar(255)NULL DEFAULT NULL,
+        `material_id` varchar(255) NULL DEFAULT NULL,
+        `use_number` int(0) NULL DEFAULT NULL
+        );
+
+        -- ----------------------------
+        -- Table structure for t_equip_mission
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_equip_mission`;
+        CREATE TABLE `t_equip_mission`  (
+        `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `equip_id` varchar(255)NULL DEFAULT NULL,
+        `mission_id` varchar(255) NULL DEFAULT NULL,
+        `mission_desc` varchar(255) NULL DEFAULT NULL
+        ) ;
+
+        -- ----------------------------
+        -- Table structure for t_material
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_material`;
+        CREATE TABLE `t_material`  (
+        `material_id` varchar(255) NOT NULL,
+        `material_name` varchar(255) NULL DEFAULT NULL,
+        `material_icon` varchar(255) NULL DEFAULT NULL,
+        `material_pic` varchar(255) NULL,
+        PRIMARY KEY (`material_id`)
+        );
+
+        -- ----------------------------
+        -- Table structure for t_material_made
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_material_made`;
+        CREATE TABLE `t_material_made`  (
+        `made_id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `material_id` varchar(255) NULL DEFAULT NULL,
+        `use_material_id` varchar(255) NULL DEFAULT NULL,
+        `use_number` int(0) NULL DEFAULT NULL
+        );
+
+        -- ----------------------------
+        -- Table structure for t_matrix
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_matrix`;
+        CREATE TABLE `t_matrix`  (
+        `matrix_id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `stage_id` varchar(255) NULL DEFAULT NULL,
+        `item_id` varchar(255) NULL DEFAULT NULL,
+        `quantity` int(0) NULL DEFAULT NULL,
+        `times` int(0) NULL DEFAULT NULL,
+        `rate` double(255, 2) NULL DEFAULT NULL
+        );
+
+        -- ----------------------------
+        -- Table structure for t_operator
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_operator`;
+        CREATE TABLE `t_operator`  (
+        `operator_id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `char_id` varchar(255)NULL DEFAULT NULL,
+        `operator_name` varchar(255) NULL DEFAULT NULL,
+        `operator_rarity` tinyint(0) NULL DEFAULT NULL,
+        `operator_class` tinyint(0) NULL DEFAULT NULL,
+        `available` tinyint(0) NULL DEFAULT 0,
+        `in_limit` tinyint(0) NULL DEFAULT NULL,
+        `atk` int(0) NULL DEFAULT 0,
+        `def` int(0) NULL DEFAULT 0,
+        `magicResistance` int(0) NULL DEFAULT 0,
+        `maxHp` int(0) NULL DEFAULT 0,
+        `blockCnt` int(0) NULL DEFAULT 0,
+        `cost` int(0) NULL DEFAULT 0,
+        `baseAttackTime` double NULL DEFAULT 0,
+        `respawnTime` int(0) NULL DEFAULT 0,
+        `draw_name` varchar(255) NULL,
+        `info_name` varchar(255)  NULL DEFAULT NULL,
+        `code_name` varchar(255)  NULL DEFAULT NULL,
+        `sex` varchar(255) NULL DEFAULT NULL,
+        `come_from` varchar(255) NULL DEFAULT NULL,
+        `birthday` varchar(255) NULL DEFAULT NULL,
+        `race` varchar(255) NULL DEFAULT NULL,
+        `height` int(0) NULL DEFAULT NULL,
+        `infection` varchar(255) NULL DEFAULT NULL,
+        `comprehensive_test` text NULL,
+        `objective_resume` text NULL,
+        `clinical_diagnosis` text  NULL,
+        `archives1` text NULL,
+        `archives2` text NULL,
+        `archives3` text NULL,
+        `archives4` text NULL,
+        `promotion_info` text NULL
+        );
+
+        -- ----------------------------
+        -- Table structure for t_operator_building_skill
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_operator_building_skill`;
+        CREATE TABLE `t_operator_building_skill`  (
+        `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `operator_id` int(0) NULL DEFAULT NULL,
+        `phase` int(0) NULL DEFAULT NULL,
+        `level` int(0) NULL DEFAULT NULL,
+        `buff_name` varchar(255) NULL DEFAULT NULL,
+        `room_type` varchar(255) NULL DEFAULT NULL,
+        `description` varchar(255) NULL DEFAULT NULL
+        );
+
+        -- ----------------------------
+        -- Table structure for t_operator_evolve_costs
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_operator_evolve_costs`;
+        CREATE TABLE `t_operator_evolve_costs`  (
+        `cost_id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `operator_id` int(0) NULL DEFAULT NULL,
+        `evolve_level` tinyint(0) NULL DEFAULT NULL,
+        `use_material_id` varchar(255) NULL DEFAULT NULL,
+        `use_number` tinyint(0) NULL DEFAULT NULL
+        );
+
+        -- ----------------------------
+        -- Table structure for t_operator_png
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_operator_png`;
+        CREATE TABLE `t_operator_png`  (
+        `char_id` varchar(255) NOT NULL,
+        `char_base` varchar(255) NULL,
+        PRIMARY KEY (`char_id`)
+        );
+
+        -- ----------------------------
+        -- Table structure for t_operator_skill
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_operator_skill`;
+        CREATE TABLE `t_operator_skill`  (
+        `skill_id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `operator_id` int(0) NULL DEFAULT NULL,
+        `skill_index` tinyint(0) NULL DEFAULT NULL,
+        `skill_name` varchar(255) NULL DEFAULT NULL
+        );
+
+        -- ----------------------------
+        -- Table structure for t_operator_skill_desc
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_operator_skill_desc`;
+        CREATE TABLE `t_operator_skill_desc`  (
+        `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `skill_id` int(0) NULL DEFAULT NULL,
+        `skill_type` int(0) NULL DEFAULT NULL,
+        `sp_type` int(0) NULL DEFAULT NULL,
+        `sp_cost` int(0) NULL DEFAULT NULL,
+        `sp_init` int(0) NULL DEFAULT NULL,
+        `duration` int(0) NULL DEFAULT NULL ,
+        `description` varchar(255) NULL DEFAULT NULL,
+        `skill_level` int(0) NULL DEFAULT NULL,
+        `max_charge` int(0) NULL DEFAULT NULL
+        );
+
+        -- ----------------------------
+        -- Table structure for t_operator_skill_mastery_costs
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_operator_skill_mastery_costs`;
+        CREATE TABLE `t_operator_skill_mastery_costs`  (
+        `cost_id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `skill_id` int(0) NULL DEFAULT NULL,
+        `mastery_level` tinyint(0) NULL DEFAULT NULL,
+        `use_material_id` varchar(255) NULL DEFAULT NULL,
+        `use_number` int(0) NULL DEFAULT NULL
+        );
+
+        -- ----------------------------
+        -- Table structure for t_operator_skin
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_operator_skin`;
+        CREATE TABLE `t_operator_skin`  (
+        `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `operator_id` varchar(255) NULL DEFAULT NULL,
+        `skin_group_name` varchar(255) NULL DEFAULT NULL,
+        `skin_name` varchar(255) NULL DEFAULT NULL,
+        `skin_base64` varchar(255) NULL,
+        `dialog` varchar(255) NULL DEFAULT NULL,
+        `drawer_name` varchar(255) NULL DEFAULT NULL
+        );
+
+        -- ----------------------------
+        -- Table structure for t_operator_tags_relation
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_operator_tags_relation`;
+        CREATE TABLE `t_operator_tags_relation`  (
+        `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `operator_name` varchar(255) NOT NULL,
+        `operator_rarity` tinyint(0) NOT NULL,
+        `operator_tags` varchar(255) NOT NULL
+        );
+
+        -- ----------------------------
+        -- Table structure for t_operator_talent
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_operator_talent`;
+        CREATE TABLE `t_operator_talent`  (
+        `talent_id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `operator_id` int(0) NULL DEFAULT NULL,
+        `talent_name` varchar(255) NULL DEFAULT NULL ,
+        `description` varchar(255) NULL DEFAULT NULL ,
+        `phase` int(0) NULL DEFAULT NULL,
+        `level` int(0) NULL DEFAULT NULL,
+        `potential` int(0) NULL DEFAULT NULL
+        );
+
+        -- ----------------------------
+        -- Table structure for t_stage
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_stage`;
+        CREATE TABLE `t_stage`  (
+        `stage_id` varchar(255) NOT NULL,
+        `zone_id` varchar(255) NULL DEFAULT NULL,
+        `code` varchar(255) NULL DEFAULT NULL,
+        `ap_cost` int(0) NULL DEFAULT NULL,
+        PRIMARY KEY (`stage_id`)
+        );
+
+        -- ----------------------------
+        -- Table structure for t_zone
+        -- ----------------------------
+        DROP TABLE IF EXISTS `t_zone`;
+        CREATE TABLE `t_zone`  (
+        `zone_id` varchar(255) NOT NULL,
+        `zone_name` varchar(255) NULL DEFAULT NULL,
+        PRIMARY KEY (`zone_id`)
+        );
+
+
+        -- ----------------------------
+        -- Table structure for a_login_user
+        -- ----------------------------
+        DROP TABLE IF EXISTS `a_login_user`;
+        CREATE TABLE `a_login_user`  (
+        `username` varchar(255) NOT NULL,
+        `password` varchar(255) NULL DEFAULT NULL,
+        `token` varchar(255) NULL DEFAULT NULL,
+        `update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+        PRIMARY KEY (`username`)
+        );
+    </insert>
+</mapper>

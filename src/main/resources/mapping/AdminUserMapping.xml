@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.AdminUserMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.AdminUserInfo">
+        <result column="qq" property="qq" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="found" property="found" jdbcType="INTEGER"/>
+        <result column="six" property="six" jdbcType="INTEGER"/>
+        <result column="sql" property="sql" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="selectAllAdmin" resultMap="BaseResultMap">
+        SELECT qq, name, found, six, `sql` from a_admin_user
+    </select>
+
+    <select id="selectAllAdminByPage" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        SELECT qq, name, found, six, `sql` from a_admin_user limit 10 offset #{current}
+    </select>
+
+    <select id="selectAllAdminCount" resultType="java.lang.Integer">
+        update a_admin_user a set `name` = (SELECT `name` from a_user_found b where a.qq=b.qq);
+        SELECT count(*) as count from a_admin_user
+    </select>
+
+    <delete id="truncateUserAdmin">
+        truncate a_admin_user
+    </delete>
+
+    <delete id="deleteUserAdmin" parameterType="java.lang.String">
+        delete from a_admin_user where qq = #{qq}
+    </delete>
+    
+    <update id="updateUserAdmin" parameterType="top.strelitzia.model.AdminUserInfo">
+        UPDATE a_admin_user SET
+            found = #{found}, img = #{img}, six = #{six}, `sql` = #{sql}, upload = #{upload},
+            name = (select name from a_user_found where qq = #{qq})
+        WHERE qq = #{qq}
+    </update>
+
+    <insert id="insertUserAdmin" parameterType="top.strelitzia.model.AdminUserInfo">
+        INSERT into a_admin_user (qq, found, img, six, `sql`, upload, name)
+        VALUES(#{qq}, #{found}, #{img}, #{six}, #{sql}, #{upload}, (select name from a_user_found where qq = #{qq}))
+    </insert>
+</mapper>

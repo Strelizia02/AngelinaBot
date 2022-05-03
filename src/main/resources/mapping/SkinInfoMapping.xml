@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.SkinInfoMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.SkinInfo">
+        <result column="operator_id" property="operatorId" jdbcType="INTEGER"/>
+        <result column="operator_name" property="operatorName" jdbcType="VARCHAR"/>
+        <result column="skin_name" property="skinName" jdbcType="VARCHAR"/>
+        <result column="skin_group_name" property="skinGroupName" jdbcType="VARCHAR"/>
+        <result column="drawer_name" property="drawerName" jdbcType="VARCHAR"/>
+        <result column="dialog" property="dialog" jdbcType="VARCHAR"/>
+        <result column="skin_base64" property="skinBase64" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <select id="selectSkinByInfo" resultMap="BaseResultMap">
+        SELECT
+            b.operator_name,
+            a.skin_name,
+            a.skin_group_name,
+            a.drawer_name,
+            a.dialog,
+            a.skin_base64
+        FROM
+            t_operator_skin a
+        LEFT JOIN t_operator b ON a.operator_id = b.char_id
+        WHERE
+            b.operator_name = #{info}
+        OR a.skin_name = #{info}
+        OR a.skin_group_name LIKE '%'||#{info}||'%'
+        OR a.drawer_name = #{info}
+    </select>
+
+    <select id="selectAllNames" resultType="java.lang.String">
+        select skin_name from t_operator_skin
+    </select>
+
+    <select id="selectSkinById" parameterType="java.lang.Integer" resultType="java.lang.String">
+        SELECT
+            skin_base64
+        FROM
+            t_operator_skin
+        WHERE
+            id = #{id}
+    </select>
+
+    <select id="selectBase64IsUrl" resultType="java.lang.Integer">
+        SELECT
+            id
+        FROM
+            t_operator_skin
+        WHERE
+            INSTR(skin_base64,'http')
+    </select>
+
+    <update id="updateBaseStrById">
+        UPDATE
+            t_operator_skin
+        SET
+            skin_base64 = #{skinBase64}
+        WHERE
+            id = #{id}
+	</update>
+
+    <insert id="insertBySkinInfo" parameterType="top.strelitzia.model.SkinInfo">
+        INSERT INTO t_operator_skin (
+            operator_id,
+            skin_name,
+            skin_group_name,
+            drawer_name,
+            dialog,
+            skin_base64
+        )
+        VALUES
+            (
+                #{operatorId},
+                #{skinName},
+                #{skinGroupName},
+                #{drawerName},
+                #{dialog},
+                #{skinBase64}
+            )
+    </insert>
+</mapper>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.BiliMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.BiliCount">
+        <result column="uid" property="uid" jdbcType="BIGINT"/>
+        <result column="top" property="top" jdbcType="BIGINT"/>
+        <result column="first" property="first" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <select id="getBiliCountList" resultMap="BaseResultMap">
+        SELECT
+            uid,
+            name,
+            top,
+            first
+        FROM
+            a_bili_dynamic
+    </select>
+
+    <select id="getBiliCountListByPage" resultMap="BaseResultMap">
+        SELECT
+            uid,
+            name,
+            top,
+            first
+        FROM
+            a_bili_dynamic
+        WHERE name like '%'||#{name}||'%'
+        or uid like '%'||#{name}||'%'
+        LIMIT 10 offset #{current}
+    </select>
+
+    <select id="getBiliCountListCount" resultType="java.lang.Integer">
+        SELECT
+            count(*) as count
+        FROM
+            a_bili_dynamic
+        WHERE name like '%'||#{name}||'%'
+    </select>
+
+    <select id="getBiliCountListByGroupId" resultMap="BaseResultMap">
+        SELECT
+            uid,
+            name,
+            top,
+            first
+        FROM
+            a_bili_dynamic
+        where uid in (select uid from a_group_bili_rel where group_id = #{groupId})
+    </select>
+
+    <select id="getOneDynamicByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+            uid,
+            name,
+            top,
+            first
+        FROM
+            a_bili_dynamic
+        WHERE name LIKE '%'||#{name}||'%' OR uid = #{name}
+        LIMIT 1
+    </select>
+
+    <select id="existBiliUid" resultType="java.lang.Integer">
+        select count(*) from a_bili_dynamic where uid = #{uid}
+    </select>
+
+    <select id="selectGroupBiliRel" resultType="java.lang.Integer">
+        select count(*) from a_group_bili_rel where uid = #{uid} and group_id = #{groupId}
+    </select>
+
+    <update id="updateNewDynamic">
+        UPDATE a_bili_dynamic
+        SET
+            name = #{name},
+            top = #{top},
+            first = #{first}
+        WHERE uid = #{uid}
+    </update>
+
+    <insert id="insertGroupBiliRel">
+        insert into a_group_bili_rel (group_id, uid) values(#{groupId}, #{uid})
+    </insert>
+
+    <insert id="insertBiliUid">
+        insert into a_bili_dynamic (uid) values (#{uid})
+    </insert>
+
+    <delete id="deleteGroupBiliRel">
+        delete from a_group_bili_rel where uid = #{uid} and group_id = #{groupId}
+    </delete>
+
+    <delete id="deleteUid">
+        delete from a_bili_dynamic where uid = #{uid}
+    </delete>
+
+    <select id="selectGroupByUid" resultType="java.lang.Long">
+        select group_id from a_group_bili_rel where uid = #{uid}
+    </select>
+
+    <select id="selectGroupByNotListenUid" resultType="java.lang.Long">
+        select group_id from a_group_admin where group_id not in(
+        select group_id from a_group_bili_rel where uid = #{uid}) and group_id like '%'||#{group_id}||'%'
+    </select>
+
+    <select id="getNotListenListByGroupId" resultMap="BaseResultMap">
+        SELECT
+        uid,
+        name,
+        top,
+        first
+        FROM
+        a_bili_dynamic
+        where uid not in (select uid from a_group_bili_rel where group_id = #{groupId})
+        and name like '%'||#{name}||'%'
+    </select>
+</mapper>

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.OperatorInfoMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.OperatorBasicInfo">
+        <result column="operator_id" property="operatorId" jdbcType="INTEGER"/>
+        <result column="char_id" property="charId" jdbcType="VARCHAR"/>
+        <result column="draw_name" property="drawName" jdbcType="VARCHAR"/>
+        <result column="info_name" property="infoName" jdbcType="VARCHAR"/>
+        <result column="code_name" property="codeName" jdbcType="VARCHAR"/>
+        <result column="sex" property="sex" jdbcType="VARCHAR"/>
+        <result column="come_from" property="comeFrom" jdbcType="VARCHAR"/>
+        <result column="birthday" property="birthday" jdbcType="VARCHAR"/>
+        <result column="race" property="race" jdbcType="VARCHAR"/>
+        <result column="height" property="height" jdbcType="INTEGER"/>
+        <result column="infection" property="infection" jdbcType="VARCHAR"/>
+        <result column="comprehensive_test" property="comprehensiveTest" jdbcType="VARCHAR"/>
+        <result column="objective_resume" property="objectiveResume" jdbcType="VARCHAR"/>
+        <result column="clinical_diagnosis" property="clinicalDiagnosis" jdbcType="VARCHAR"/>
+        <result column="archives1" property="archives1" jdbcType="VARCHAR"/>
+        <result column="archives2" property="archives2" jdbcType="VARCHAR"/>
+        <result column="archives3" property="archives3" jdbcType="VARCHAR"/>
+        <result column="archives4" property="archives4" jdbcType="VARCHAR"/>
+        <result column="promotion_info" property="promotionInfo" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="TalentResultMap" type="top.strelitzia.model.TalentInfo">
+        <result column="operator_id" property="operatorId" jdbcType="INTEGER"/>
+        <result column="talent_name" property="talentName" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="phase" property="phase" jdbcType="INTEGER"/>
+        <result column="level" property="level" jdbcType="INTEGER"/>
+        <result column="potential" property="potential" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <resultMap id="NameResultMap" type="top.strelitzia.model.OperatorName">
+        <result column="operator_name" property="operatorName" jdbcType="VARCHAR"/>
+        <result column="char_id" property="charId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <select id="getOperatorNameByInfo" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+            operator_name
+        FROM
+            t_operator o left join a_nick_name n on o.operator_name = n.name
+        WHERE
+            draw_name = #{info}
+            OR info_name = #{info}
+            OR sex = #{info}
+            OR come_from = #{info}
+            OR birthday = #{info}
+            OR race = #{info}
+            OR operator_name like '%'||#{info}||'%'
+            OR nick_name = #{info}
+    </select>
+
+    <select id="getOperatorByBirthday" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+            operator_name
+        FROM
+            t_operator
+        WHERE
+            birthday = #{birthday}
+    </select>
+
+    <select id="getAllOperator" resultType="java.lang.String">
+        SELECT
+            operator_name
+        FROM
+            t_operator
+    </select>
+
+    <select id="getAllOperatorId" resultType="java.lang.String">
+        SELECT
+            char_id
+        FROM
+            t_operator
+        WHERE
+            char_id IS NOT NULL
+        GROUP BY
+            char_id
+    </select>
+
+    <select id="getAllOperatorIdAndName" resultMap="NameResultMap">
+        SELECT
+            char_id, operator_name
+        FROM
+            t_operator
+        WHERE
+            char_id IS NOT NULL
+        GROUP BY
+            char_id
+    </select>
+
+    <select id="getOperatorNameById" resultType="java.lang.String">
+        SELECT
+            operator_name
+        FROM
+            t_operator
+        WHERE
+            operator_id = #{id}
+    </select>
+
+    <select id="getOperatorTalent" parameterType="java.lang.String" resultMap="TalentResultMap">
+        select
+            operator_id,
+            talent_name,
+            description,
+            phase,
+            level,
+            potential
+        from t_operator_talent
+        where operator_id = (
+            select operator_id
+            from t_operator
+            where operator_name = #{name}
+        )
+    </select>
+
+
+    <select id="getOperatorInfoByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+            operator_id,
+            char_id,
+            draw_name,
+            info_name,
+            code_name,
+            sex,
+            come_from,
+            birthday,
+            race,
+            height,
+            infection,
+            comprehensive_test,
+            objective_resume,
+            clinical_diagnosis,
+            archives1,
+            archives2,
+            archives3,
+            archives4,
+            promotion_info
+        FROM
+            t_operator
+        WHERE
+            operator_name = #{name}
+    </select>
+
+    <select id="getOperatorIdByChar" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select operator_id from t_operator where char_id=#{charId} limit 1
+    </select>
+
+    <select id="getAllDrawName" resultType="java.lang.String">
+        SELECT draw_name from t_operator GROUP BY draw_name
+    </select>
+
+    <select id="getAllInfoName" resultType="java.lang.String">
+        SELECT info_name from t_operator GROUP BY info_name
+    </select>
+
+    <select id="getAllDrawNameLikeStr" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT draw_name from (SELECT draw_name from t_operator GROUP BY draw_name)a1 WHERE draw_name LIKE '%'||#{str}||'%'
+    </select>
+
+    <select id="getAllInfoNameLikeStr" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT info_name from (SELECT info_name from t_operator GROUP BY info_name)a1 WHERE info_name LIKE '%'||#{str}||'%'
+    </select>
+
+    <select id="selectOperatorPngByName" resultType="java.lang.String">
+        SELECT
+            char_base
+        FROM
+            t_operator_png
+        WHERE
+            char_id = (
+                SELECT
+                    char_id
+                FROM
+                    t_operator
+                WHERE
+                    operator_name = #{name}
+            )
+    </select>
+
+    <select id="selectOperatorPngById" resultType="java.lang.String">
+        SELECT
+            char_base
+        FROM
+            t_operator_png
+        WHERE
+            char_id = #{id}
+    </select>
+
+    <select id="selectOperatorClassByName" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT
+            operator_class
+        FROM
+            t_operator
+        WHERE
+            operator_name = #{name}
+        Limit 1
+    </select>
+
+    <insert id="insertOperatorPngById">
+        INSERT INTO t_operator_png (char_id, char_base, avatar)
+        VALUES
+            (#{id}, #{base}, #{avatar})
+        ON CONFLICT(char_id)
+        DO update set char_base = #{base}, avatar = #{avatar}
+    </insert>
+
+    <insert id="insertOperatorSkillPngById">
+        INSERT INTO t_operator_png (skill_id_yj, skill_png)
+        VALUES
+        (#{id}, #{base})
+        ON CONFLICT(skill_id_yj)
+        DO update set skill_png = #{base}
+    </insert>
+</mapper>

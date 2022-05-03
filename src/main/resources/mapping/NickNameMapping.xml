@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.NickNameMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.NickName">
+        <result column="nick_name" property="nickName" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="selectNameByNickName" resultType="java.lang.String">
+        select name from a_nick_name where nick_name = #{name} limit 1
+    </select>
+
+    <select id="selectAllNickName" resultMap="BaseResultMap">
+        select nick_name,name
+        from a_nick_name
+        where
+            nick_name like concat('%',#{keyWord},'%')
+            or name like concat('%',#{keyWord},'%')
+        limit 10 offset #{current}
+    </select>
+
+    <select id="selectAllNickNameCount" resultType="java.lang.Integer">
+        select count(*) as count from a_nick_name
+    </select>
+
+    <delete id="deleteNickName">
+        DELETE from a_nick_name where nick_name = #{nickName}
+    </delete>
+
+    <insert id="insertNickName" parameterType="top.strelitzia.model.NickName">
+        insert into a_nick_name
+            values(#{nickName}, #{name})
+    </insert>
+</mapper>

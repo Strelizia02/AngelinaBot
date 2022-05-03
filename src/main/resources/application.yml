@@ -5,6 +5,13 @@ spring:
     allow-bean-definition-overriding: true
 userConfig:
   # 多个选项用空格隔开
-  botNames: ''
-  qqList: ''
-  pwList: ''
+  botNames: '洁哥 杰哥 安洁莉娜'
+  qqList: '2398095263'
+  pwList: '!#%&(24680Wzy'
+scheduled:
+  # 每3分钟监听一次B站动态
+  biliJob: 0 */3 * * * ?
+baiduConfig:
+  APP_ID:
+  API_KEY:
+  SECRET_KEY:

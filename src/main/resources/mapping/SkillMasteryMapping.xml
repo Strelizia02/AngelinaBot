@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.SkillMateryMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.MaterialInfo">
+        <result column="material_name" property="materialName" jdbcType="VARCHAR"/>
+        <result column="use_number" property="materialNum" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="selectSkillUpBySkillName" resultMap="BaseResultMap">
+        SELECT
+            b.material_name,
+            a.use_number
+        FROM
+            t_operator_skill_mastery_costs a
+        LEFT JOIN t_material b ON a.use_material_id = b.material_id
+        WHERE
+            mastery_level = #{level}
+        AND skill_id = (
+            SELECT
+                skill_id
+            FROM
+                t_operator_skill
+            WHERE
+                skill_name = #{skillName}
+		    ORDER BY skill_id DESC
+            LIMIT 1
+        )
+    </select>
+
+    <select id="selectSkillUpByAgentAndIndex" resultMap="BaseResultMap">
+        SELECT
+            b.material_name,
+            a.use_number
+        FROM
+            t_operator_skill_mastery_costs a
+        LEFT JOIN t_material b ON a.use_material_id = b.material_id
+        WHERE
+            mastery_level = #{level}
+        AND skill_id = (
+            SELECT
+                skill_id
+            FROM
+                t_operator_skill
+            WHERE
+                skill_index = #{index}
+            AND operator_id = (
+                SELECT
+                    operator_id
+                FROM
+                    t_operator
+                WHERE
+                    operator_name = #{agent}
+                LIMIT 1
+            )
+        )
+    </select>
+
+    <select id="selectSkillNameByAgentIndex" resultType="java.lang.String">
+        SELECT
+            skill_name
+        FROM
+            t_operator_skill
+        WHERE
+            skill_index = #{index}
+        AND operator_id = (
+            SELECT
+                operator_id
+            FROM
+                t_operator
+            WHERE
+                operator_name = #{agent}
+            LIMIT 1
+        )
+    </select>
+</mapper>

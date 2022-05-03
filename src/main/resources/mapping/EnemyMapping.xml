@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.EnemyMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.EnemyInfo">
+        <result column="enemy_id" property="enemyId" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="atk" property="atk" jdbcType="INTEGER"/>
+        <result column="baseAttackTime" property="baseAttackTime" jdbcType="INTEGER"/>
+        <result column="def" property="def" jdbcType="INTEGER"/>
+        <result column="hpRecoveryPerSec" property="hpRecoveryPerSec" jdbcType="INTEGER"/>
+        <result column="magicResistance" property="magicResistance" jdbcType="INTEGER"/>
+        <result column="massLevel" property="massLevel" jdbcType="INTEGER"/>
+        <result column="maxHp" property="maxHp" jdbcType="INTEGER"/>
+        <result column="moveSpeed" property="moveSpeed" jdbcType="DOUBLE"/>
+        <result column="rangeRadius" property="rangeRadius" jdbcType="DOUBLE"/>
+        <result column="level" property="level" jdbcType="INTEGER"/>
+        <result column="silenceImmune" property="silenceImmune" jdbcType="INTEGER"/>
+        <result column="sleepImmune" property="sleepImmune" jdbcType="INTEGER"/>
+        <result column="stunImmune" property="stunImmune" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="selectEnemyByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+            enemy_id,
+            name,
+            atk,
+            baseAttackTime,
+            def,
+            hpRecoveryPerSec,
+            magicResistance,
+            massLevel,
+            maxHp,
+            moveSpeed,
+            rangeRadius,
+            level,
+            silenceImmune,
+            sleepImmune,
+            stunImmune
+        FROM t_enemy
+        WHERE name = #{name}
+    </select>
+
+    <select id="selectEnemyListByName" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT name from t_enemy WHERE name LIKE '%'||#{name}||'%'
+    </select>
+
+    <select id="selectAllEnemyId" resultType="java.lang.String">
+        select enemy_id from t_enemy
+    </select>
+</mapper>

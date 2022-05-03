@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.SkillDescMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.SkillDesc">
+        <result column="operator_name" property="operatorName" jdbcType="VARCHAR"/>
+        <result column="skill_name" property="skillName" jdbcType="VARCHAR"/>
+        <result column="skill_level" property="skillLevel" jdbcType="INTEGER"/>
+        <result column="skill_type" property="skillType" jdbcType="INTEGER"/>
+        <result column="sp_type" property="spType" jdbcType="INTEGER"/>
+        <result column="sp_cost" property="spCost" jdbcType="INTEGER"/>
+        <result column="sp_init" property="spInit" jdbcType="INTEGER"/>
+        <result column="duration" property="duration" jdbcType="INTEGER"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="max_charge" property="maxCharge" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="selectSkillDescByNameAndLevel" resultMap="BaseResultMap">
+        SELECT
+            c.operator_name,
+            b.skill_name,
+            a.skill_level,
+            a.skill_type,
+            a.sp_type,
+            a.sp_cost,
+            a.sp_init,
+            a.duration,
+            a.description,
+            a.max_charge
+        FROM
+            t_operator_skill_desc a
+        LEFT JOIN t_operator_skill b ON a.skill_id = b.skill_id
+        LEFT JOIN t_operator c ON b.operator_id = c.operator_id
+        WHERE
+            (
+                skill_name = #{name}
+                AND skill_level = #{level}
+            )
+        OR (
+            operator_name = #{name}
+            AND skill_level = #{level}
+        )
+    </select>
+
+</mapper>
