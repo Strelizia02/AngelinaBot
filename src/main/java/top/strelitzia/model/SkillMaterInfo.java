@@ -1,8 +1,8 @@
 package top.strelitzia.model;
 
 /**
- * @author wangzy
- * @Date 2020/12/21 16:13
+ * @author strelitzia
+ * @Date 2022/05/03 14:38
  * 技能专精材料信息
  **/
 public class SkillMaterInfo {

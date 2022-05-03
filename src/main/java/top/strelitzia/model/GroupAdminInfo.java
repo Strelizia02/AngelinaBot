@@ -3,8 +3,8 @@ package top.strelitzia.model;
 import java.io.Serializable;
 
 /**
- * @author wangzy
- * @Date 2021/3/17 17:50
+ * @author strelitzia
+ * @Date 2022/05/03 14:38
  **/
 public class GroupAdminInfo implements Serializable {
     private Long groupId;

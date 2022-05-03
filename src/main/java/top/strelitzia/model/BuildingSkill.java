@@ -3,8 +3,8 @@ package top.strelitzia.model;
 import java.util.Objects;
 
 /**
- * @author wangzy
- * @Date 2021/3/31 16:02
+ * @author strelitzia
+ * @Date 2022/05/03 14:38
  **/
 public class BuildingSkill {
     private Integer operatorId;

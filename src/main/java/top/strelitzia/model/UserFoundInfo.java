@@ -1,8 +1,8 @@
 package top.strelitzia.model;
 
 /**
- * @author wangzy
- * @Date 2020/12/8 14:07
+ * @author strelitzia
+ * @Date 2022/05/03 14:38
  * 用户抽卡垫刀信息
  **/
 public class UserFoundInfo {

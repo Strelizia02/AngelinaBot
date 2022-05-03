@@ -1,11 +1,10 @@
 package top.strelitzia.model;
 
-
 import top.strelitzia.util.FormatStringUtil;
 
 /**
- * @author wangzy
- * @Date 2021/1/10 11:57
+ * @author strelitzia
+ * @Date 2022/05/03 14:38
  **/
 public class Text {
     //字符串原文

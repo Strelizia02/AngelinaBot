@@ -24,8 +24,8 @@ import top.strelitzia.model.DynamicDetail;
 import java.util.List;
 
 /**
- * @author wangzy
- * @Date 2021/1/12 17:00
+ * @author strelitzia
+ * @Date 2022/05/03 14:38
  **/
 @Service
 @Slf4j

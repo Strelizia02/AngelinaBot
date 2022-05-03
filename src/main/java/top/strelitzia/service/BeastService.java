@@ -1,11 +1,11 @@
 package top.strelitzia.service;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 
-@Component
+@Service
 public class BeastService {
     private final char[] bd = {'嗷', '呜', '啊', '~'};
 

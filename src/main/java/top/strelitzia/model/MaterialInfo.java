@@ -1,8 +1,8 @@
 package top.strelitzia.model;
 
 /**
- * @author wangzy
- * @Date 2020/12/14 11:12
+ * @author strelitzia
+ * @Date 2022/05/03 14:38
  * 材料以及数量信息
  **/
 public class MaterialInfo {

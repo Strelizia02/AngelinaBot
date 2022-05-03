@@ -2,7 +2,6 @@ package top.strelitzia.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.misc.BASE64Encoder;
 import top.angelinaBot.annotation.AngelinaEvent;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.EventEnum;
@@ -29,7 +28,7 @@ public class PetPetService {
     public ReplayInfo PetPet(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         BufferedImage userImage = ImageUtil.Base64ToImageBuffer(
-                imageUtil.getImageBase64ByUrl("http://q.qlogo.cn/headimg_dl?dst_uin=" + messageInfo.getQq() + "&spec=100"));
+                ImageUtil.getImageBase64ByUrl("http://q.qlogo.cn/headimg_dl?dst_uin=" + messageInfo.getQq() + "&spec=100"));
         String path = "runFile/petpet/frame.gif";
         petPetUtil.getGif(path, userImage);
         replayInfo.setReplayImg(new File(path));

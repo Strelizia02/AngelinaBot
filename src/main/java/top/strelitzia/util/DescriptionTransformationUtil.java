@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author wangzy
- * @Date 2020/12/22 14:38
+ * @author strelitzia
+ * @Date 2022/05/03 14:38
  **/
 public class DescriptionTransformationUtil {
     //描述转换类

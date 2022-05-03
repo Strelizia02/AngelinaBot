@@ -1,8 +1,8 @@
 package top.strelitzia.model;
 
 /**
- * @author wangzy
- * @Date 2021/4/14 11:16
+ * @author strelitzia
+ * @Date 2022/05/03 14:38
  **/
 public class TalentInfo {
     private Integer operatorId;

@@ -1,8 +1,8 @@
 package top.strelitzia.model;
 
 /**
- * @author wangzy
- * @Date 2021/1/6 14:12
+ * @author strelitzia
+ * @Date 2022/05/03 14:38
  **/
 public class OperatorData {
     private Integer id;

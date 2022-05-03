@@ -3,13 +3,11 @@ package top.strelitzia.model;
 import java.io.Serializable;
 
 /**
- * @author Strelizia
- * @Description
- * @ProjectName arknights
- * @Package com.strelizia.arknights.model
+ * @author strelitzia
+ * @Date 2022/05/03 14:38
  * @Date 2021/4/20 17:41
  **/
-public class NickName implements Serializable {
+public class NickName {
     private String nickName;
     private String name;
 

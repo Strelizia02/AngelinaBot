@@ -1,8 +1,8 @@
 package top.strelitzia.model;
 
 /**
- * @author wangzy
- * @Date 2020/12/19 18:45
+ * @author strelitzia
+ * @Date 2022/05/03 14:38
  * 干员详细信息
  **/
 public class OperatorInfo {

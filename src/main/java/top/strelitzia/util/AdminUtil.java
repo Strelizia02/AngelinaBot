@@ -5,8 +5,8 @@ import top.strelitzia.model.AdminUserInfo;
 import java.util.List;
 
 /**
- * @author wangzy
- * @Date 2020/12/29 14:34
+ * @author strelitzia
+ * @Date 2022/05/03 14:38
  **/
 public class AdminUtil {
 

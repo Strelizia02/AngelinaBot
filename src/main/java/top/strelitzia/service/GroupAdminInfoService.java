@@ -6,8 +6,8 @@ import top.strelitzia.dao.GroupAdminInfoMapper;
 import top.strelitzia.model.GroupAdminInfo;
 
 /**
- * @author wangzy
- * @Date 2021/3/17 18:05
+ * @author strelitzia
+ * @Date 2022/05/03 14:38
  **/
 @Service
 public class GroupAdminInfoService {
