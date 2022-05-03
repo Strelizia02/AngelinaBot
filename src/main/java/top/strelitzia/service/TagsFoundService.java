@@ -38,7 +38,7 @@ public class TagsFoundService {
     @Value("${baiduConfig.SECRET_KEY}")
     private String SECRET_KEY;
 
-    @AngelinaGroup(keyWords = {"公招截图", "公招", "公开招募"}, dHash = {""}, description = "查询公招结果")
+    @AngelinaGroup(keyWords = {"公招截图", "公招", "公开招募"}, dHash = {"0001111110100110001111010010001100100011001001110010011100101101", "0001111101100111001101010110001101110011001001110010011100101111"}, description = "查询公招结果")
     public ReplayInfo FoundAgentByJson(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         Map<List<String>, List<AgentTagsInfo>> listListMap = FoundTagsByImg(messageInfo.getImgUrlList().get(0));
@@ -49,7 +49,7 @@ public class TagsFoundService {
     @AngelinaGroup(keyWords = {"公招文字", "公招tag"}, description = "通过文字方式访问公招结果，用逗号分割")
     public ReplayInfo FoundAgentByArray(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        if (messageInfo.getArgs().size() > 2) {
+        if (messageInfo.getArgs().size() > 1) {
             Map<List<String>, List<AgentTagsInfo>> listMap = FoundTagResultByArrays(messageInfo.getArgs().get(1).split(",|，"));
             replayInfo.setReplayImg(MapToBase64(listMap));
         } else {

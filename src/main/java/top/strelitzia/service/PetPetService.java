@@ -13,6 +13,7 @@ import top.strelitzia.util.PetPetUtil;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Random;
 
 @Service
 public class PetPetService {
@@ -32,6 +33,13 @@ public class PetPetService {
         String path = "runFile/petpet/frame.gif";
         petPetUtil.getGif(path, userImage);
         replayInfo.setReplayImg(new File(path));
+        return replayInfo;
+    }
+
+    @AngelinaGroup(keyWords = {"口我", "透透"}, description = "禁言功能")
+    public ReplayInfo MuteSomeOne(MessageInfo messageInfo) {
+        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        replayInfo.setMuted(new Random().nextInt(5) + 1);
         return replayInfo;
     }
 }
