@@ -9,11 +9,11 @@ userConfig:
   qqList: '2398095263'
   pwList: '!#%&(24680Wzy'
 scheduled:
-  # 每3分钟监听一次B站动态
+  # 每5分钟监听一次B站动态
   biliJob: 0 */5 * * * ?
   # 每天早8点播报干员庆生
   birthdayJob: 0 0 8 */1 * ?
-  # 每5分钟检查一次数据更新
+  # 每10分钟检查一次数据更新
   updateJob: 0 */10 * * * ?
   # 每周日晚5点剿灭提醒
   exterminateJob: 0 0 17 ? * SUN
