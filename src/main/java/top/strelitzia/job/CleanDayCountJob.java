@@ -13,7 +13,6 @@ import top.angelinaBot.util.SendMessageUtil;
 import top.strelitzia.dao.UserFoundMapper;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author wangzy

@@ -46,7 +46,7 @@ public class TagsFoundService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"公招文字", "公招tag"}, description = "通过文字方式访问公招结果，用逗号分割")
+    @AngelinaGroup(keyWords = {"公招文字", "公招tag", "公招词条"}, description = "通过文字方式访问公招结果，用逗号分割")
     public ReplayInfo FoundAgentByArray(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
