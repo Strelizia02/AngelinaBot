@@ -5,10 +5,14 @@ import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
+import top.angelinaBot.model.TextLine;
 import top.strelitzia.dao.NickNameMapper;
 import top.strelitzia.dao.SkillDescMapper;
 import top.strelitzia.model.SkillDesc;
 
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +32,7 @@ public class SkillDescService {
     private NickNameMapper nickNameMapper;
 
     @AngelinaGroup(keyWords = {"技能详情", "技能描述", "技能"}, description = "查询技能详情")
-    public ReplayInfo getSkillDescByInfo(MessageInfo messageInfo) {
+    public ReplayInfo getSkillDescByInfo(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
             Map<Integer, String> spType = new HashMap<>();
@@ -49,7 +53,7 @@ public class SkillDescService {
             skillType.put(2, "自动触发");
 
             String skillLevel = "7";
-            //默认只查询专精的技能描述
+            //默认7级的技能描述
             if (messageInfo.getArgs().size() == 3) {
                 skillLevel = messageInfo.getArgs().get(2);
             }
@@ -99,14 +103,30 @@ public class SkillDescService {
             if (skillDesc.size() == 0) {
                 replayInfo.setReplayMessage("未找到相应技能描述");
             } else {
-                StringBuilder s = new StringBuilder(skillDesc.get(0).get(0).getOperatorName() + "：\n");
+                TextLine textLine = new TextLine();
+                textLine.addImage(ImageIO.read(new File(skillDesc.get(0).get(0).getAvatar())));
+                String operatorName = skillDesc.get(0).get(0).getOperatorName();
+                textLine.addString(operatorName);
+                textLine.nextLine();
+                textLine.nextLine();
                 for (List<SkillDesc> list : skillDesc) {
                     for (SkillDesc sd : list) {
-                        s.append(sd.getSkillName()).append("level").append(sd.getSkillLevel()).append(":\n").append(sd.getSpInit()).append("/").append(sd.getSpCost()).append(" 持续").append(sd.getDuration()).append("秒 ").append(spType.get(sd.getSpType())).append("/").append(skillType.get(sd.getSkillType())).append(sd.getMaxCharge() == 1 ? "" : "最大充能" + sd.getMaxCharge()).append("\n").append(sd.getDescription()).append("\n\n");
+                        File png = new File(sd.getSkillPng());
+                        if (png.exists()) {
+                            textLine.addImage(ImageIO.read(png));
+                        } else {
+                            textLine.addSpace(3);
+                        }
+                        textLine.addString(sd.getSkillName() + " level" + sd.getSkillLevel() + ":");
+                        textLine.nextLine();
+                        textLine.addString(sd.getSpInit() + "/" + sd.getSpCost() + " 持续" + sd.getDuration() + "秒 " + spType.get(sd.getSpType()) + "/" + skillType.get(sd.getSkillType()) + (sd.getMaxCharge() == 1 ? "" : "最大充能") + sd.getMaxCharge());
+                        textLine.nextLine();
+                        textLine.addString(sd.getDescription());
+                        textLine.nextLine();
                     }
-                    s.append("\n");
+                    textLine.nextLine();
                 }
-                replayInfo.setReplayMessage(s.toString());
+                replayInfo.setReplayImg(textLine.drawImage());
             }
         } else {
             replayInfo.setReplayMessage("请输入干员技能相关信息");

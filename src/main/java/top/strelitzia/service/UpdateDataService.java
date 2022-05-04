@@ -72,6 +72,9 @@ public class UpdateDataService {
     @Autowired
     private AdminUserMapper adminUserMapper;
 
+    @Autowired
+    private SkillDescMapper skillDescMapper;
+
 //    private String url = "https://cdn.jsdelivr.net/gh/Kengxxiao/ArknightsGameData@master/zh_CN/gamedata/";
 //    private String url = "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/";
     private String url = "http://vivien8261.gitee.io/arknights-bot-resource/gamedata/";
@@ -679,11 +682,21 @@ public class UpdateDataService {
                 try {
                     String fileName = "runFile/operatorPng/" + id + "_1.png";
                     downloadOneFile(fileName, "http://vivien8261.gitee.io/arknights-bot-resource/portrait/" + id + "_1.png");
-                    String avatar = "runFile/avatar/" + id + ".png";
-                    downloadOneFile(fileName, "http://vivien8261.gitee.io/arknights-bot-resource/avatar/" + id + ".png");
-                    operatorInfoMapper.insertOperatorPngById(id, fileName, avatar);
+
+                    operatorInfoMapper.insertOperatorPngById(id, fileName);
                 } catch (IOException e) {
                     log.error("下载{}干员半身照失败", id);
+                }
+            }
+            String avatar = operatorInfoMapper.selectOperatorAvatarPngById(id);
+            if (avatar == null) {
+                log.info(id + "头像正在更新");
+                try {
+                    String avatarFile = "runFile/avatar/" + id + ".png";
+                    downloadOneFile(avatarFile, "http://vivien8261.gitee.io/arknights-bot-resource/avatar/" + id + ".png");
+                    operatorInfoMapper.insertOperatorAvatarPngById(id, avatarFile);
+                } catch (IOException e) {
+                    log.error("下载{}干员头像失败", id);
                 }
             }
         }
@@ -695,17 +708,17 @@ public class UpdateDataService {
      */
     public void updateOperatorSkillPng() {
         log.info("开始更新干员技能图标");
-        List<String> allOperatorId = operatorInfoMapper.getAllOperatorId();
-        for (String id : allOperatorId) {
-            String base = operatorInfoMapper.selectOperatorPngById(id);
-            if (base == null) {
-                log.info(id + "技能图标正在更新");
+        List<SkillInfo> skillInfo = skillDescMapper.selectAllSkillPng();
+        for (SkillInfo skill : skillInfo) {
+            String png = skill.getSkillPng();
+            if (png == null) {
+                log.info(skill.getSkillName() + "技能图标正在更新");
                 try {
-                    String fileName = "runFile/skill/skill_icon_" + id + ".png";
-                    downloadOneFile(fileName, "http://vivien8261.gitee.io/arknights-bot-resource/skill/skill_icon_" + id + ".png");
-                    operatorInfoMapper.insertOperatorSkillPngById(id, fileName);
+                    String fileName = "runFile/skill/skill_icon_" + skill.getSkillIdYj() + ".png";
+                    downloadOneFile(fileName, "http://vivien8261.gitee.io/arknights-bot-resource/skill/skill_icon_" + skill.getSkillIdYj() + ".png");
+                    operatorInfoMapper.insertOperatorSkillPngById(skill.getSkillId(), fileName);
                 } catch (IOException e) {
-                    log.error("下载{}干员技能图标失败", id);
+                    log.error("下载{}干员技能图标失败", skill.getSkillName());
                 }
             }
         }
@@ -896,6 +909,10 @@ public class UpdateDataService {
                             .getJSONArray("levels").getJSONObject(0).getString("name");
 
                     operatorSkillInfo.setSkillName(skillName);
+                    String skillIdYj = skills.getJSONObject(i).getString("skillId");
+                    Pattern skillIdPattern = Pattern.compile("\\[(0-9)\\]");
+                    Matcher skillIdMatcher = skillIdPattern.matcher(skillIdYj);
+                    operatorSkillInfo.setSkillIdYj(skillIdMatcher.replaceAll(""));
                     updateMapper.insertOperatorSkill(operatorSkillInfo);
                     Integer skillId = updateMapper.selectSkillIdByName(skillName);
 

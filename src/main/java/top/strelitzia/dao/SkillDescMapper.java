@@ -2,6 +2,7 @@ package top.strelitzia.dao;
 
 import org.apache.ibatis.annotations.Param;
 import top.strelitzia.model.SkillDesc;
+import top.strelitzia.model.SkillInfo;
 
 import java.util.List;
 
@@ -12,5 +13,7 @@ import java.util.List;
 public interface SkillDescMapper {
 
     List<SkillDesc> selectSkillDescByNameAndLevel(@Param("name") String name, @Param("level") Integer level);
+
+    List<SkillInfo> selectAllSkillPng();
 
 }

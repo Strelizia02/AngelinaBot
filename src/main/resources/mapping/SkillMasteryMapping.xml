@@ -72,4 +72,9 @@
             LIMIT 1
         )
     </select>
+
+    <select id="selectSkillPngByName" parameterType="java.lang.String" resultType="java.lang.String">
+        select skill_png from t_operator_skill where skill_name = #{name}
+    </select>
+
 </mapper>

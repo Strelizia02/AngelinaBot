@@ -51,14 +51,23 @@ public interface OperatorInfoMapper {
     //根据干员id查找干员立绘
     String selectOperatorPngById(String id);
 
+    //根据干员id查找干员头像
+    String selectOperatorAvatarPngById(String id);
+
+    //根据干员名查找头像
+    String selectAvatarByName(String name);
+
     //根据干员名查找干员立绘
     String selectOperatorPngByName(String name);
 
     //插入干员立绘
-    Integer insertOperatorPngById(@Param("id") String id, @Param("base") String base, @Param("avatar") String avatar);
+    Integer insertOperatorPngById(@Param("id") String id, @Param("base") String base);
+
+    //插入干员头像
+    Integer insertOperatorAvatarPngById(@Param("id") String id, @Param("avatar") String avatar);
 
     //插入干员立绘
-    Integer insertOperatorSkillPngById(@Param("id") String id, @Param("base") String base);
+    Integer insertOperatorSkillPngById(@Param("id") Integer id, @Param("base") String base);
 
     //根据干员名查找干员天赋
     List<TalentInfo> getOperatorTalent(String name);

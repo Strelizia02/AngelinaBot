@@ -12,6 +12,17 @@
         <result column="duration" property="duration" jdbcType="INTEGER"/>
         <result column="description" property="description" jdbcType="VARCHAR"/>
         <result column="max_charge" property="maxCharge" jdbcType="INTEGER"/>
+        <result column="skill_png" property="skillPng" jdbcType="VARCHAR"/>
+        <result column="avatar" property="avatar" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="SkillResultMap" type="top.strelitzia.model.SkillInfo">
+        <result column="skill_id" property="skillId" jdbcType="INTEGER"/>
+        <result column="operator_id" property="operatorId" jdbcType="INTEGER"/>
+        <result column="skill_index" property="skillIndex" jdbcType="INTEGER"/>
+        <result column="skill_name" property="skillName" jdbcType="VARCHAR"/>
+        <result column="skill_png" property="skillPng" jdbcType="VARCHAR"/>
+        <result column="skill_id_yj" property="skillIdYj" jdbcType="VARCHAR"/>
     </resultMap>
 
     <select id="selectSkillDescByNameAndLevel" resultMap="BaseResultMap">
@@ -25,11 +36,14 @@
             a.sp_init,
             a.duration,
             a.description,
-            a.max_charge
+            a.max_charge,
+            b.skill_png,
+            d.avatar
         FROM
             t_operator_skill_desc a
         LEFT JOIN t_operator_skill b ON a.skill_id = b.skill_id
         LEFT JOIN t_operator c ON b.operator_id = c.operator_id
+        LEFT JOIN t_operator_png d ON c.char_id = d.char_id
         WHERE
             (
                 skill_name = #{name}
@@ -39,6 +53,13 @@
             operator_name = #{name}
             AND skill_level = #{level}
         )
+    </select>
+
+    <select id="selectAllSkillPng" resultMap="SkillResultMap">
+        SELECT
+            skill_id, skill_name, skill_id_yj, skill_png
+        FROM
+            t_operator_skill
     </select>
 
 </mapper>

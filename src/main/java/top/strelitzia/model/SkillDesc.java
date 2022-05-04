@@ -16,6 +16,24 @@ public class SkillDesc {
     private Integer maxCharge;
     private String skillName;
     private String operatorName;
+    private String skillPng;
+    private String avatar;
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getSkillPng() {
+        return skillPng;
+    }
+
+    public void setSkillPng(String skillPng) {
+        this.skillPng = skillPng;
+    }
 
     public String getSkillName() {
         return skillName;

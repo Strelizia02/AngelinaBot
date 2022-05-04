@@ -37,7 +37,7 @@
             sleepImmune,
             stunImmune
         FROM t_enemy
-        WHERE name = #{name}
+        WHERE name like '%'||#{name}||'%'
     </select>
 
     <select id="selectEnemyListByName" parameterType="java.lang.String" resultType="java.lang.String">

@@ -190,6 +190,15 @@
             char_id = #{id}
     </select>
 
+    <select id="selectOperatorAvatarPngById" resultType="java.lang.String">
+        SELECT
+            avatar
+        FROM
+            t_operator_png
+        WHERE
+            char_id = #{id}
+    </select>
+
     <select id="selectOperatorClassByName" parameterType="java.lang.String" resultType="java.lang.Integer">
         SELECT
             operator_class
@@ -200,19 +209,38 @@
         Limit 1
     </select>
 
+    <select id="selectAvatarByName" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+            avatar
+        FROM
+            t_operator_png a
+        LEFT JOIN t_operator b ON a.char_id = b.char_id
+        WHERE
+            operator_name = #{name}
+        Limit 1
+    </select>
+
     <insert id="insertOperatorPngById">
-        INSERT INTO t_operator_png (char_id, char_base, avatar)
+        INSERT INTO t_operator_png (char_id, char_base)
         VALUES
-            (#{id}, #{base}, #{avatar})
+            (#{id}, #{base})
         ON CONFLICT(char_id)
-        DO update set char_base = #{base}, avatar = #{avatar}
+        DO update set char_base = #{base}
+    </insert>
+
+    <insert id="insertOperatorAvatarPngById">
+        INSERT INTO t_operator_png (char_id, avatar)
+        VALUES
+        (#{id}, #{avatar})
+        ON CONFLICT(char_id)
+        DO update set avatar = #{avatar}
     </insert>
 
     <insert id="insertOperatorSkillPngById">
-        INSERT INTO t_operator_png (skill_id_yj, skill_png)
+        INSERT INTO t_operator_skill (skill_id, skill_png)
         VALUES
         (#{id}, #{base})
-        ON CONFLICT(skill_id_yj)
+        ON CONFLICT(skill_id)
         DO update set skill_png = #{base}
     </insert>
 </mapper>

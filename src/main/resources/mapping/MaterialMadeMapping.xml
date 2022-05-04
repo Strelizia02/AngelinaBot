@@ -59,8 +59,8 @@
         LEFT JOIN t_material m ON x.item_id = m.material_id
         LEFT JOIN t_zone z ON s.zone_id = z.zone_id
         WHERE
-            (LEFT(z.zone_id,4) = 'main' OR
-            LEFT(z.zone_id,4) = 'week')AND
+            (substr(z.zone_id,1,4) = 'main' OR
+            substr(z.zone_id,1,4) = 'week')AND
             m.material_name = #{name}
         ORDER BY
             rate DESC

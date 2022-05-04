@@ -19,4 +19,6 @@ public interface SkillMateryMapper {
 
     //根据干员名，第几技能查询技能名
     String selectSkillNameByAgentIndex(@Param("agent") String agent, @Param("index") Integer index);
+
+    String selectSkillPngByName(String name);
 }
