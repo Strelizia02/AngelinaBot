@@ -36,9 +36,8 @@ public class CleanDayCountJob {
     @Scheduled(cron = "${scheduled.cleanJob}")
     @Async
     public void cleanDayCountJob() {
-        activityMapper.clearActivity();
         userFoundMapper.cleanTodayCount();
-        log.info("{}每日涩图抽卡数结算成功", new Date());
+        log.info("{}每日抽卡数清空", new Date());
     }
 
     @Scheduled(cron = "${scheduled.exterminateJob}")

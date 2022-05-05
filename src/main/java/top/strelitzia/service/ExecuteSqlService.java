@@ -64,7 +64,13 @@ public class ExecuteSqlService {
         String s = "您没有群发消息权限";
         if (b) {
             ReplayInfo replayInfo = new ReplayInfo();
-            replayInfo.setReplayMessage(messageInfo.getText());
+            if (messageInfo.getArgs().size() > 1) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 1; i < messageInfo.getArgs().size(); i++) {
+                    sb.append(messageInfo.getArgs().get(i));
+                }
+                replayInfo.setReplayMessage(sb.toString());
+            }
             for (String url: messageInfo.getImgUrlList()) {
                 replayInfo.setReplayImg(url);
             }
