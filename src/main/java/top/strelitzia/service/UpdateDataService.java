@@ -196,9 +196,9 @@ public class UpdateDataService {
             }
             updateAllData();
         } else if (versionStatus == 1) {
-            log.info("数据库正在更新中，请等待更新完成");
-        } else if (versionStatus == 2) {
-            log.info("数据文件正在下载中，请等待文件下载完成");
+            log.info("数据库正在更新中，无法重复更新，请等待更新完成");
+        } else {
+            log.info("数据文件正在下载中，无法重复下载，请等待文件下载完成");
         }
     }
 
@@ -222,26 +222,28 @@ public class UpdateDataService {
         String dataVersion = updateMapper.getVersion();
         Integer versionStatus = updateMapper.getVersionStatus();
 
-        if (!charKey.equals(dataVersion) && versionStatus == 0) {
-            log.info("数据库和数据文件版本不同，开始更新全部数据");
-            updateMapper.doingUpdateVersion();
-            updateAllOperator();
-            updateAllEnemy();
-            updateMapAndItem();
-            updateSkin();
-            updateItemIcon();
-            updateOperatorPng();
-            updateOperatorSkillPng();
-//            updateOperatorVoice();
-            updateMapper.updateVersion(charKey);
-            updateMapper.doneUpdateVersion();
-            log.info("游戏数据更新完成--");
+        if (versionStatus == 0) {
+            if(!charKey.equals(dataVersion)) { 
+                log.info("数据库和数据文件版本不同，开始更新全部数据");
+                updateMapper.doingUpdateVersion();
+                updateAllOperator();
+                updateAllEnemy();
+                updateMapAndItem();
+                updateSkin();
+                updateItemIcon();
+                updateOperatorPng();
+                updateOperatorSkillPng();
+    //            updateOperatorVoice();
+                updateMapper.updateVersion(charKey);
+                updateMapper.doneUpdateVersion();
+                log.info("游戏数据更新完成--");
+            } else {
+                log.info("数据库和数据文件版本相同，无需更新");
+            }
         } else if (versionStatus == 1) {
-            log.info("数据库正在更新中，请等待更新完成");
-        } else if (versionStatus == 2) {
-            log.info("数据文件正在下载中，请等待文件下载完成");
+            log.info("数据库正在更新中，无法重复更新，请等待更新完成");
         } else {
-            log.info("当前游戏数据为最新，无需更新");
+            log.info("数据文件正在下载中，无法重复下载，请等待文件下载完成");
         }
     }
 
