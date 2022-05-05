@@ -45,7 +45,7 @@ public class ExecuteSqlService {
             if (b) {
                 StringBuilder sql = new StringBuilder();
                 for (int i= 1; i < text.size(); i++) {
-                     sql.append(text.get(i));
+                     sql.append(" ").append(text.get(i));
                 }
                 s = executeSqlMapper.executeSql(sql.toString()).toString();
             }
