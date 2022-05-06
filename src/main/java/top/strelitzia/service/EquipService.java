@@ -125,6 +125,7 @@ public class EquipService {
         map.put("blockCnt", "阻挡数");
         map.put("baseAttackTime", "攻击间隔");
         map.put("respawnTime", "再部署");
+        map.put("respawn_time", "再部署");
         map.put("attack_speed", "攻击速度");
 
         if (map.get(BuffId) != null) {
