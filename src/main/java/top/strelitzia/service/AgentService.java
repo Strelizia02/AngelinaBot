@@ -1,17 +1,16 @@
 package top.strelitzia.service;
 
 import lombok.extern.slf4j.Slf4j;
+import net.mamoe.mirai.contact.MemberPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
-import top.strelitzia.dao.AdminUserMapper;
-import top.strelitzia.dao.AgentMapper;
-import top.strelitzia.dao.OperatorInfoMapper;
-import top.strelitzia.dao.UserFoundMapper;
+import top.strelitzia.dao.*;
 import top.strelitzia.model.AdminUserInfo;
 import top.strelitzia.model.AgentInfo;
+import top.strelitzia.model.GroupAdminInfo;
 import top.strelitzia.model.UserFoundInfo;
 import top.strelitzia.util.AdminUtil;
 import top.strelitzia.util.FormatStringUtil;
@@ -46,6 +45,9 @@ public class AgentService {
 
     @Autowired
     private GroupAdminInfoService groupAdminInfoService;
+
+    @Autowired
+    private GroupAdminInfoMapper groupAdminInfoMapper;
 
     @Autowired
     private OperatorInfoMapper operatorInfoMapper;
@@ -220,11 +222,12 @@ public class AgentService {
             sixStar = 2;
         }
 
+        GroupAdminInfo groupAdminNum = groupAdminInfoMapper.getGroupAdminNum(messageInfo.getGroupId());
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         replayInfo.setReplayMessage(messageInfo.getName() + "的当前垫刀数为：" + foundCount + "\n当前六星概率为："
                 + sixStar + "%" + "\n今日已抽卡：" + todayCount
-                + "次\n累计共抽取了：" + allCount + "次\n累计获得了" + allSix + "个六星和" + todayFive + "个五星干员");
-
+                + "次\n本群每日抽卡次数为：" + groupAdminNum.getFound()
+                + "\n累计共抽取了：" + allCount + "次\n累计获得了" + allSix + "个六星和" + todayFive + "个五星干员");
         return replayInfo;
     }
 
@@ -249,6 +252,32 @@ public class AgentService {
                 s.append("\n").append(agent.getName()).append(FormatStringUtil.FormatStar(agent.getStar())).append(" ").append(limit);
             }
             replayInfo.setReplayMessage(s.toString());
+        }
+        return replayInfo;
+    }
+
+    @AngelinaGroup(keyWords = "抽卡次数", description = "调整抽卡次数")
+    public ReplayInfo updateGroupFoundCount(MessageInfo messageInfo) {
+        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        MemberPermission userAdmin = messageInfo.getUserAdmin();
+        if (userAdmin.equals(MemberPermission.MEMBER)) {
+            replayInfo.setReplayMessage("只有本群群主或管理员才可以调整抽卡次数");
+        } else {
+            if (messageInfo.getArgs().size() > 1) {
+                int found = Integer.parseInt(messageInfo.getArgs().get(1));
+                if (found > 300 || found < 0) {
+                    replayInfo.setReplayMessage("请控制范围0-300");
+                } else {
+                    GroupAdminInfo groupAdminInfo = new GroupAdminInfo();
+                    groupAdminInfo.setGroupId(messageInfo.getGroupId());
+                    groupAdminInfo.setFound(found);
+                    groupAdminInfoMapper.updateGroupAdmin(groupAdminInfo);
+                    replayInfo.setReplayMessage("调整成功");
+                }
+            } else {
+                replayInfo.setReplayMessage("请输入想要的抽卡数，范围0-300");
+            }
+
         }
         return replayInfo;
     }

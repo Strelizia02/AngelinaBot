@@ -100,40 +100,6 @@ public class TagsFoundService {
         return result;
     }
 
-    //把Map转换成特定格式字符串
-    public String MapToString(Map<List<String>, List<AgentTagsInfo>> map) {
-        //保存结果
-        StringBuilder s = new StringBuilder();
-        //循环遍历Map
-        for (Map.Entry<List<String>, List<AgentTagsInfo>> m : map.entrySet()) {
-            //获取到Key，Value
-            List<String> key = m.getKey();
-            List<AgentTagsInfo> value = m.getValue();
-            //如果组合中没有值，或者组合中不能确定稀有干员，则直接进行下次循环
-            if (value.size() == 0 || isThreeOrTwoInMap(value)) continue;
-            StringBuilder tags = new StringBuilder();
-            StringBuilder agents = new StringBuilder();
-            //用key的标签组合作为head
-            for (String tag : key) {
-                tags.append(",").append(tag);
-            }
-            //用干员名字+星星的列表作为body
-            for (AgentTagsInfo agent : value) {
-                String levelStar;
-                Integer star = agent.getStar();
-                //不要三星两星的结果
-                if (star == 3 || star == 2) break;
-                levelStar = FormatStringUtil.FormatStar(star);
-                agents.append("\n").append(agent.getAgentName()).append(levelStar);
-            }
-            s.append("\n\n").append(tags.substring(1)).append("\n").append(agents.substring(1));
-        }
-        if (s.toString().equals("")) {
-            s = new StringBuilder("\t\tQAQ没有找到对应的稀有公招结果");
-        }
-        return s.substring(2);
-    }
-
     //把Map转换成图片base64
     public BufferedImage MapToBase64(Map<List<String>, List<AgentTagsInfo>> map) {
         //保存结果
@@ -354,16 +320,5 @@ public class TagsFoundService {
             }
         }
         return result;
-    }
-
-    //判定里面是否有三星/两星
-    public boolean isThreeOrTwoInMap(List<AgentTagsInfo> map) {
-        for (AgentTagsInfo a : map) {
-            Integer star = a.getStar();
-            if (star == 3 || star == 2) {
-                return true;
-            }
-        }
-        return false;
     }
 }

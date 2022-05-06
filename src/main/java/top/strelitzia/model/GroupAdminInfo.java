@@ -6,10 +6,9 @@ import java.io.Serializable;
  * @author strelitzia
  * @Date 2022/05/03 14:38
  **/
-public class GroupAdminInfo implements Serializable {
+public class GroupAdminInfo {
     private Long groupId;
     private Integer found;
-    private Integer picture;
 
     public Long getGroupId() {
         return groupId;
@@ -25,13 +24,5 @@ public class GroupAdminInfo implements Serializable {
 
     public void setFound(Integer found) {
         this.found = found;
-    }
-
-    public Integer getPicture() {
-        return picture;
-    }
-
-    public void setPicture(Integer picture) {
-        this.picture = picture;
     }
 }

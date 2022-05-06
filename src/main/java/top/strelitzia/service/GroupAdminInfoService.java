@@ -23,13 +23,4 @@ public class GroupAdminInfoService {
         }
         return groupAdminNum.getFound();
     }
-
-    public Integer getGroupPictureAdmin(Long groupId) {
-        GroupAdminInfo groupAdminNum = groupAdminInfoMapper.getGroupAdminNum(groupId);
-        if (groupAdminNum == null) {
-            groupAdminInfoMapper.insertGroupId(groupId);
-            groupAdminNum = groupAdminInfoMapper.getGroupAdminNum(groupId);
-        }
-        return groupAdminNum.getPicture();
-    }
 }

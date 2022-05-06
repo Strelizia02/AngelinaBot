@@ -226,6 +226,9 @@ public class UpdateDataService {
             if(!charKey.equals(dataVersion)) { 
                 log.info("数据库和数据文件版本不同，开始更新全部数据");
                 updateMapper.doingUpdateVersion();
+                //清理干员数据(因部分召唤物无char_id，不方便进行增量更新)
+                log.info("清理干员数据");
+                updateMapper.clearOperatorData();
                 updateAllOperator();
                 updateAllEnemy();
                 updateMapAndItem();
@@ -251,9 +254,6 @@ public class UpdateDataService {
      * 全量更新干员相关信息
      */
     public void updateAllOperator() {
-        //清理干员数据(因部分召唤物无char_id，不方便进行增量更新)
-        log.info("清理干员数据");
-        updateMapper.clearOperatorData();
         //获取全部干员基础数据
         JSONObject operatorObj = new JSONObject(getJsonStringFromFile("character_table.json"));
         //获取游戏公招描述数据
