@@ -22,7 +22,7 @@ public class EnemyService {
     @Autowired
     private EnemyMapper enemyMapper;
 
-    @AngelinaGroup(keyWords = {"敌人查询", "查询敌人"}, description = "查询敌人面板")
+    @AngelinaGroup(keyWords = {"敌人查询", "查询敌人", "敌人面板"}, description = "查询敌人面板")
     public ReplayInfo getEnemyInfoByName(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -39,7 +39,8 @@ public class EnemyService {
                 s = new StringBuilder(enemyInfo.get(0).toString());
             } else {
                 for (EnemyInfo info : enemyInfo) {
-                    s.append("\n").append(info.toString());
+                    s.append("搜索到多个敌人信息，请输入详细名称进行搜索");
+                    s.append("\n").append(info.getName());
                 }
             }
             replayInfo.setReplayMessage(s.toString());

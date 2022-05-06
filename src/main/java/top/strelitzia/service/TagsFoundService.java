@@ -42,7 +42,11 @@ public class TagsFoundService {
     public ReplayInfo FoundAgentByJson(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         Map<List<String>, List<AgentTagsInfo>> listListMap = FoundTagsByImg(messageInfo.getImgUrlList().get(0));
-        replayInfo.setReplayImg(MapToBase64(listListMap));
+        if (listListMap.size() > 0) {
+            replayInfo.setReplayImg(MapToBase64(listListMap));
+        } else {
+            replayInfo.setReplayMessage("QAQ没有找到能够锁定的稀有公招结果");
+        }
         return replayInfo;
     }
 
@@ -51,7 +55,11 @@ public class TagsFoundService {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
             Map<List<String>, List<AgentTagsInfo>> listMap = FoundTagResultByArrays(messageInfo.getArgs().get(1).split(",|，"));
-            replayInfo.setReplayImg(MapToBase64(listMap));
+            if (listMap.size() > 0) {
+                replayInfo.setReplayImg(MapToBase64(listMap));
+            } else {
+                replayInfo.setReplayMessage("QAQ没有找到能够锁定的稀有公招结果");
+            }
         } else {
             replayInfo.setReplayMessage("请输入公招tag，用逗号分割");
         }

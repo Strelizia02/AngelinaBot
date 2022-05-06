@@ -179,8 +179,9 @@ public class OperatorInfoService {
                             .append("\n\t").append(t.getDescription());
                 }
                 replayInfo.setReplayMessage(s.toString());
+            } else {
+                replayInfo.setReplayMessage("未找到该干员的天赋");
             }
-            replayInfo.setReplayMessage("未找到该干员的天赋");
         } else {
             replayInfo.setReplayMessage("请输入干员名称");
         }

@@ -5,22 +5,21 @@ import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
+import top.angelinaBot.model.TextLine;
 import top.strelitzia.dao.EquipMapper;
 import top.strelitzia.dao.MaterialMadeMapper;
 import top.strelitzia.dao.NickNameMapper;
+import top.strelitzia.dao.OperatorInfoMapper;
 import top.strelitzia.model.EquipBuff;
 import top.strelitzia.model.EquipInfo;
 import top.strelitzia.model.MaterialInfo;
-import top.strelitzia.model.Text;
-import top.strelitzia.util.ImageUtil;
-import top.strelitzia.util.TextToImage;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @Service
 public class EquipService {
@@ -32,10 +31,13 @@ public class EquipService {
     private MaterialMadeMapper materialMadeMapper;
 
     @Autowired
+    private OperatorInfoMapper operatorInfoMapper;
+
+    @Autowired
     private NickNameMapper nickNameMapper;
 
     @AngelinaGroup(keyWords = {"模组查询", "查询模组", "模组"}, description = "查询模组信息")
-    public ReplayInfo getOperatorEquip(MessageInfo messageInfo) {
+    public ReplayInfo getOperatorEquip(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
             String name = messageInfo.getArgs().get(1);
@@ -49,32 +51,60 @@ public class EquipService {
                 List<EquipBuff> equipBuffs = equipMapper.selectEquipBuffById(equipId);
                 List<MaterialInfo> materialInfos = equipMapper.selectEquipCostById(equipId);
                 List<String> strings = equipMapper.selectEquipMissionById(equipId);
-                StringBuilder s = new StringBuilder("");
-                s.append("干员").append(name).append("的模组信息为：\n")
-                        .append("  模组名称： ").append(equipInfo.getEquipName()).append("\n")
-                        .append("  模组特性： ").append(equipInfo.getDesc()).append("\n")
-                        .append("  解锁等级： 精英化").append(equipInfo.getPhase()).append(" ").append(equipInfo.getLevel()).append("级\n");
+                TextLine textLine = new TextLine(100);
+                textLine.addImage(ImageIO.read(new File(operatorInfoMapper.selectAvatarByName(name))));
+                textLine.addString(name + "的模组信息为：");
+                textLine.nextLine();
+                textLine.addString("模组名称：" + equipInfo.getEquipName());
+                textLine.nextLine();
+                String[] desc = equipInfo.getDesc().split("\\|\\|\\|");
+                textLine.addString("模组特性：");
+                textLine.nextLine();
+                textLine.addSpace(2);
+                textLine.addString("新增天赋：");
+                textLine.nextLine();
+                textLine.addSpace(4);
+                textLine.addString(desc[0]);
+                textLine.addString("天赋变化：");
+                textLine.nextLine();
+                textLine.addSpace(4);
+                textLine.addString(desc[1]);
+                textLine.nextLine();
+                textLine.addString("解锁等级： 精英化" + equipInfo.getPhase() + equipInfo.getLevel() + "级");
                 int i = 1;
-                s.append("  解锁条件：\n");
+                textLine.nextLine();
+                textLine.addString("解锁条件：");
+                textLine.nextLine();
+
                 for (String mission : strings) {
-                    s.append("  ").append(i).append(".").append(mission).append("\n");
+                    textLine.addString(i + ". " + mission);
+                    textLine.nextLine();
                     i++;
                 }
+
+                textLine.addString("面板变化：");
+                textLine.nextLine();
                 for (EquipBuff e : equipBuffs) {
-                    String value = "";
+                    String value;
                     if (e.getValue() >= 0) {
                         value = "+" + e.getValue();
                     } else {
                         value = "-" + e.getValue();
                     }
-                    s.append("  面板变化： ").append(returnBuffName(e.getBuffName())).append(" ").append(value).append("\n");
+                    textLine.addSpace(2);
+                    textLine.addString(returnBuffName(e.getBuffName()));
+                    textLine.addSpace();
+                    textLine.addString(value);
+                    textLine.nextLine();
                 }
-                s.append("  解锁材料： \n");
-                try {
-                    replayInfo.setReplayImg(sendImageWithPic(materialInfos, s.toString()));
-                } catch (Exception e) {
-                    e.printStackTrace();
+                textLine.addString("解锁材料：");
+                textLine.nextLine();
+                for (MaterialInfo m : materialInfos) {
+                    textLine.addImage(ImageIO.read(new File(materialMadeMapper.selectMaterialPicByName(m.getMaterialName()))));
+                    textLine.addString(m.getMaterialName() + " * " + m.getMaterialNum() + "个");
+                    textLine.nextLine();
                 }
+                replayInfo.setReplayImg(textLine.drawImage());
                 return replayInfo;
             } else {
                 replayInfo.setReplayMessage("未找到干员对应模组信息");
@@ -103,46 +133,5 @@ public class EquipService {
         else {
             return BuffId;
         }
-    }
-
-    public BufferedImage sendImageWithPic(List<MaterialInfo> materialInfos, String s) throws Exception {
-        Text t = new Text(s);
-        Font font = new Font("楷体", Font.PLAIN, 100);
-
-        // 获取font的样式应用在str上的整个矩形
-        int[] arr = TextToImage.getWidthAndHeight(t, font);
-        int width = arr[0];
-        int height = arr[1] + 100 * materialInfos.size() + 120;
-        BufferedImage image = new BufferedImage(width, height,
-                BufferedImage.TYPE_INT_BGR);//创建图片画布
-        Graphics g = image.getGraphics();
-        g.setColor(Color.WHITE); // 先用白色填充整张图片,也就是背景
-        g.fillRect(0, 0, width, height);//画出矩形区域，以便于在矩形区域内写入文字
-        g.setColor(Color.black);// 再换成黑色，以便于写入文字
-        g.setFont(font);// 设置画笔字体
-        String[] rows = t.getText();
-        Pattern pattern = Pattern.compile("[0-9]*");
-        //记录画笔高度
-        int gHeight = 0;
-        for (int i = 0; i < t.getRowsNum(); i++) {
-            gHeight = (i + 1) * font.getSize() + 1;
-            if (rows[i].length() > 0 && pattern.matcher(rows[i].charAt(0) + "").matches()) {
-                g.setFont(new Font("楷体", Font.BOLD, font.getSize()));
-                g.setColor(Color.BLUE);
-                g.drawString(rows[i], 0, gHeight);// 画出一行字符串
-                g.setFont(font);
-                g.setColor(Color.black);
-            } else {
-                g.drawString(rows[i], 0, gHeight);// 画出一行字符串
-            }
-        }
-        for (MaterialInfo m : materialInfos) {
-            String imgBase64 = materialMadeMapper.selectMaterialPicByName(m.getMaterialName());
-            g.drawImage(ImageUtil.Base64ToImageBuffer(imgBase64), 200, gHeight, 100, 100, null);// 画出材料图标
-            g.drawString(m.getMaterialName() + " * " + m.getMaterialNum() + "个", 300, gHeight + font.getSize());
-            gHeight += font.getSize();
-        }
-        g.dispose();
-        return image;
     }
 }

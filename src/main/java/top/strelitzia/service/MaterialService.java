@@ -290,7 +290,7 @@ public class MaterialService {
     public ReplayInfo selectMaterByMap(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
-            String MapId = messageInfo.getArgs().get(1);
+            String MapId = messageInfo.getArgs().get(1).toUpperCase();
             List<MapMatrixInfo> mapMatrixInfos = materialMadeMapper.selectMatrixByMap(MapId);
 
             if (mapMatrixInfos.size() == 0) {

@@ -38,7 +38,7 @@ public class PetPetService {
     @AngelinaGroup(keyWords = {"口我", "透透"}, description = "禁言功能")
     public ReplayInfo MuteSomeOne(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        replayInfo.setMuted(new Random().nextInt(5) + 1);
+        replayInfo.setMuted((new Random().nextInt(5) + 1) * 60);
         return replayInfo;
     }
 }

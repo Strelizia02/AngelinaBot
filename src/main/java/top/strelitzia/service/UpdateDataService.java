@@ -1078,17 +1078,13 @@ public class UpdateDataService {
             String overStr = overrideDescripton.toString();
 
             if (addStr.equals("")) {
-                addStr = "\n\t新增天赋：无";
-            }else {
-                addStr = "\n\t新增天赋：" + addStr;
+                addStr = "无";
             }
             if (overStr.equals(""))
             {
-                overStr = "\n\t天赋变化：无";
-            }else {
-                overStr = "\n\t天赋变化：" + overStr;
+                overStr = "无";
             }
-            String talentDesc = addStr + overStr;
+            String talentDesc = addStr + "|||" + overStr;
             equipInfo.setDesc(talentDesc);
             equipInfo.setLevel(candidates.getJSONObject(0).getJSONObject("unlockCondition").getInt("level"));
             equipInfo.setPhase(candidates.getJSONObject(0).getJSONObject("unlockCondition").getInt("phase"));
