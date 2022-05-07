@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -17,6 +18,7 @@ import top.angelinaBot.annotation.AngelinaFriend;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
+import top.strelitzia.arknightsDao.*;
 import top.strelitzia.dao.*;
 import top.strelitzia.model.*;
 import top.strelitzia.util.AdminUtil;
@@ -87,23 +89,24 @@ public class UpdateDataService {
         if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
             replayInfo.setReplayMessage("您无更新权限");
         } else {
-            replayInfo.setReplayMessage("正在更新中，请从后台日志查看更新进度");
             downloadDataFile(false);
         }
+        replayInfo.setReplayMessage("更新完成，请从后台日志查看更新进度");
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"强制更新"}, description = "强制更新数据")
-    @AngelinaFriend(keyWords = {"强制更新"}, description = "强制更新数据")
+    @AngelinaGroup(keyWords = {"全量更新"}, description = "强制全量更新数据")
+    @AngelinaFriend(keyWords = {"全量更新"}, description = "强制全量更新数据")
     public ReplayInfo downloadDataFileForce(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         List<AdminUserInfo> admins = adminUserMapper.selectAllAdmin();
         if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
             replayInfo.setReplayMessage("您无更新权限");
         } else {
-            replayInfo.setReplayMessage("正在更新中，请从后台日志查看更新进度");
+            rebuildDatabase();
             downloadDataFile(true);
         }
+        replayInfo.setReplayMessage("更新完成，请从后台日志查看更新进度");
         return replayInfo;
     }
 
@@ -115,7 +118,6 @@ public class UpdateDataService {
         updateItemIcon();
         updateOperatorPng();
         updateOperatorSkillPng();
-//        updateOperatorVoice();
         replayInfo.setReplayMessage("正在更新素材");
         return replayInfo;
     }
@@ -228,7 +230,6 @@ public class UpdateDataService {
                 updateMapper.doingUpdateVersion();
                 //清理干员数据(因部分召唤物无char_id，不方便进行增量更新)
                 log.info("清理干员数据");
-                updateMapper.clearOperatorData();
                 updateAllOperator();
                 updateAllEnemy();
                 updateMapAndItem();
@@ -236,7 +237,7 @@ public class UpdateDataService {
                 updateItemIcon();
                 updateOperatorPng();
                 updateOperatorSkillPng();
-    //            updateOperatorVoice();
+                updateOperatorVoice();
                 updateMapper.updateVersion(charKey);
                 updateMapper.doneUpdateVersion();
                 log.info("游戏数据更新完成--");
@@ -528,7 +529,7 @@ public class UpdateDataService {
         String matrixListUrl = "https://penguin-stats.cn/PenguinStats/api/v2/_private/result/matrix/CN/global";
 
         //全量更新所有掉落信息
-        updateMapper.clearMatrixData();
+        clearMatrixData();
         String matrixJsonStr = restTemplate.getForObject(matrixListUrl, String.class);
         JSONArray matrixJsons = new JSONObject(matrixJsonStr).getJSONArray("matrix");
         int length = matrixJsons.length();
@@ -801,6 +802,11 @@ public class UpdateDataService {
      * @return 返回更新数量
      */
     public Integer updateOperatorByJson(String charId, JSONObject jsonObj, JSONObject skillObj, JSONObject buildingObj) {
+        Integer id = operatorInfoMapper.getOperatorIdByChar(charId);
+        if (id == null) {
+            log.info("干员{}已存在", charId);
+            return id;
+        }
         Map<String, Integer> operatorClass = new HashMap<>(8);
         operatorClass.put("PIONEER", 1);
         operatorClass.put("WARRIOR", 2);
@@ -1137,5 +1143,27 @@ public class UpdateDataService {
             m.appendReplacement(stringBuffer, value);
         }
         return m.appendTail(stringBuffer).toString().replace("--", "-");
+    }
+
+    private void rebuildDatabase() {
+        File file = new File("runFile/arknights.db");
+        file.deleteOnExit();
+        try (InputStream is = new ClassPathResource("/database/arknights.db").getInputStream(); FileOutputStream fs = new FileOutputStream(file)) {
+            if (file.createNewFile()) {
+                byte[] b = new byte[1024];
+                while (is.read(b) != -1) {
+                    fs.write(b);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void clearMatrixData() {
+        Integer integer = updateMapper.selectMatrixCount();
+        for (int i = 0; i <= integer / 100; i++) {
+            updateMapper.clearMatrixData();
+        }
     }
 }

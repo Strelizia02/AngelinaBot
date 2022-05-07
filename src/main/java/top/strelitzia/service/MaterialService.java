@@ -7,6 +7,7 @@ import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.model.TextLine;
+import top.strelitzia.arknightsDao.*;
 import top.strelitzia.dao.*;
 import top.strelitzia.model.*;
 import top.strelitzia.util.DescriptionTransformationUtil;

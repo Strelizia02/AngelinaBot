@@ -35,14 +35,14 @@ import java.util.List;
 public class LocalDataSourceConfig {
 
     @Bean(name = "localDataSource")
-    public DataSource getFirstDataSource() {
+    public DataSource getLocalDataSource() {
         File dir = new File("runFile");
         if (!dir.exists()) {
             boolean mkdir = dir.mkdir();
         }
         File file = new File("runFile/angelina.db");
         if (!file.exists()) {
-            try (InputStream is = new ClassPathResource("/sqlite/template.db").getInputStream(); FileOutputStream fs = new FileOutputStream(file)) {
+            try (InputStream is = new ClassPathResource("/database/angelina.db").getInputStream(); FileOutputStream fs = new FileOutputStream(file)) {
                 if (file.createNewFile()) {
                     byte[] b = new byte[1024];
                     while (is.read(b) != -1) {
@@ -80,22 +80,5 @@ public class LocalDataSourceConfig {
     public SqlSessionTemplate localSqlSessionTemplate(
             @Qualifier("localSqlSessionFactory") SqlSessionFactory sqlSessionFactory) {
         return new SqlSessionTemplate(sqlSessionFactory);
-    }
-
-    @Bean("restTemplate")
-    public RestTemplate restTemplate() {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new MyMappingJackson2HttpMessageConverter());
-        return restTemplate;
-    }
-
-}
-
-class MyMappingJackson2HttpMessageConverter extends MappingJackson2HttpMessageConverter {
-    public MyMappingJackson2HttpMessageConverter(){
-        List<MediaType> mediaTypes = new ArrayList<>();
-        mediaTypes.add(MediaType.TEXT_PLAIN);
-        mediaTypes.add(MediaType.TEXT_HTML);
-        setSupportedMediaTypes(mediaTypes);
     }
 }

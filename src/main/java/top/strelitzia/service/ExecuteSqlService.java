@@ -8,7 +8,7 @@ import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.util.MiraiFrameUtil;
 import top.angelinaBot.util.SendMessageUtil;
 import top.strelitzia.dao.AdminUserMapper;
-import top.strelitzia.dao.ExecuteSqlMapper;
+import top.strelitzia.arknightsDao.ExecuteSqlMapper;
 import top.strelitzia.dao.UserFoundMapper;
 import top.strelitzia.model.AdminUserInfo;
 import top.strelitzia.util.AdminUtil;

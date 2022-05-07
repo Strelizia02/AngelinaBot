@@ -7,7 +7,7 @@ import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.model.TextLine;
 import top.strelitzia.dao.NickNameMapper;
-import top.strelitzia.dao.SkillDescMapper;
+import top.strelitzia.arknightsDao.SkillDescMapper;
 import top.strelitzia.model.SkillDesc;
 
 import javax.imageio.ImageIO;

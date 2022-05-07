@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
-import top.strelitzia.dao.BuildingSkillMapper;
+import top.strelitzia.arknightsDao.BuildingSkillMapper;
 import top.strelitzia.dao.NickNameMapper;
-import top.strelitzia.dao.OperatorInfoMapper;
+import top.strelitzia.arknightsDao.OperatorInfoMapper;
 import top.strelitzia.model.BuildingSkill;
 
 import java.util.HashMap;

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
+import top.strelitzia.arknightsDao.OperatorInfoMapper;
 import top.strelitzia.dao.*;
 import top.strelitzia.model.AdminUserInfo;
 import top.strelitzia.model.AgentInfo;
@@ -256,7 +257,7 @@ public class AgentService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = "抽卡次数", description = "调整抽卡次数")
+    @AngelinaGroup(keyWords = "抽卡次数", description = "调整抽卡次数，请")
     public ReplayInfo updateGroupFoundCount(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         MemberPermission userAdmin = messageInfo.getUserAdmin();

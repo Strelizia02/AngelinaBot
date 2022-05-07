@@ -7,10 +7,9 @@ import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
-import top.strelitzia.dao.AgentTagsMapper;
+import top.strelitzia.arknightsDao.AgentTagsMapper;
 import top.strelitzia.model.AgentTagsInfo;
 import top.strelitzia.util.BaiduAPIUtil;
-import top.strelitzia.util.FormatStringUtil;
 import top.strelitzia.util.TagsUtil;
 
 import java.awt.*;
@@ -41,9 +40,10 @@ public class TagsFoundService {
     @AngelinaGroup(keyWords = {"公招截图", "公招", "公开招募"}, dHash = {"0001111110100110001111010010001100100011001001110010011100101101", "0001111101100111001101010110001101110011001001110010011100101111"}, description = "查询公招结果")
     public ReplayInfo FoundAgentByJson(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        Map<List<String>, List<AgentTagsInfo>> listListMap = FoundTagsByImg(messageInfo.getImgUrlList().get(0));
-        if (listListMap.size() > 0) {
-            replayInfo.setReplayImg(MapToBase64(listListMap));
+        Map<List<String>, List<AgentTagsInfo>> listMap = FoundTagsByImg(messageInfo.getImgUrlList().get(0));
+        BufferedImage bf = MapToBase64(listMap);
+        if (bf != null) {
+            replayInfo.setReplayImg(bf);
         } else {
             replayInfo.setReplayMessage("QAQ没有找到能够锁定的稀有公招结果");
         }
@@ -55,8 +55,9 @@ public class TagsFoundService {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
             Map<List<String>, List<AgentTagsInfo>> listMap = FoundTagResultByArrays(messageInfo.getArgs().get(1).split(",|，"));
-            if (listMap.size() > 0) {
-                replayInfo.setReplayImg(MapToBase64(listMap));
+            BufferedImage bf = MapToBase64(listMap);
+            if (bf != null) {
+                replayInfo.setReplayImg(bf);
             } else {
                 replayInfo.setReplayMessage("QAQ没有找到能够锁定的稀有公招结果");
             }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.util.MiraiFrameUtil;
 import top.angelinaBot.util.SendMessageUtil;
-import top.strelitzia.dao.OperatorInfoMapper;
+import top.strelitzia.arknightsDao.OperatorInfoMapper;
 import top.strelitzia.dao.UserFoundMapper;
 
 import java.text.SimpleDateFormat;

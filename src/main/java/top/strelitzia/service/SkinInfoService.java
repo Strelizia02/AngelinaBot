@@ -6,7 +6,7 @@ import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.strelitzia.dao.NickNameMapper;
-import top.strelitzia.dao.SkinInfoMapper;
+import top.strelitzia.arknightsDao.SkinInfoMapper;
 import top.strelitzia.model.SkinInfo;
 
 import java.io.File;
