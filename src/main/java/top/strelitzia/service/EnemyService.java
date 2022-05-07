@@ -31,19 +31,13 @@ public class EnemyService {
             int size = enemyInfo.size();
             StringBuilder s = new StringBuilder();
             if (name.contains("霜星")) {
-                s.append("霜星是我们罗德岛的干员哦。\n");
+                replayInfo.setReplayMessage("霜星是我们罗德岛的干员哦。\n");
             }
             if (size == 0) {
-                s = new StringBuilder("未找到该敌人的信息");
-            } else if (size == 1) {
-                s = new StringBuilder(enemyInfo.get(0).toString());
+                replayInfo.setReplayMessage("未找到该敌人的信息");
             } else {
-                for (EnemyInfo info : enemyInfo) {
-                    s.append("搜索到多个敌人信息，请输入详细名称进行搜索");
-                    s.append("\n").append(info.getName());
-                }
+                replayInfo.setReplayMessage(enemyInfo.get(0).toString());
             }
-            replayInfo.setReplayMessage(s.toString());
         } else {
             replayInfo.setReplayMessage("请输入敌人的信息");
         }
