@@ -41,4 +41,18 @@ public class PetPetService {
         replayInfo.setMuted((new Random().nextInt(5) + 1) * 60);
         return replayInfo;
     }
+
+    @AngelinaEvent(event = EventEnum.MemberJoinEvent, description = "入群欢迎")
+    public ReplayInfo memberJoin(MessageInfo messageInfo) {
+        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        replayInfo.setReplayMessage("欢迎" + messageInfo.getName() + "入群，请通过【洁哥菜单】了解洁哥的功能。");
+        return replayInfo;
+    }
+
+    @AngelinaEvent(event = EventEnum.MemberLeaveEvent, description = "退群提醒")
+    public ReplayInfo memberLeaven(MessageInfo messageInfo) {
+        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        replayInfo.setReplayMessage(messageInfo.getName() + "离开了");
+        return replayInfo;
+    }
 }
