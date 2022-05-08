@@ -196,7 +196,7 @@ public class MaterialService {
             if (realName != null && !realName.equals("")) {
                 name = realName;
             }
-            if (!name.endsWith("-all")) {
+            if (!name.endsWith("-ALL")) {
                 File file = new File(materialMadeMapper.selectMaterialPicByName(name));
                 if (file.exists()) {
                     textLine.addImage(ImageIO.read(file));
@@ -211,7 +211,7 @@ public class MaterialService {
                 textLine.addSpace(2);
                 textLine.addString("请在材料名后面加-all，中间无空格");
             } else {
-                name = name.replace("-all", "");
+                name = name.replace("-ALL", "").replace("-all", "");
                 File file = new File(materialMadeMapper.selectMaterialPicByName(name));
                 if (file.exists()) {
                     textLine.addImage(ImageIO.read(file));
