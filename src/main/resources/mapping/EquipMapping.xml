@@ -97,4 +97,8 @@
         WHERE
             equip_id = #{equipId}
     </select>
+
+    <select id="selectAllEquipId" resultType="java.lang.String">
+        select equip_id from t_equip;
+    </select>
 </mapper>

@@ -58,7 +58,7 @@ public class MaterialService {
             agent = args.get(1);
             String name = nickNameMapper.selectNameByNickName(agent);
             if (name != null && !name.equals("")) {
-                args.add(1, name);
+                agent = name;
             }
             skillName = skillMateryMapper.selectSkillNameByAgentIndex(agent, index);
             materialInfos = skillMateryMapper.selectSkillUpByAgentAndIndex(agent, index, level);
@@ -148,7 +148,7 @@ public class MaterialService {
     public ReplayInfo HeChengLuXian(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
-            String name = messageInfo.getArgs().get(1);
+            String name = messageInfo.getArgs().get(1).toUpperCase();
             String realName = nickNameMapper.selectNameByNickName(name);
             if (realName != null && !realName.equals(""))
                 name = realName;
@@ -189,7 +189,7 @@ public class MaterialService {
     public ReplayInfo HuoQuTuJing(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
-            String name = messageInfo.getArgs().get(1);
+            String name = messageInfo.getArgs().get(1).toUpperCase();
             TextLine textLine = new TextLine();
             List<SourcePlace> sourcePlaces;
             String realName = nickNameMapper.selectNameByNickName(name);

@@ -19,4 +19,7 @@ public interface AgentTagsMapper {
 
     //获取所有公招干员
     List<AgentTagsInfo> selectAgentAll();
+
+    //获取所有公招干员名称
+    List<String> selectAgentNameAll();
 }

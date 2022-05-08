@@ -32,8 +32,10 @@ public class EnemyService {
             if (name.contains("霜星")) {
                 s.append("霜星是我们罗德岛的干员哦。\n");
             }
-            if (enemyInfo.size() == 1) {
-                s = new StringBuilder(enemyInfo.get(0).toString());
+            if (enemyInfo.size() < 3) {
+                for (EnemyInfo info : enemyInfo) {
+                    s.append("\n").append(info.toString());
+                }
             } else  {
                 enemyInfo = enemyMapper.selectEnemyByName(name);
                 if (enemyInfo.size() == 0) {

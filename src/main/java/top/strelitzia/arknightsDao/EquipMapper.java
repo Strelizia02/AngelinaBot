@@ -29,4 +29,6 @@ public interface EquipMapper {
 
     List<String> selectEquipMissionById(String equipId);
 
+    List<String> selectAllEquipId();
+
 }

@@ -43,4 +43,11 @@
         FROM
             t_operator_tags_relation
     </select>
+
+    <select id="selectAgentNameAll" resultType="java.lang.String">
+        SELECT
+            operator_name
+        FROM
+            t_operator_tags_relation
+    </select>
 </mapper>

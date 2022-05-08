@@ -2,7 +2,6 @@ package top.strelitzia.util;
 
 import com.madgag.gif.fmsware.AnimatedGifEncoder;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import sun.misc.BASE64Encoder;
 

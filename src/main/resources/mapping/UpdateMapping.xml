@@ -130,7 +130,7 @@
             (stage_id,item_id,quantity,times,rate)
         VALUES
         (
-            #{stageId},#{itemId},#{quantity},#{times},(#{quantity}/#{times}*100)
+            #{stageId},#{itemId},#{quantity},#{times},(1.0*#{quantity}/#{times}*100)
         )
     </insert>
 

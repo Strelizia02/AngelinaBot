@@ -43,11 +43,10 @@ public class LocalDataSourceConfig {
         File file = new File("runFile/angelina.db");
         if (!file.exists()) {
             try (InputStream is = new ClassPathResource("/database/angelina.db").getInputStream(); FileOutputStream fs = new FileOutputStream(file)) {
-                if (file.createNewFile()) {
-                    byte[] b = new byte[1024];
-                    while (is.read(b) != -1) {
-                        fs.write(b);
-                    }
+                boolean newFile = file.createNewFile();
+                byte[] b = new byte[1024];
+                while (is.read(b) != -1) {
+                    fs.write(b);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -10,10 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.web.client.RestTemplate;
 import org.sqlite.SQLiteDataSource;
 
 import javax.sql.DataSource;
@@ -43,11 +40,10 @@ public class ArknightsDataSourceConfig {
         File file = new File("runFile/arknights.db");
         if (!file.exists()) {
             try (InputStream is = new ClassPathResource("/database/arknights.db").getInputStream(); FileOutputStream fs = new FileOutputStream(file)) {
-                if (file.createNewFile()) {
-                    byte[] b = new byte[1024];
-                    while (is.read(b) != -1) {
-                        fs.write(b);
-                    }
+                boolean newFile = file.createNewFile();
+                byte[] b = new byte[1024];
+                while (is.read(b) != -1) {
+                    fs.write(b);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -77,6 +77,9 @@ public class UpdateDataService {
     @Autowired
     private SkillDescMapper skillDescMapper;
 
+    @Autowired
+    private AgentTagsMapper agentTagsMapper;
+
 //    private String url = "https://cdn.jsdelivr.net/gh/Kengxxiao/ArknightsGameData@master/zh_CN/gamedata/";
 //    private String url = "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/";
     private String url = "http://vivien8261.gitee.io/arknights-bot-resource/gamedata/";
@@ -114,11 +117,16 @@ public class UpdateDataService {
     @AngelinaFriend(keyWords = {"更新素材", "更新图片", "更新图标"}, description = "更新素材数据")
     public ReplayInfo updateImgFile(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        updateSkin();
-        updateItemIcon();
-        updateOperatorPng();
-        updateOperatorSkillPng();
-        replayInfo.setReplayMessage("正在更新素材");
+        List<AdminUserInfo> admins = adminUserMapper.selectAllAdmin();
+        if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
+            replayInfo.setReplayMessage("您无更新权限");
+        } else {
+            updateSkin();
+            updateItemIcon();
+            updateOperatorPng();
+            updateOperatorSkillPng();
+            replayInfo.setReplayMessage("正在更新素材");
+        }
         return replayInfo;
     }
 
@@ -173,7 +181,7 @@ public class UpdateDataService {
                     avatar.mkdirs();
                 }
                 for (File f : dir.listFiles()) {
-                    f.deleteOnExit();
+                    f.delete();
                 }
                 try {
                     log.info("开始下载数据文件");
@@ -237,7 +245,7 @@ public class UpdateDataService {
                 updateItemIcon();
                 updateOperatorPng();
                 updateOperatorSkillPng();
-                updateOperatorVoice();
+//                updateOperatorVoice();
                 updateMapper.updateVersion(charKey);
                 updateMapper.doneUpdateVersion();
                 log.info("游戏数据更新完成--");
@@ -406,6 +414,11 @@ public class UpdateDataService {
      */
     private void updateOperatorTag(JSONObject operator) {
         String name = operator.getString("name");
+        List<String> agentTagsInfos = agentTagsMapper.selectAgentNameAll();
+        if (agentTagsInfos.contains(name)) {
+            log.info("干员{}已有公招tag", name);
+            return;
+        }
         JSONArray tags = operator.getJSONArray("tagList");
         int rarity = operator.getInt("rarity") + 1;
         StringBuilder position = new StringBuilder(operator.getString("position").equals("MELEE") ? "近战位" : "远程位");
@@ -803,7 +816,7 @@ public class UpdateDataService {
      */
     public Integer updateOperatorByJson(String charId, JSONObject jsonObj, JSONObject skillObj, JSONObject buildingObj) {
         Integer id = operatorInfoMapper.getOperatorIdByChar(charId);
-        if (id == null) {
+        if (id != null) {
             log.info("干员{}已存在", charId);
             return id;
         }
@@ -1045,79 +1058,82 @@ public class UpdateDataService {
         JSONObject equip = new JSONObject(getJsonStringFromFile("battle_equip_table.json"));
         JSONObject equipUnlock = new JSONObject(getJsonStringFromFile("uniequip_table.json"));
 
+        List<String> equipId = equipMapper.selectAllEquipId();
         Iterator<String> keys = equip.keys();
         while (keys.hasNext()) {
             String key = keys.next();
-            EquipInfo equipInfo = new EquipInfo();
+            if (!equipId.contains(key)) {
+                EquipInfo equipInfo = new EquipInfo();
 
-            JSONObject equipDict = equipUnlock.getJSONObject("equipDict").getJSONObject(key);
-            equipInfo.setEquipId(equipDict.getString("uniEquipId"));
-            equipInfo.setEquipName(equipDict.getString("uniEquipName"));
-            equipInfo.setCharId(equipDict.getString("charId"));
+                JSONObject equipDict = equipUnlock.getJSONObject("equipDict").getJSONObject(key);
+                equipInfo.setEquipId(equipDict.getString("uniEquipId"));
+                equipInfo.setEquipName(equipDict.getString("uniEquipName"));
+                equipInfo.setCharId(equipDict.getString("charId"));
 
-            JSONArray phases = equip.getJSONObject(key).getJSONArray("phases");
-            JSONArray candidates = phases.getJSONObject(0).getJSONArray("parts").getJSONObject(0).
-                    getJSONObject("overrideTraitDataBundle").getJSONArray("candidates");
+                JSONArray phases = equip.getJSONObject(key).getJSONArray("phases");
+                JSONArray candidates = phases.getJSONObject(0).getJSONArray("parts").getJSONObject(0).
+                        getJSONObject("overrideTraitDataBundle").getJSONArray("candidates");
 
-            //天赋变化
-            StringBuilder additionalDescription = new StringBuilder("");
-            StringBuilder overrideDescripton = new StringBuilder("");
-            for(int i = 0; i < candidates.length(); i++) {
-                JSONObject candidate = candidates.getJSONObject(i);
-                //获取key-value列表
-                Map<String, Double> parameters = new HashMap<>();
-                JSONArray mapList = candidate.getJSONArray("blackboard");
-                for (int keyId = 0; keyId < mapList.length(); keyId++) {
-                    parameters.put(mapList.getJSONObject(keyId).getString("key").toLowerCase(),
-                            mapList.getJSONObject(keyId).getDouble("value"));
+                //天赋变化
+                StringBuilder additionalDescription = new StringBuilder("");
+                StringBuilder overrideDescripton = new StringBuilder("");
+                for (int i = 0; i < candidates.length(); i++) {
+                    JSONObject candidate = candidates.getJSONObject(i);
+                    //获取key-value列表
+                    Map<String, Double> parameters = new HashMap<>();
+                    JSONArray mapList = candidate.getJSONArray("blackboard");
+                    for (int keyId = 0; keyId < mapList.length(); keyId++) {
+                        parameters.put(mapList.getJSONObject(keyId).getString("key").toLowerCase(),
+                                mapList.getJSONObject(keyId).getDouble("value"));
+                    }
+                    if (candidate.get("additionalDescription") instanceof String) {
+                        String additional = candidate.getString("additionalDescription");
+                        additionalDescription.append(getValueByKeysFormatString(additional, parameters));
+                    }
+                    if (candidate.get("overrideDescripton") instanceof String) {
+                        String override = candidate.getString("overrideDescripton");
+                        overrideDescripton.append(getValueByKeysFormatString(override, parameters));
+                    }
                 }
-                if (candidate.get("additionalDescription") instanceof String) {
-                    String additional = candidate.getString("additionalDescription");
-                    additionalDescription.append(getValueByKeysFormatString(additional, parameters));
+                String addStr = additionalDescription.toString();
+                String overStr = overrideDescripton.toString();
+
+                if (addStr.equals("")) {
+                    addStr = "无";
                 }
-                if (candidate.get("overrideDescripton") instanceof String) {
-                    String override = candidate.getString("overrideDescripton");
-                    overrideDescripton.append(getValueByKeysFormatString(override, parameters));
+                if (overStr.equals("")) {
+                    overStr = "无";
                 }
-            }
-            String addStr = additionalDescription.toString();
-            String overStr = overrideDescripton.toString();
+                String talentDesc = addStr + "|||" + overStr;
+                equipInfo.setDesc(talentDesc);
+                equipInfo.setLevel(candidates.getJSONObject(0).getJSONObject("unlockCondition").getInt("level"));
+                equipInfo.setPhase(candidates.getJSONObject(0).getJSONObject("unlockCondition").getInt("phase"));
+                equipMapper.insertEquipInfo(equipInfo);
 
-            if (addStr.equals("")) {
-                addStr = "无";
-            }
-            if (overStr.equals(""))
-            {
-                overStr = "无";
-            }
-            String talentDesc = addStr + "|||" + overStr;
-            equipInfo.setDesc(talentDesc);
-            equipInfo.setLevel(candidates.getJSONObject(0).getJSONObject("unlockCondition").getInt("level"));
-            equipInfo.setPhase(candidates.getJSONObject(0).getJSONObject("unlockCondition").getInt("phase"));
-            equipMapper.insertEquipInfo(equipInfo);
-
-            for (int i = 0; i < phases.length(); i++)
-            {
-                JSONArray buffs = phases.getJSONObject(i).getJSONArray("attributeBlackboard");
-                for(int j = 0; j < buffs.length(); j++){
-                    String buffKey = buffs.getJSONObject(j).getString("key");
-                    Double value = buffs.getJSONObject(j).getDouble("value");
-                    equipMapper.insertEquipBuff(key, buffKey, value);
+                for (int i = 0; i < phases.length(); i++) {
+                    JSONArray buffs = phases.getJSONObject(i).getJSONArray("attributeBlackboard");
+                    for (int j = 0; j < buffs.length(); j++) {
+                        String buffKey = buffs.getJSONObject(j).getString("key");
+                        Double value = buffs.getJSONObject(j).getDouble("value");
+                        equipMapper.insertEquipBuff(key, buffKey, value);
+                    }
                 }
-            }
 
-            JSONArray itemCost = equipDict.getJSONArray("itemCost");
-            for (int i = 0; i < itemCost.length(); i++){
-                String materialId = itemCost.getJSONObject(i).getString("id");
-                Integer useNumber = itemCost.getJSONObject(i).getInt("count");
-                equipMapper.insertEquipcost(key, materialId, useNumber);
-            }
+                JSONArray itemCost = equipDict.getJSONArray("itemCost");
+                for (int i = 0; i < itemCost.length(); i++) {
+                    String materialId = itemCost.getJSONObject(i).getString("id");
+                    Integer useNumber = itemCost.getJSONObject(i).getInt("count");
+                    equipMapper.insertEquipcost(key, materialId, useNumber);
+                }
 
-            JSONArray missionList = equipDict.getJSONArray("missionList");
-            for (int i = 0; i < missionList.length(); i++) {
-                String missionId = missionList.getString(i);
-                String desc = equipUnlock.getJSONObject("missionList").getJSONObject(missionId).getString("desc");
-                equipMapper.insertEquipMission(key, missionId, desc);
+                JSONArray missionList = equipDict.getJSONArray("missionList");
+                for (int i = 0; i < missionList.length(); i++) {
+                    String missionId = missionList.getString(i);
+                    String desc = equipUnlock.getJSONObject("missionList").getJSONObject(missionId).getString("desc");
+                    equipMapper.insertEquipMission(key, missionId, desc);
+                }
+            } else {
+                log.info("已有{}模组信息", key);
             }
         }
         log.info("模组数据更新完毕");
@@ -1147,13 +1163,12 @@ public class UpdateDataService {
 
     private void rebuildDatabase() {
         File file = new File("runFile/arknights.db");
-        file.deleteOnExit();
+        file.delete();
         try (InputStream is = new ClassPathResource("/database/arknights.db").getInputStream(); FileOutputStream fs = new FileOutputStream(file)) {
-            if (file.createNewFile()) {
-                byte[] b = new byte[1024];
-                while (is.read(b) != -1) {
-                    fs.write(b);
-                }
+            boolean newFile = file.createNewFile();
+            byte[] b = new byte[1024];
+            while (is.read(b) != -1) {
+                fs.write(b);
             }
         } catch (IOException e) {
             e.printStackTrace();
