@@ -307,7 +307,7 @@ public class MaterialService {
                     } else {
                         textLine.addSpace(3);
                     }
-                    textLine.addString((matrix.getMaterialName() + "掉率：" + matrix.getRate() + "%"));
+                    textLine.addString((matrix.getMaterialName() + "掉率：" + String.format("%.2f", matrix.getRate()) + "%"));
                     textLine.nextLine();
                     textLine.addString("测试次数：" + matrix.getTimes());
                     textLine.nextLine();
