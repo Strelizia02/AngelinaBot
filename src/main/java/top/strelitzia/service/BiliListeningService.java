@@ -73,7 +73,7 @@ public class BiliListeningService {
                     Long newId = dynamics.getJSONObject(0).getJSONObject("desc").getLong("dynamic_id");
                     //对比第一条动态
                     Long first = bili.getFirst();
-                    if (!first.equals(newId)) {
+                    if (first == null || !first.equals(newId)) {
                         bili.setFirst(newId);
                         //获取最新动态详情
                         DynamicDetail newDetail = getDynamicDetail(newId);

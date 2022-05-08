@@ -35,6 +35,13 @@ public class PetPetService {
         return replayInfo;
     }
 
+    @AngelinaEvent(event = EventEnum.GroupRecall, description = "撤回事件回复")
+    public ReplayInfo GroupRecall(MessageInfo messageInfo) {
+        ReplayInfo replayInfo = PetPet(messageInfo);
+        replayInfo.setReplayMessage("谁撤回了消息，让我看看！");
+        return replayInfo;
+    }
+
     @AngelinaGroup(keyWords = {"口我", "透透"}, description = "禁言功能")
     public ReplayInfo MuteSomeOne(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
@@ -52,7 +59,7 @@ public class PetPetService {
     @AngelinaEvent(event = EventEnum.MemberLeaveEvent, description = "退群提醒")
     public ReplayInfo memberLeaven(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        replayInfo.setReplayMessage(messageInfo.getName() + "离开了");
+        replayInfo.setReplayMessage("有成员离开了我们");
         return replayInfo;
     }
 }

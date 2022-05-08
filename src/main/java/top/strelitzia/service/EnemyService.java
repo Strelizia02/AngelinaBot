@@ -32,19 +32,12 @@ public class EnemyService {
             if (name.contains("霜星")) {
                 s.append("霜星是我们罗德岛的干员哦。\n");
             }
-            if (enemyInfo.size() < 3) {
+
+            if (enemyInfo.size() == 0) {
+                s = new StringBuilder("未找到该敌人的信息");
+            } else {
                 for (EnemyInfo info : enemyInfo) {
                     s.append("\n").append(info.toString());
-                }
-            } else  {
-                enemyInfo = enemyMapper.selectEnemyByName(name);
-                if (enemyInfo.size() == 0) {
-                    s = new StringBuilder("未找到该敌人的信息");
-                } else {
-                    s.append("搜索到多个敌人信息，请输入详细名称进行搜索");
-                    for (EnemyInfo info : enemyInfo) {
-                        s.append("\n").append(info.getName());
-                    }
                 }
             }
             replayInfo.setReplayMessage(s.toString());
