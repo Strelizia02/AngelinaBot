@@ -238,6 +238,7 @@ public class UpdateDataService {
                 updateMapper.doingUpdateVersion();
                 //清理干员数据(因部分召唤物无char_id，不方便进行增量更新)
                 log.info("清理干员数据");
+                updateMapper.clearOperatorData();
                 updateAllOperator();
                 updateAllEnemy();
                 updateMapAndItem();
