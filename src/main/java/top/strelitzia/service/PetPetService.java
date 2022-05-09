@@ -55,7 +55,7 @@ public class PetPetService {
         replayInfo.setReplayMessage("欢迎" + messageInfo.getName() 
                                     + "入群，请通过【洁哥菜单】了解洁哥的功能。" \
                                     + "\n洁哥源码：https://github.com/Strelizia02/AngelinaBot" 
-                                    + "\n详细菜单请阅：https://github.com/Strelizia02/AngelinaBot/wiki/%E5%85%A8%E9%83%A8%E5%8A%9F%E8%83%BD");
+                                    + "\n详细菜单请阅：https://github.com/Strelizia02/AngelinaBot/wiki");
         return replayInfo;
     }
 
