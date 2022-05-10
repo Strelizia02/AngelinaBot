@@ -15,11 +15,14 @@ import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.util.MiraiFrameUtil;
 import top.angelinaBot.util.SendMessageUtil;
+import top.strelitzia.dao.AdminUserMapper;
 import top.strelitzia.dao.BiliMapper;
 import top.strelitzia.dao.GroupAdminInfoMapper;
 import top.strelitzia.dao.UserFoundMapper;
 import top.strelitzia.model.BiliCount;
 import top.strelitzia.model.DynamicDetail;
+import top.strelitzia.model.GroupAdminInfo;
+import top.strelitzia.util.AdminUtil;
 
 import java.util.List;
 
@@ -45,6 +48,9 @@ public class BiliListeningService {
 
     @Autowired
     private SendMessageUtil sendMessageUtil;
+
+    @Autowired
+    private AdminUserMapper adminUserMapper;
 
     public boolean getDynamicList() {
         List<BiliCount> biliCountList = biliMapper.getBiliCountList();
@@ -223,7 +229,8 @@ public class BiliListeningService {
 
         if (messageInfo.getArgs().size() > 1) {
             String biliId = messageInfo.getArgs().get(1);
-            if (messageInfo.getUserAdmin().equals(MemberPermission.MEMBER)) {
+            boolean sqlAdmin = AdminUtil.getSqlAdmin(messageInfo.getQq(), adminUserMapper.selectAllAdmin());
+            if (messageInfo.getUserAdmin().equals(MemberPermission.MEMBER) && !sqlAdmin) {
                 replayInfo.setReplayMessage("您不是本群管理员，无权进行本群的关注操作");
             } else {
                 Integer integer = groupAdminInfoMapper.existGroupId(groupId);
@@ -260,7 +267,8 @@ public class BiliListeningService {
 
         if (messageInfo.getArgs().size() > 1) {
             String biliId = messageInfo.getArgs().get(1);
-            if (messageInfo.getUserAdmin().equals(MemberPermission.MEMBER)) {
+            boolean sqlAdmin = AdminUtil.getSqlAdmin(messageInfo.getQq(), adminUserMapper.selectAllAdmin());
+            if (messageInfo.getUserAdmin().equals(MemberPermission.MEMBER) && !sqlAdmin) {
                 replayInfo.setReplayMessage("您不是本群管理员，无权进行本群的关注操作");
             } else {
                 Long uid = Long.parseLong(biliId);

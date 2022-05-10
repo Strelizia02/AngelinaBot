@@ -260,8 +260,8 @@ public class AgentService {
     @AngelinaGroup(keyWords = "抽卡次数", description = "调整抽卡次数，请")
     public ReplayInfo updateGroupFoundCount(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        MemberPermission userAdmin = messageInfo.getUserAdmin();
-        if (userAdmin.equals(MemberPermission.MEMBER)) {
+        boolean sqlAdmin = AdminUtil.getSqlAdmin(messageInfo.getQq(), adminUserMapper.selectAllAdmin());
+        if (messageInfo.getUserAdmin().equals(MemberPermission.MEMBER) && !sqlAdmin) {
             replayInfo.setReplayMessage("只有本群群主或管理员才可以调整抽卡次数");
         } else {
             if (messageInfo.getArgs().size() > 1) {

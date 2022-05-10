@@ -1,4 +1,4 @@
-package top.strelitzia.arknightsDao;
+package top.strelitzia.dao;
 
 import java.util.List;
 import java.util.Map;
