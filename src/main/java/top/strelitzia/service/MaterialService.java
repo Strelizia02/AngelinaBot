@@ -10,12 +10,13 @@ import top.angelinaBot.model.TextLine;
 import top.strelitzia.arknightsDao.*;
 import top.strelitzia.dao.*;
 import top.strelitzia.model.*;
-import top.strelitzia.util.DescriptionTransformationUtil;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author strelitzia
@@ -43,57 +44,72 @@ public class MaterialService {
     @Autowired
     private EnemyMapper enemyMapper;
 
-    @AngelinaGroup(keyWords = {"专精材料", "技能专精"}, description = "技能专精材料")
+    @AngelinaGroup(keyWords = {"专精材料", "技能专精", "专精"}, description = "技能专精材料")
     public ReplayInfo ZhuanJingCaiLiao(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        List<MaterialInfo> materialInfos;
-        List<String> args = messageInfo.getArgs();
-        String skillName = "";
-        String agent = "";
-        Integer level = 0;
-        if (args.size() == 4) {
-            //四个参数就是##专精材料-干员—第几技能-专精等级
-            Integer index = DescriptionTransformationUtil.ChangeStringToInt(args.get(2));
-            level = DescriptionTransformationUtil.ChangeStringToInt(args.get(3));
-            agent = args.get(1);
-            String name = nickNameMapper.selectNameByNickName(agent);
-            if (name != null && !name.equals("")) {
-                agent = name;
+        if (messageInfo.getArgs().size() > 1) {
+            Integer level = 3;
+            if (messageInfo.getArgs().size() > 2) {
+                Map<String, Integer> map = new HashMap<>(10);
+                map.put("专精一", 1);
+                map.put("专精二", 2);
+                map.put("专一", 1);
+                map.put("专二", 2);
+                map.put("精一", 1);
+                map.put("精二", 2);
+                map.put("一", 1);
+                map.put("二", 2);
+                map.put("1", 1);
+                map.put("2", 2);
+                level = map.get(messageInfo.getArgs().get(2));
             }
-            skillName = skillMateryMapper.selectSkillNameByAgentIndex(agent, index);
-            materialInfos = skillMateryMapper.selectSkillUpByAgentAndIndex(agent, index, level);
-        } else if (args.size() == 3) {
-            //三个参数就是##专精材料-技能名-专精等级
-            skillName = args.get(1);
-            level = DescriptionTransformationUtil.ChangeStringToInt(args.get(2));
-            materialInfos = skillMateryMapper.selectSkillUpBySkillName(args.get(1), level);
-        } else {
-            materialInfos = null;
-        }
-        if (materialInfos == null || materialInfos.size() == 0) {
-            replayInfo.setReplayMessage("找不到查询的内容");
-        } else {
-            TextLine textLine = new TextLine();
-            File skillPng = new File(skillMateryMapper.selectSkillPngByName(skillName));
-            if (skillPng.exists()) {
-                textLine.addImage(ImageIO.read(skillPng));
+            String name = messageInfo.getArgs().get(1);
+            String realName = nickNameMapper.selectNameByNickName(name);
+            if (realName != null && !realName.equals("")) {
+                name = realName;
+            }
+            List<Integer> skillIds = skillMateryMapper.selectSkillIDByAgentOrSkill(name);
+            if (skillIds == null || skillIds.size() == 0) {
+                replayInfo.setReplayMessage("找不到查询的内容");
             } else {
-                textLine.addSpace(3);
-            }
-            textLine.addString(skillName + " 专精" + level + " 材料为：");
-            textLine.nextLine();
-            for (MaterialInfo m : materialInfos) {
-                textLine.addSpace(2);
-                File file = new File(materialMadeMapper.selectMaterialPicByName(m.getMaterialName()));
-                if (file.exists()) {
-                    textLine.addImage(ImageIO.read(file));
+                TextLine textLine = new TextLine();
+                OperatorName operatorName = skillMateryMapper.selectOperatorNameById(skillIds.get(0));
+                String avatar = operatorInfoMapper.selectOperatorAvatarPngById(operatorName.getCharId());
+                File avatarFile = new File(avatar);
+                if (avatarFile.exists()) {
+                    textLine.addImage(ImageIO.read(avatarFile));
                 } else {
                     textLine.addSpace(3);
                 }
-                textLine.addString(m.getMaterialName() + " * " + m.getMaterialNum() + "个");
+                textLine.addString("干员" + operatorName.getOperatorName() + "的技能专精材料为：");
                 textLine.nextLine();
+                for (Integer id : skillIds) {
+                    List<MaterialInfo> materialInfos = skillMateryMapper.selectSkillUpByIdAndLevel(id, level);
+                    File skillPng = new File(skillMateryMapper.selectSkillPngByName(id));
+                    if (skillPng.exists()) {
+                        textLine.addImage(ImageIO.read(skillPng));
+                    } else {
+                        textLine.addSpace(3);
+                    }
+
+                    textLine.addString(skillMateryMapper.selectSkillNameById(id) + " 专精" + level + "：");
+                    textLine.nextLine();
+                    for (MaterialInfo m : materialInfos) {
+                        textLine.addSpace(2);
+                        File file = new File(materialMadeMapper.selectMaterialPicByName(m.getMaterialName()));
+                        if (file.exists()) {
+                            textLine.addImage(ImageIO.read(file));
+                        } else {
+                            textLine.addSpace(3);
+                        }
+                        textLine.addString(m.getMaterialName() + " * " + m.getMaterialNum() + "个");
+                        textLine.nextLine();
+                    }
+                }
+                replayInfo.setReplayImg(textLine.drawImage());
             }
-            replayInfo.setReplayImg(textLine.drawImage());
+        } else {
+            replayInfo.setReplayMessage("请输入需要查询的技能名或干员名");
         }
         return replayInfo;
     }

@@ -57,11 +57,11 @@ public class BirthdayJob {
                 s.append(name).append(" ");
             }
             s.append("干员生日快乐");
-            for (Long groupId : MiraiFrameUtil.messageIdMap.keySet()) {
-                ReplayInfo replayInfo = new ReplayInfo();
+            ReplayInfo replayInfo = new ReplayInfo();
+            replayInfo.setReplayMessage(s.toString());
+            for (Long groupId: MiraiFrameUtil.messageIdMap.keySet()) {
                 replayInfo.setGroupId(groupId);
                 replayInfo.setLoginQQ(MiraiFrameUtil.messageIdMap.get(groupId));
-                replayInfo.setReplayMessage(s.toString());
                 sendMsgUtil.sendGroupMsg(replayInfo);
             }
             log.info("{}每日干员生日推送发送成功", new Date());

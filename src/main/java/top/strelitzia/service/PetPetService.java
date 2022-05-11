@@ -52,9 +52,9 @@ public class PetPetService {
     @AngelinaEvent(event = EventEnum.MemberJoinEvent, description = "入群欢迎")
     public ReplayInfo memberJoin(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        replayInfo.setReplayMessage("欢迎" + messageInfo.getName() 
+        replayInfo.setReplayMessage("欢迎" + messageInfo.getName()
                                     + "入群，请通过【洁哥菜单】了解洁哥的功能。" \
-                                    + "\n洁哥源码：https://github.com/Strelizia02/AngelinaBot" 
+                                    + "\n洁哥源码：https://github.com/Strelizia02/AngelinaBot"
                                     + "\n详细菜单请阅：https://github.com/Strelizia02/AngelinaBot/wiki");
         return replayInfo;
     }

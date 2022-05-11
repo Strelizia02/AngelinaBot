@@ -6,7 +6,12 @@
         <result column="use_number" property="materialNum" jdbcType="INTEGER"/>
     </resultMap>
 
-    <select id="selectSkillUpBySkillName" resultMap="BaseResultMap">
+    <resultMap id="NameResultMap" type="top.strelitzia.model.OperatorName">
+        <result column="operator_name" property="operatorName" jdbcType="VARCHAR"/>
+        <result column="char_id" property="charId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="selectSkillUpByIdAndLevel" resultMap="BaseResultMap">
         SELECT
             b.material_name,
             a.use_number
@@ -15,66 +20,37 @@
         LEFT JOIN t_material b ON a.use_material_id = b.material_id
         WHERE
             mastery_level = #{level}
-        AND skill_id = (
-            SELECT
-                skill_id
-            FROM
-                t_operator_skill
-            WHERE
-                skill_name = #{skillName}
-		    ORDER BY skill_id DESC
-            LIMIT 1
-        )
+        AND skill_id = #{skillId}
     </select>
 
-    <select id="selectSkillUpByAgentAndIndex" resultMap="BaseResultMap">
+    <select id="selectSkillIDByAgentOrSkill" resultType="java.lang.Integer">
         SELECT
-            b.material_name,
-            a.use_number
+            b.skill_id
         FROM
-            t_operator_skill_mastery_costs a
-        LEFT JOIN t_material b ON a.use_material_id = b.material_id
+            t_operator a LEFT JOIN
+            t_operator_skill b ON a.operator_id = b.operator_id
         WHERE
-            mastery_level = #{level}
-        AND skill_id = (
-            SELECT
-                skill_id
-            FROM
-                t_operator_skill
-            WHERE
-                skill_index = #{index}
-            AND operator_id = (
-                SELECT
-                    operator_id
-                FROM
-                    t_operator
-                WHERE
-                    operator_name = #{agent}
-                LIMIT 1
-            )
-        )
+            a.operator_name = #{name}
+        OR b.skill_name = #{name}
+        ORDER BY skill_index asc
     </select>
 
-    <select id="selectSkillNameByAgentIndex" resultType="java.lang.String">
-        SELECT
-            skill_name
-        FROM
-            t_operator_skill
-        WHERE
-            skill_index = #{index}
-        AND operator_id = (
-            SELECT
-                operator_id
-            FROM
-                t_operator
-            WHERE
-                operator_name = #{agent}
-            LIMIT 1
-        )
+    <select id="selectSkillPngByName" resultType="java.lang.String">
+        select skill_png from t_operator_skill where skill_id = #{skillId}
     </select>
 
-    <select id="selectSkillPngByName" parameterType="java.lang.String" resultType="java.lang.String">
-        select skill_png from t_operator_skill where skill_name = #{name}
+    <select id="selectSkillNameById" resultType="java.lang.String">
+        select skill_name from t_operator_skill where skill_id = #{skillId}
+    </select>
+
+    <select id="selectOperatorNameById" resultMap="NameResultMap">
+        select char_id, operator_name
+        from
+            t_operator a LEFT JOIN
+            t_operator_skill b ON a.operator_id = b.operator_id
+        where
+            skill_id = #{skillId}
+        limit 1
     </select>
 
 </mapper>

@@ -75,7 +75,7 @@ public class ExecuteSqlService {
                 replayInfo.setReplayImg(url);
             }
 
-            for (Long groupId : MiraiFrameUtil.messageIdMap.keySet()) {
+            for (Long groupId: MiraiFrameUtil.messageIdMap.keySet()) {
                 replayInfo.setGroupId(groupId);
                 replayInfo.setLoginQQ(MiraiFrameUtil.messageIdMap.get(groupId));
                 sendMessageUtil.sendGroupMsg(replayInfo);

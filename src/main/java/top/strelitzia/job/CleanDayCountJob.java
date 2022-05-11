@@ -43,16 +43,17 @@ public class CleanDayCountJob {
     @Scheduled(cron = "${scheduled.exterminateJob}")
     @Async
     public void exterminateJob() {
-        for (Long groupId : MiraiFrameUtil.messageIdMap.keySet()) {
-            ReplayInfo replayInfo = new ReplayInfo();
+        ReplayInfo replayInfo = new ReplayInfo();
+        TextLine textLine = new TextLine();
+        textLine.addCenterStringLine("剿灭提醒");
+        textLine.addString("我是本群剿灭小助手，今天是本周最后一天，博士不要忘记打剿灭哦❤");
+        textLine.addCenterStringLine("道路千万条，剿灭第一条");
+        textLine.addCenterStringLine("剿灭忘记打，博士两行泪");
+        textLine.addString("洁哥主页：https://www.angelina-bot.top/");
+        replayInfo.setReplayImg(textLine.drawImage());
+        for (Long groupId: MiraiFrameUtil.messageIdMap.keySet()) {
             replayInfo.setGroupId(groupId);
             replayInfo.setLoginQQ(MiraiFrameUtil.messageIdMap.get(groupId));
-            TextLine textLine = new TextLine();
-            textLine.addCenterStringLine("剿灭提醒");
-            textLine.addString("我是本群剿灭小助手，今天是本周最后一天，博士不要忘记打剿灭哦❤");
-            textLine.addCenterStringLine("道路千万条，剿灭第一条");
-            textLine.addCenterStringLine("剿灭忘记打，博士两行泪");
-            textLine.addString("洁哥主页：https://www.angelina-bot.top/");
             sendMessageUtil.sendGroupMsg(replayInfo);
         }
     }
