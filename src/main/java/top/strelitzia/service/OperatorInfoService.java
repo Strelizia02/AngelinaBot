@@ -50,6 +50,9 @@ public class OperatorInfoService {
         for (String name : operators) {
             s.append(name).append("\n");
         }
+        if (infos.contains("叶莲娜")||infos.contains("霜星")) {
+            s.append("霜星").append("\n");
+        }
         replayInfo.setReplayMessage(s.toString());
         return replayInfo;
     }

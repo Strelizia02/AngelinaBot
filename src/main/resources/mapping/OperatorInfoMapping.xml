@@ -42,7 +42,7 @@
         SELECT
             operator_name
         FROM
-            t_operator o left join a_nick_name n on o.operator_name = n.name
+            t_operator
         WHERE
             draw_name = #{info}
             OR info_name = #{info}
@@ -51,7 +51,6 @@
             OR birthday = #{info}
             OR race = #{info}
             OR operator_name like '%'||#{info}||'%'
-            OR nick_name = #{info}
     </select>
 
     <select id="getOperatorByBirthday" parameterType="java.lang.String" resultType="java.lang.String">

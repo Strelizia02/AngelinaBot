@@ -75,10 +75,14 @@ public class MaterialService {
                 TextLine textLine = new TextLine();
                 OperatorName operatorName = skillMateryMapper.selectOperatorNameById(skillIds.get(0));
                 String avatar = operatorInfoMapper.selectOperatorAvatarPngById(operatorName.getCharId());
-                File avatarFile = new File(avatar);
-                if (avatarFile.exists()) {
-                    textLine.addImage(ImageIO.read(avatarFile));
-                } else {
+                if (avatar != null) {
+                    File avatarFile = new File(avatar);
+                    if (avatarFile.exists()) {
+                        textLine.addImage(ImageIO.read(avatarFile));
+                    } else {
+                        textLine.addSpace(3);
+                    }
+                }else {
                     textLine.addSpace(3);
                 }
                 textLine.addString("干员" + operatorName.getOperatorName() + "的技能专精材料为：");
