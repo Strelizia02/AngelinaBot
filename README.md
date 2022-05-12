@@ -26,7 +26,7 @@
 
 - [如何搭建一个自己的AngelinaBot]()
 
-- [如何使用AngelinaFrame编写一个自己的Bot]()
+- [如何使用AngelinaFrame编写一个自己的Bot](https://github.com/Strelizia02/AngelinaFrame/wiki)
 
 - [视频教程]()
 
