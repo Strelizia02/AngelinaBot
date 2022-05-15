@@ -926,19 +926,22 @@ public class UpdateDataService {
                 operatorSkillInfo.setOperatorId(operatorId);
                 operatorSkillInfo.setSkillIndex(i + 1);
                 if (skills.getJSONObject(i).get("skillId") instanceof String) {
-                    String skillName = skillObj
-                            .getJSONObject(skills.getJSONObject(i).getString("skillId"))
-                            .getJSONArray("levels").getJSONObject(0).getString("name");
-
-                    operatorSkillInfo.setSkillName(skillName);
+                    JSONObject skillJson = skillObj.getJSONObject(skills.getJSONObject(i).getString("skillId"));
+                    String skillName = skillJson.getJSONArray("levels").getJSONObject(0).getString("name");
                     String skillIdYj = skills.getJSONObject(i).getString("skillId");
-                    Pattern skillIdPattern = Pattern.compile("\\[(0-9)\\]");
-                    Matcher skillIdMatcher = skillIdPattern.matcher(skillIdYj);
-                    operatorSkillInfo.setSkillIdYj(skillIdMatcher.replaceAll(""));
+                    operatorSkillInfo.setSkillName(skillName);
+                    if (skillJson.get("iconId") instanceof String) {
+                        operatorSkillInfo.setSkillIdYj(skillJson.getString("iconId"));
+                    } else {
+                        Pattern skillIdPattern = Pattern.compile("\\[(0-9)\\]");
+                        Matcher skillIdMatcher = skillIdPattern.matcher(skillIdYj);
+                        operatorSkillInfo.setSkillIdYj(skillIdMatcher.replaceAll(""));
+                    }
                     updateMapper.insertOperatorSkill(operatorSkillInfo);
                     Integer skillId = updateMapper.selectSkillIdByName(skillName);
 
-                    JSONArray levels = skillObj.getJSONObject(skills.getJSONObject(i).getString("skillId")).getJSONArray("levels");
+                    JSONArray levels = skillJson.getJSONArray("levels");
+
                     for (int level = 0; level < levels.length(); level++) {
                         JSONObject skillDescJson = levels.getJSONObject(level);
                         SkillDesc skillDesc = new SkillDesc();

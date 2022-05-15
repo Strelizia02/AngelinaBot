@@ -61,7 +61,9 @@ public class MaterialService {
                 map.put("二", 2);
                 map.put("1", 1);
                 map.put("2", 2);
-                level = map.get(messageInfo.getArgs().get(2));
+                if (map.containsKey(messageInfo.getArgs().get(2))) {
+                    level = map.get(messageInfo.getArgs().get(2));
+                }
             }
             String name = messageInfo.getArgs().get(1);
             String realName = nickNameMapper.selectNameByNickName(name);
@@ -89,13 +91,18 @@ public class MaterialService {
                 textLine.nextLine();
                 for (Integer id : skillIds) {
                     List<MaterialInfo> materialInfos = skillMateryMapper.selectSkillUpByIdAndLevel(id, level);
-                    File skillPng = new File(skillMateryMapper.selectSkillPngByName(id));
-                    if (skillPng.exists()) {
-                        textLine.addImage(ImageIO.read(skillPng));
-                    } else {
+                    String pathname = skillMateryMapper.selectSkillPngByName(id);
+
+                    if (pathname != null) {
+                        File skillPng = new File(pathname);
+                        if (skillPng.exists()) {
+                            textLine.addImage(ImageIO.read(skillPng));
+                        } else {
+                            textLine.addSpace(3);
+                        }
+                    }else {
                         textLine.addSpace(3);
                     }
-
                     textLine.addString(skillMateryMapper.selectSkillNameById(id) + " 专精" + level + "：");
                     textLine.nextLine();
                     for (MaterialInfo m : materialInfos) {
