@@ -6,8 +6,8 @@ spring:
 userConfig:
   # 多个选项用空格隔开
   botNames: '洁哥 杰哥 安洁莉娜'
-  qqList: '2398095263'
-  pwList: '!#%&(24680Wzy'
+  qqList: ''
+  pwList: ''
 scheduled:
   # 每5分钟监听一次B站动态
   biliJob: 0 */5 * * * ?
