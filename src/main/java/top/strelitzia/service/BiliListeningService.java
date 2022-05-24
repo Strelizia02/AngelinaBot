@@ -21,10 +21,10 @@ import top.strelitzia.dao.GroupAdminInfoMapper;
 import top.strelitzia.dao.UserFoundMapper;
 import top.strelitzia.model.BiliCount;
 import top.strelitzia.model.DynamicDetail;
-import top.strelitzia.model.GroupAdminInfo;
 import top.strelitzia.util.AdminUtil;
 
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author strelitzia
@@ -102,6 +102,7 @@ public class BiliListeningService {
                             replayInfo.setGroupId(groupId);
                             replayInfo.setLoginQQ(MiraiFrameUtil.messageIdMap.get(groupId));
                             sendMessageUtil.sendGroupMsg(replayInfo);
+                            Thread.sleep(new Random().nextInt(5) * 100);
                         }
                     }
                 }

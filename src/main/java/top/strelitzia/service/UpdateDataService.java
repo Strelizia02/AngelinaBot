@@ -82,7 +82,8 @@ public class UpdateDataService {
 
 //    private String url = "https://cdn.jsdelivr.net/gh/Kengxxiao/ArknightsGameData@master/zh_CN/gamedata/";
 //    private String url = "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/";
-    private String url = "http://vivien8261.gitee.io/arknights-bot-resource/gamedata/";
+//    private String url = "http://vivien8261.gitee.io/arknights-bot-resource/gamedata/";
+    private String url = "https://raw.fastgit.org/yuanyan3060/Arknights-Bot-Resource/master/";
 
     @AngelinaGroup(keyWords = {"更新"}, description = "尝试更新数据")
     @AngelinaFriend(keyWords = {"更新"}, description = "尝试更新数据")
@@ -93,8 +94,8 @@ public class UpdateDataService {
             replayInfo.setReplayMessage("您无更新权限");
         } else {
             downloadDataFile(false);
+            replayInfo.setReplayMessage("更新完成，请从后台日志查看更新进度");
         }
-        replayInfo.setReplayMessage("更新完成，请从后台日志查看更新进度");
         return replayInfo;
     }
 
@@ -108,8 +109,8 @@ public class UpdateDataService {
         } else {
             rebuildDatabase();
             downloadDataFile(true);
+            replayInfo.setReplayMessage("更新完成，请从后台日志查看更新进度");
         }
-        replayInfo.setReplayMessage("更新完成，请从后台日志查看更新进度");
         return replayInfo;
     }
 
@@ -131,7 +132,7 @@ public class UpdateDataService {
     }
 
     public void downloadDataFile(boolean force) {
-        String koKoDaYoKeyUrl = "https://gitee.com/vivien8261/Arknights-Bot-Resource/raw/main/gamedata/excel/data_version.txt";
+        String koKoDaYoKeyUrl = url + "gamedata/excel/data_version.txt";
         String charKey = getJsonStringFromUrl(koKoDaYoKeyUrl);
         Integer versionStatus = updateMapper.getVersionStatus();
         File dataVersionFile = new File("runFile/download/data_version.txt");
@@ -186,18 +187,18 @@ public class UpdateDataService {
                 try {
                     log.info("开始下载数据文件");
                     updateMapper.doingDownloadVersion();
-                    downloadOneFile("runFile/download/character_table.json", url + "excel/character_table.json");
-                    downloadOneFile("runFile/download/gacha_table.json", url + "excel/gacha_table.json");
-                    downloadOneFile("runFile/download/skill_table.json", url + "excel/skill_table.json");
-                    downloadOneFile("runFile/download/building_data.json", url + "excel/building_data.json");
-                    downloadOneFile("runFile/download/handbook_info_table.json", url + "excel/handbook_info_table.json");
-                    downloadOneFile("runFile/download/char_patch_table.json", url + "excel/char_patch_table.json");
-                    downloadOneFile("runFile/download/item_table.json", url + "excel/item_table.json");
-                    downloadOneFile("runFile/download/skin_table.json", url + "excel/skin_table.json");
-                    downloadOneFile("runFile/download/battle_equip_table.json", url + "excel/battle_equip_table.json");
-                    downloadOneFile("runFile/download/uniequip_table.json", url + "excel/uniequip_table.json");
-                    downloadOneFile("runFile/download/enemy_database.json", url + "levels/enemydata/enemy_database.json");
-                    downloadOneFile("runFile/download/data_version.txt", "https://gitee.com/vivien8261/Arknights-Bot-Resource/raw/main/gamedata/excel/data_version.txt");
+                    downloadOneFile("runFile/download/character_table.json", url + "gamedata/excel/character_table.json");
+                    downloadOneFile("runFile/download/gacha_table.json", url + "gamedata/excel/gacha_table.json");
+                    downloadOneFile("runFile/download/skill_table.json", url + "gamedata/excel/skill_table.json");
+                    downloadOneFile("runFile/download/building_data.json", url + "gamedata/excel/building_data.json");
+                    downloadOneFile("runFile/download/handbook_info_table.json", url + "gamedata/excel/handbook_info_table.json");
+                    downloadOneFile("runFile/download/char_patch_table.json", url + "gamedata/excel/char_patch_table.json");
+                    downloadOneFile("runFile/download/item_table.json", url + "gamedata/excel/item_table.json");
+                    downloadOneFile("runFile/download/skin_table.json", url + "gamedata/excel/skin_table.json");
+                    downloadOneFile("runFile/download/battle_equip_table.json", url + "gamedata/excel/battle_equip_table.json");
+                    downloadOneFile("runFile/download/uniequip_table.json", url + "gamedata/excel/uniequip_table.json");
+                    downloadOneFile("runFile/download/enemy_database.json", url + "gamedata/levels/enemydata/enemy_database.json");
+                    downloadOneFile("runFile/download/data_version.txt", url + "gamedata/excel/data_version.txt");
                     log.info("数据文件下载完成");
                     updateMapper.doneUpdateVersion();
                 } catch (IOException e) {
@@ -648,10 +649,9 @@ public class UpdateDataService {
                     skinInfo.setSkinGroupName(skinObj.getJSONObject("displaySkin").getString("skinGroupName"));
                     String avatarId = skinObj.getString("avatarId");
                     String[] split = avatarId.split("#");
-                    String skinImgUrl = "http://vivien8261.gitee.io/arknights-bot-resource";
                     try {
                         String fileName = "runFile/skin/" + split[0] + "_" + split[1] + ".png";
-                        downloadOneFile(fileName, skinImgUrl + split[0] + "_" + split[1] + ".png");
+                        downloadOneFile(fileName, url + "skin/" + split[0] + "_" + split[1] + ".png");
                         skinInfo.setSkinBase64(fileName);
                         skinInfoMapper.insertBySkinInfo(skinInfo);
                     } catch (IOException e) {
@@ -676,7 +676,7 @@ public class UpdateDataService {
                 String iconId = materialMadeMapper.selectAllMaterIconId(id);
                 try {
                     String fileName = "runFile/itemIcon/" + iconId + ".png";
-                    downloadOneFile(fileName, "http://vivien8261.gitee.io/arknights-bot-resource/item/" + iconId + ".png");
+                    downloadOneFile(fileName, url + "item/" + iconId + ".png");
                     materialMadeMapper.updateBase64ById(fileName, id);
                 } catch (IOException e) {
                     log.error("下载{}材料图标失败", id);
@@ -698,7 +698,7 @@ public class UpdateDataService {
                 log.info(id + "半身照正在更新");
                 try {
                     String fileName = "runFile/operatorPng/" + id + "_1.png";
-                    downloadOneFile(fileName, "http://vivien8261.gitee.io/arknights-bot-resource/portrait/" + id + "_1.png");
+                    downloadOneFile(fileName, url + "portrait/" + id + "_1.png");
 
                     operatorInfoMapper.insertOperatorPngById(id, fileName);
                 } catch (IOException e) {
@@ -710,7 +710,7 @@ public class UpdateDataService {
                 log.info(id + "头像正在更新");
                 try {
                     String avatarFile = "runFile/avatar/" + id + ".png";
-                    downloadOneFile(avatarFile, "http://vivien8261.gitee.io/arknights-bot-resource/avatar/" + id + ".png");
+                    downloadOneFile(avatarFile, url + "avatar/" + id + ".png");
                     operatorInfoMapper.insertOperatorAvatarPngById(id, avatarFile);
                 } catch (IOException e) {
                     log.error("下载{}干员头像失败", id);
@@ -732,7 +732,7 @@ public class UpdateDataService {
                 log.info(skill.getSkillName() + "技能图标正在更新");
                 try {
                     String fileName = "runFile/skill/skill_icon_" + skill.getSkillIdYj() + ".png";
-                    downloadOneFile(fileName, "http://vivien8261.gitee.io/arknights-bot-resource/skill/skill_icon_" + skill.getSkillIdYj() + ".png");
+                    downloadOneFile(fileName, url + "skill/skill_icon_" + skill.getSkillIdYj() + ".png");
                     operatorInfoMapper.insertOperatorSkillPngById(skill.getSkillId(), fileName);
                 } catch (IOException e) {
                     log.error("下载{}干员技能图标失败", skill.getSkillName());
