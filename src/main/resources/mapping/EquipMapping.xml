@@ -13,11 +13,13 @@
     <resultMap id="BuffResultMap" type="top.strelitzia.model.EquipBuff">
         <result column="buff_name" property="buffName" jdbcType="VARCHAR"/>
         <result column="value" property="value" jdbcType="DOUBLE"/>
+        <result column="level" property="level" jdbcType="INTEGER"/>
     </resultMap>
 
     <resultMap id="CostResultMap" type="top.strelitzia.model.MaterialInfo">
         <result column="material_name" property="materialName" jdbcType="VARCHAR"/>
         <result column="use_number" property="materialNum" jdbcType="INTEGER"/>
+        <result column="level" property="level" jdbcType="INTEGER"/>
     </resultMap>
 
     <insert id="insertEquipInfo" parameterType="top.strelitzia.model.EquipInfo">
@@ -29,19 +31,19 @@
             )
     </insert>
 
-    <insert id="insertEquipcost">
+    <insert id="insertEquipCost">
         insert into t_equip_cost
-            (equip_id, material_id, use_number)
+            (equip_id, material_id, use_number, level)
             values(
-                #{equipId}, #{materialId}, #{useNumber}
+                #{equipId}, #{materialId}, #{useNumber}, #{level}
             )
     </insert>
 
     <insert id="insertEquipBuff">
         insert into t_equip_buff
-            (equip_id, buff_name, value)
+            (equip_id, buff_name, value, level)
             values(
-                #{equipId}, #{buffKey}, #{value}
+                #{equipId}, #{buffKey}, #{value}, #{level}
             )
     </insert>
 
@@ -70,23 +72,25 @@
             )
     </select>
 
-    <select id="selectEquipBuffById" parameterType="java.lang.String" resultMap="BuffResultMap">
+    <select id="selectEquipBuffById" resultMap="BuffResultMap">
         SELECT
-            buff_name, `value`
+            buff_name, `value`, level
         FROM
             t_equip_buff
         WHERE
             equip_id = #{equipId}
+        AND level = #{level}
     </select>
 
-    <select id="selectEquipCostById" parameterType="java.lang.String" resultMap="CostResultMap">
+    <select id="selectEquipCostById" resultMap="CostResultMap">
         SELECT
-            material_name, use_number
+            material_name, use_number, level
         FROM
             t_equip_cost e
         left join t_material m on e.material_id = m.material_id
         WHERE
             e.equip_id = #{equipId}
+        AND e.level = #{level}
     </select>
 
     <select id="selectEquipMissionById" parameterType="java.lang.String" resultType="java.lang.String">

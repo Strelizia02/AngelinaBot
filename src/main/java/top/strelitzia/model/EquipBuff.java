@@ -3,6 +3,15 @@ package top.strelitzia.model;
 public class EquipBuff {
     private String buffName;
     private Double value;
+    private Integer level;
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
 
     public String getBuffName() {
         return buffName;

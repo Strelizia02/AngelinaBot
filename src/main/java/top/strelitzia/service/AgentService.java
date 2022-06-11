@@ -109,78 +109,17 @@ public class AgentService {
             String s = FoundAgentByNum(10, pool, messageInfo.getQq(), sum, messageInfo.getName(), messageInfo.getGroupId());
             s = s.replace(" ", "");
 
-            //干员立绘绘制的序号
-            int No = 0;
-            //创建图片画布
-            BufferedImage image = new BufferedImage(960, 450, BufferedImage.TYPE_INT_BGR);
-            Graphics g = image.getGraphics();
-            // 画出抽卡背景
-            File backgroundFile = new File("runFile/basicPng/background.jpg");
-            if (!backgroundFile.exists()) {
-                log.warn("{}素材图片缺失，改为文字发送", backgroundFile.getName());
-                return shiLian(messageInfo);
+            BufferedImage image = drawPicByFound(s);
+            if (image != null) {
+                replayInfo.setReplayImg(image);
+            } else {
+                replayInfo.setReplayMessage(s);
             }
-            BufferedImage background = ImageIO.read(backgroundFile);
-            g.drawImage(background, 0, 0, 960, 450, null);
 
-            String[] agents = s.split("\n");
-            for (String agent : agents) {
-                String[] split = agent.split("\t");
-                String agentName = split[0];
-
-                // 画出角色背景颜色
-                int star = split[1].length();
-                File starFile = new File("runFile/basicPng/star" + star + ".jpg");
-                if (!starFile.exists()) {
-                    log.warn("{}素材图片缺失，改为文字发送", starFile.getName());
-                    return shiLian(messageInfo);
-                }
-                BufferedImage starPng = ImageIO.read(starFile);
-                g.drawImage(starPng, 70 + No * 82, 0, 82, 450, null);
-                //画出干员立绘
-                String filePath = operatorInfoMapper.selectOperatorPngByName(agentName);
-                File agentFile = new File(filePath);
-                if (!agentFile.exists()) {
-                    log.warn("{}素材图片缺失，改为文字发送", agentFile.getName());
-                    return shiLian(messageInfo);
-                }
-                BufferedImage oldImg = ImageIO.read(agentFile);
-                if (oldImg != null) {
-                    int width = 252 * oldImg.getWidth() / oldImg.getHeight();
-                    int x = width / 2 - 41;
-                    int y = 0;
-                    int h = 252;
-                    BufferedImage newImg = new BufferedImage(width, h, TYPE_INT_ARGB);
-                    Graphics2D graphics = newImg.createGraphics();
-                    graphics.drawImage(oldImg, 0, 0, width, h, null);
-                    graphics.dispose();
-                    //裁剪立绘
-                    BufferedImage charBase = newImg.getSubimage(x, y, 82, 252);
-                    g.drawImage(charBase, 70 + No * 82, 110, 82, 252, null);
-                }
-
-                // 画出角色职业图标
-                Integer classId = operatorInfoMapper.selectOperatorClassByName(agentName);
-                File classFile = new File("runFile/basicPng/" + classId + ".jpg");
-                if (!classFile.exists()) {
-                    log.warn("{}素材图片缺失，改为文字发送", classFile.getName());
-                    return shiLian(messageInfo);
-                }
-                BufferedImage bImage = ImageIO.read(classFile);
-                g.drawImage(bImage, 81 + No * 82, 320, 60, 60, null);
-                No++;
-            }
-            g.setFont(new Font("楷体", Font.BOLD, 20));
-            g.setColor(Color.WHITE);
-            g.drawString("结果仅供参考，详细代码请见：", 470, 420);
-            g.drawString("http://www.angelina-bot.top/", 470, 440);
-            g.dispose();
-            replayInfo.setReplayImg(image);
-            return replayInfo;
         }else {
             replayInfo.setReplayMessage("今日抽卡机会无了");
-            return replayInfo;
         }
+        return replayInfo;
     }
 
     @AngelinaGroup(keyWords = {"卡池", "卡池列表"}, description = "展示现有所有卡池")
@@ -406,5 +345,79 @@ public class AgentService {
             }
         }
         return s.toString();
+    }
+
+    public BufferedImage drawPicByFound(String s) throws IOException {
+        //干员立绘绘制的序号
+        int No = 0;
+        //创建图片画布
+        BufferedImage image = new BufferedImage(960, 450, BufferedImage.TYPE_INT_BGR);
+        Graphics g = image.getGraphics();
+        // 画出抽卡背景
+        File backgroundFile = new File("runFile/basicPng/background.jpg");
+        if (!backgroundFile.exists()) {
+            log.warn("{}素材图片缺失，改为文字发送", backgroundFile.getName());
+            return null;
+        }
+        BufferedImage background = ImageIO.read(backgroundFile);
+        g.drawImage(background, 0, 0, 960, 450, null);
+
+        String[] agents = s.split("\n");
+        for (String agent : agents) {
+            String[] split = agent.split("\t");
+            String agentName = split[0];
+
+            // 画出角色背景颜色
+            int star = split[1].length();
+            File starFile = new File("runFile/basicPng/star" + star + ".jpg");
+            if (!starFile.exists()) {
+                log.warn("{}素材图片缺失，改为文字发送", starFile.getName());
+                return null;
+            }
+            BufferedImage starPng = ImageIO.read(starFile);
+            g.drawImage(starPng, 70 + No * 82, 0, 82, 450, null);
+            //画出干员立绘
+            String filePath = operatorInfoMapper.selectOperatorPngByName(agentName);
+            if (filePath == null) {
+                log.warn("{}干员立绘缺失，改为文字发送", agentName);
+                return null;
+            }
+            File agentFile = new File(filePath);
+            if (!agentFile.exists()) {
+                log.warn("{}素材图片缺失，改为文字发送", agentFile.getName());
+                return null;
+            }
+            BufferedImage oldImg = ImageIO.read(agentFile);
+            if (oldImg != null) {
+                int width = 252 * oldImg.getWidth() / oldImg.getHeight();
+                int x = width / 2 - 41;
+                int y = 0;
+                int h = 252;
+                BufferedImage newImg = new BufferedImage(width, h, TYPE_INT_ARGB);
+                Graphics2D graphics = newImg.createGraphics();
+                graphics.drawImage(oldImg, 0, 0, width, h, null);
+                graphics.dispose();
+                //裁剪立绘
+                BufferedImage charBase = newImg.getSubimage(x, y, 82, 252);
+                g.drawImage(charBase, 70 + No * 82, 110, 82, 252, null);
+            }
+
+            // 画出角色职业图标
+            Integer classId = operatorInfoMapper.selectOperatorClassByName(agentName);
+            File classFile = new File("runFile/basicPng/" + classId + ".jpg");
+            if (!classFile.exists()) {
+                log.warn("{}素材图片缺失，改为文字发送", classFile.getName());
+                return null;
+            }
+            BufferedImage bImage = ImageIO.read(classFile);
+            g.drawImage(bImage, 81 + No * 82, 320, 60, 60, null);
+            No++;
+        }
+        g.setFont(new Font("楷体", Font.BOLD, 20));
+        g.setColor(Color.WHITE);
+        g.drawString("结果仅供参考，详细代码请见：", 470, 420);
+        g.drawString("http://www.angelina-bot.top/", 470, 440);
+        g.dispose();
+        return image;
     }
 }

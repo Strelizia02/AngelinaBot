@@ -8,6 +8,15 @@ package top.strelitzia.model;
 public class MaterialInfo {
     private String materialName;
     private Integer materialNum;
+    private Integer level;
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
 
     public String getMaterialName() {
         return materialName;

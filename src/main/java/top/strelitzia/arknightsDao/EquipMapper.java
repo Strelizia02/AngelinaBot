@@ -15,17 +15,17 @@ public interface EquipMapper {
 
     Integer insertEquipInfo(EquipInfo equipInfo);
 
-    Integer insertEquipcost(@Param("equipId") String equipId, @Param("materialId")String materialId, @Param("useNumber")Integer useNumber);
+    Integer insertEquipCost(@Param("equipId") String equipId, @Param("materialId")String materialId, @Param("useNumber")Integer useNumber, @Param("level")Integer level);
 
-    Integer insertEquipBuff(@Param("equipId")String equipId, @Param("buffKey")String buffKey, @Param("value")Double value);
+    Integer insertEquipBuff(@Param("equipId")String equipId, @Param("buffKey")String buffKey, @Param("value")Double value, @Param("level")Integer level);
 
     Integer insertEquipMission(@Param("equipId")String equipId, @Param("missionId")String missionId, @Param("desc")String desc);
 
-    EquipInfo selectEquipByName(String name);
+    List<EquipInfo> selectEquipByName(String name);
 
-    List<EquipBuff> selectEquipBuffById(String equipId);
+    List<EquipBuff> selectEquipBuffById(@Param("equipId") String equipId, @Param("level")Integer level);
 
-    List<MaterialInfo> selectEquipCostById(String equipId);
+    List<MaterialInfo> selectEquipCostById(@Param("equipId") String equipId, @Param("level")Integer level);
 
     List<String> selectEquipMissionById(String equipId);
 

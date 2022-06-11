@@ -94,6 +94,7 @@ public class UpdateDataService {
             replayInfo.setReplayMessage("您无更新权限");
         } else {
             downloadDataFile(false);
+//            updateOperatorEquipByJson();
             replayInfo.setReplayMessage("更新完成，请从后台日志查看更新进度");
         }
         return replayInfo;
@@ -122,7 +123,7 @@ public class UpdateDataService {
         if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
             replayInfo.setReplayMessage("您无更新权限");
         } else {
-            updateSkin();
+//            updateSkin();
             updateItemIcon();
             updateOperatorPng();
             updateOperatorSkillPng();
@@ -243,7 +244,7 @@ public class UpdateDataService {
                 updateAllOperator();
                 updateAllEnemy();
                 updateMapAndItem();
-                updateSkin();
+//                updateSkin();
                 updateItemIcon();
                 updateOperatorPng();
                 updateOperatorSkillPng();
@@ -297,7 +298,7 @@ public class UpdateDataService {
             String key = keys.next();
             JSONObject operator = operatorObj.getJSONObject(key);
 
-            String name = operator.getString("name");
+            String name = operator.getString("name").trim();
             // 判断干员名是否存在公招描述中
             if (gachaCharList.contains(name)) {
                 updateOperatorTag(operator);
@@ -1077,12 +1078,11 @@ public class UpdateDataService {
                 JSONArray phases = equip.getJSONObject(key).getJSONArray("phases");
                 JSONArray candidates = phases.getJSONObject(0).getJSONArray("parts").getJSONObject(0).
                         getJSONObject("overrideTraitDataBundle").getJSONArray("candidates");
-
                 //天赋变化
-                StringBuilder additionalDescription = new StringBuilder("");
-                StringBuilder overrideDescripton = new StringBuilder("");
-                for (int i = 0; i < candidates.length(); i++) {
-                    JSONObject candidate = candidates.getJSONObject(i);
+                StringBuilder additionalDescription = new StringBuilder();
+                StringBuilder overrideDescripton = new StringBuilder();
+                for (int j = 0; j < candidates.length(); j++) {
+                    JSONObject candidate = candidates.getJSONObject(j);
                     //获取key-value列表
                     Map<String, Double> parameters = new HashMap<>();
                     JSONArray mapList = candidate.getJSONArray("blackboard");
@@ -1119,15 +1119,20 @@ public class UpdateDataService {
                     for (int j = 0; j < buffs.length(); j++) {
                         String buffKey = buffs.getJSONObject(j).getString("key");
                         Double value = buffs.getJSONObject(j).getDouble("value");
-                        equipMapper.insertEquipBuff(key, buffKey, value);
+                        equipMapper.insertEquipBuff(key, buffKey, value, i + 1);
                     }
                 }
 
-                JSONArray itemCost = equipDict.getJSONArray("itemCost");
-                for (int i = 0; i < itemCost.length(); i++) {
-                    String materialId = itemCost.getJSONObject(i).getString("id");
-                    Integer useNumber = itemCost.getJSONObject(i).getInt("count");
-                    equipMapper.insertEquipcost(key, materialId, useNumber);
+                JSONObject itemCost = equipDict.getJSONObject("itemCost");
+                Iterator<String> keys1 = itemCost.keys();
+                while (keys1.hasNext()) {
+                    String level = keys1.next();
+                    JSONArray cost = itemCost.getJSONArray(level);
+                    for (int i = 0; i < cost.length(); i++) {
+                        String materialId = cost.getJSONObject(i).getString("id");
+                        Integer useNumber = cost.getJSONObject(i).getInt("count");
+                        equipMapper.insertEquipCost(key, materialId, useNumber, Integer.parseInt(level));
+                    }
                 }
 
                 JSONArray missionList = equipDict.getJSONArray("missionList");
@@ -1136,6 +1141,7 @@ public class UpdateDataService {
                     String desc = equipUnlock.getJSONObject("missionList").getJSONObject(missionId).getString("desc");
                     equipMapper.insertEquipMission(key, missionId, desc);
                 }
+                log.info("{}模组信息更新成功", key);
             } else {
                 log.info("已有{}模组信息", key);
             }

@@ -26,7 +26,7 @@ public class SkinInfoService {
     private NickNameMapper nickNameMapper;
 
 
-    @AngelinaGroup(keyWords = {"时装", "时装查询", "皮肤", "皮肤查询"}, description = "查询干员的时装信息")
+//    @AngelinaGroup(keyWords = {"时装", "时装查询", "皮肤", "皮肤查询"}, description = "查询干员的时装信息")
     public ReplayInfo getOperatorSkinByInfo(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {

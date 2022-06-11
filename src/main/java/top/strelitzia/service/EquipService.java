@@ -45,65 +45,77 @@ public class EquipService {
             if (realName != null && !realName.equals(""))
                 name = realName;
 
-            EquipInfo equipInfo = equipMapper.selectEquipByName(name);
-            if (equipInfo != null) {
-                String equipId = equipInfo.getEquipId();
-                List<EquipBuff> equipBuffs = equipMapper.selectEquipBuffById(equipId);
-                List<MaterialInfo> materialInfos = equipMapper.selectEquipCostById(equipId);
-                List<String> strings = equipMapper.selectEquipMissionById(equipId);
+            List<EquipInfo> equipInfos = equipMapper.selectEquipByName(name);
+            if (equipInfos.size() > 0) {
                 TextLine textLine = new TextLine(100);
                 textLine.addImage(ImageIO.read(new File(operatorInfoMapper.selectAvatarByName(name))));
                 textLine.addString(name + "的模组信息为：");
-                textLine.nextLine();
-                textLine.addString("模组名称：" + equipInfo.getEquipName());
-                textLine.nextLine();
-                String[] desc = equipInfo.getDesc().split("\\|\\|\\|");
-                textLine.addString("模组特性：");
-                textLine.nextLine();
-                textLine.addSpace(2);
-                textLine.addString("新增天赋：");
-                textLine.nextLine();
-                textLine.addSpace(4);
-                textLine.addString(desc[0]);
-                textLine.addString("天赋变化：");
-                textLine.nextLine();
-                textLine.addSpace(4);
-                textLine.addString(desc[1]);
-                textLine.nextLine();
-                textLine.addString("解锁等级： 精英化" + equipInfo.getPhase() + equipInfo.getLevel() + "级");
-                int i = 1;
-                textLine.nextLine();
-                textLine.addString("解锁条件：");
-                textLine.nextLine();
 
-                for (String mission : strings) {
-                    textLine.addString(i + ". " + mission);
+                textLine.nextLine();
+                for (EquipInfo equipInfo: equipInfos) {
+                    String equipId = equipInfo.getEquipId();
+                    List<String> strings = equipMapper.selectEquipMissionById(equipId);
                     textLine.nextLine();
-                    i++;
-                }
+                    textLine.addString("模组名称：" + equipInfo.getEquipName());
+                    textLine.nextLine();
+                    textLine.addString("解锁条件：");
+                    textLine.nextLine();
 
-                textLine.addString("面板变化：");
-                textLine.nextLine();
-                for (EquipBuff e : equipBuffs) {
-                    String value;
-                    if (e.getValue() >= 0) {
-                        value = "+" + e.getValue();
-                    } else {
-                        value = "-" + e.getValue();
+                    int j = 1;
+                    for (String mission : strings) {
+                        textLine.addString(j + ". " + mission);
+                        textLine.nextLine();
+                        j++;
                     }
-                    textLine.addSpace(2);
-                    textLine.addString(returnBuffName(e.getBuffName()));
-                    textLine.addSpace();
-                    textLine.addString(value);
-                    textLine.nextLine();
+
+                    for (int i = 1; i < 4; i++) {
+                        List<EquipBuff> equipBuffs = equipMapper.selectEquipBuffById(equipId, i);
+                        textLine.nextLine();
+                        textLine.addString("等级" + i + ":");
+                        textLine.nextLine();
+                        String[] desc = equipInfo.getDesc().split("\\|\\|\\|");
+                        textLine.addString("模组特性：");
+                        textLine.nextLine();
+                        textLine.addSpace(2);
+                        textLine.addString("新增天赋：");
+                        textLine.nextLine();
+                        textLine.addSpace(4);
+                        textLine.addString(desc[0]);
+                        textLine.addString("天赋变化：");
+                        textLine.nextLine();
+                        textLine.addSpace(4);
+                        textLine.addString(desc[1]);
+                        textLine.nextLine();
+                        textLine.addString("解锁等级： 精英化" + equipInfo.getPhase() + equipInfo.getLevel() + "级");
+                        textLine.nextLine();
+
+                        textLine.addString("面板变化：");
+                        textLine.nextLine();
+                        for (EquipBuff e : equipBuffs) {
+                            String value;
+                            if (e.getValue() >= 0) {
+                                value = "+" + e.getValue();
+                            } else {
+                                value = "-" + e.getValue();
+                            }
+                            textLine.addSpace(2);
+                            textLine.addString(returnBuffName(e.getBuffName()));
+                            textLine.addSpace();
+                            textLine.addString(value);
+                            textLine.nextLine();
+                        }
+                        textLine.addString("解锁材料：");
+                        textLine.nextLine();
+
+                        List<MaterialInfo> materialInfos = equipMapper.selectEquipCostById(equipId, i);
+                        for (MaterialInfo m : materialInfos) {
+                            textLine.addImage(ImageIO.read(new File(materialMadeMapper.selectMaterialPicByName(m.getMaterialName()))));
+                            textLine.addString(m.getMaterialName() + " * " + m.getMaterialNum() + "个");
+                            textLine.nextLine();
+                        }
+                    }
                 }
-                textLine.addString("解锁材料：");
-                textLine.nextLine();
-                for (MaterialInfo m : materialInfos) {
-                    textLine.addImage(ImageIO.read(new File(materialMadeMapper.selectMaterialPicByName(m.getMaterialName()))));
-                    textLine.addString(m.getMaterialName() + " * " + m.getMaterialNum() + "个");
-                    textLine.nextLine();
-                }
+
                 replayInfo.setReplayImg(textLine.drawImage());
                 return replayInfo;
             } else {
