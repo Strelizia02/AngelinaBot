@@ -16,4 +16,6 @@ public interface SkillDescMapper {
 
     List<SkillInfo> selectAllSkillPng();
 
+    String selectSkillPngByNameAndIndex(@Param("name") String name, @Param("index") Integer index);
+
 }

@@ -3,6 +3,7 @@
 <mapper namespace="top.strelitzia.arknightsDao.OperatorInfoMapper">
     <resultMap id="BaseResultMap" type="top.strelitzia.model.OperatorBasicInfo">
         <result column="operator_id" property="operatorId" jdbcType="INTEGER"/>
+        <result column="operator_rarity" property="operatorRarity" jdbcType="INTEGER"/>
         <result column="char_id" property="charId" jdbcType="VARCHAR"/>
         <result column="draw_name" property="drawName" jdbcType="VARCHAR"/>
         <result column="info_name" property="infoName" jdbcType="VARCHAR"/>
@@ -67,6 +68,7 @@
             operator_name
         FROM
             t_operator
+        where char_id is not null
     </select>
 
     <select id="getAllOperatorId" resultType="java.lang.String">
@@ -120,6 +122,7 @@
     <select id="getOperatorInfoByName" parameterType="java.lang.String" resultMap="BaseResultMap">
         SELECT
             operator_id,
+            operator_rarity,
             char_id,
             draw_name,
             info_name,
