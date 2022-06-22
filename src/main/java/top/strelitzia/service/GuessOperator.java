@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.container.AngelinaEventSource;
+import top.angelinaBot.container.AngelinaListener;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.model.TextLine;
@@ -13,6 +14,7 @@ import top.angelinaBot.util.SendMessageUtil;
 import top.strelitzia.arknightsDao.OperatorInfoMapper;
 import top.strelitzia.arknightsDao.SkillDescMapper;
 import top.strelitzia.dao.AdminUserMapper;
+import top.strelitzia.dao.NickNameMapper;
 import top.strelitzia.model.OperatorBasicInfo;
 import top.strelitzia.util.AdminUtil;
 
@@ -36,6 +38,9 @@ public class GuessOperator {
 
     @Autowired
     AdminUserMapper adminUserMapper;
+
+    @Autowired
+    NickNameMapper nickNameMapper;
 
     private static final Set<Long> groupList = new HashSet<>();
 
@@ -69,23 +74,36 @@ public class GuessOperator {
 
             Map<String, Integer> score = new HashMap<>();
             //记录都提示了哪些信息
-            List<Integer> hintsList = new ArrayList<>(6);
+            List<Integer> hintsList = new ArrayList<>(7);
             //开始循环问
             for (int i = 0; i < num; i++) {
                 log.info(list.get(i));
 
                 boolean result = false;
-                replayInfo.setReplayImg(getTitle(list.get(i), i, hintsList, 2).drawImage());
+                replayInfo.setReplayImg(getTitle(list.get(i), i, hintsList, 3).drawImage());
                 sendMessageUtil.sendGroupMsg(replayInfo);
                 replayInfo.getReplayImg().clear();
                 int j = 0;
                 //仅有五次回答机会，超过五次就寄了，下一题
                 while (j < 5) {
                     //等待一个“洁哥回答”
-                    MessageInfo recall = AngelinaEventSource.waiter(message -> message.getKeyword().equals("回答")).getMessageInfo();
-                    if (recall.getArgs().get(1).equals(list.get(i))) {
+                    MessageInfo recall = AngelinaEventSource.waiter(message -> {
+                        String name = message.getText();
+                        String realName = nickNameMapper.selectNameByNickName(name);
+                        if (realName != null && !realName.equals(""))
+                            name = realName;
+                        return allOperator.contains(name) || name.equals("提示");
+                    }, messageInfo.getGroupId()).getMessageInfo();
+
+
+                    String name = recall.getText();
+                    String realName = nickNameMapper.selectNameByNickName(name);
+                    if (realName != null && !realName.equals(""))
+                        name = realName;
+                    if (name.equals(list.get(i))) {
                         //答对了，直接下一题
-                        replayInfo.setReplayMessage("回答正确，下一题");
+                        replayInfo.setReplayMessage(recall.getName() + " 回答正确，答案是 " + name + " ,下一题");
+                        replayInfo.setReplayImg(new File(operatorInfoMapper.selectAvatarByName(name)));
                         sendMessageUtil.sendGroupMsg(replayInfo);
                         //把消息内容清掉，后续复用
                         replayInfo.setReplayMessage(null);
@@ -99,6 +117,11 @@ public class GuessOperator {
                         }
                         result = true;
                         break;
+                    } else if (name.equals("提示")) {
+                        replayInfo.setReplayImg(getTitle(list.get(i), i, hintsList, 1).drawImage());
+                        sendMessageUtil.sendGroupMsg(replayInfo);
+                        replayInfo.getReplayImg().clear();
+                        j++;
                     } else {
                         //答错了
                         replayInfo.setReplayMessage("回答错误");
@@ -110,13 +133,37 @@ public class GuessOperator {
                     }
                 }
                 if (!result) {
-                    System.out.println("5次还没回答正确，正确答案是：" + list.get(i) + "，下一题");
+                    replayInfo.setReplayMessage("5次还没回答正确，正确答案是：" + list.get(i) + " ,下一题");
+                    replayInfo.setReplayImg(new File(operatorInfoMapper.selectAvatarByName(list.get(i))));
+                    sendMessageUtil.sendGroupMsg(replayInfo);
+                    //把消息内容清掉，后续复用
+                    replayInfo.setReplayMessage(null);
+                    replayInfo.getReplayImg().clear();
+                    hintsList.clear();
                 }
             }
             groupList.remove(messageInfo.getGroupId());
-            replayInfo.setReplayMessage("答题结束" + score);
+            TextLine textLine = new TextLine();
+            textLine.addString("答题结束，本轮的答题结果:");
+            textLine.nextLine();
+            for (String name: score.keySet()) {
+                textLine.addString(name + "答对了" + score.get(name) + "题");
+                textLine.nextLine();
+            }
+            replayInfo.setReplayImg(textLine.drawImage());
             return replayInfo;
         }
+    }
+
+    @AngelinaGroup(keyWords = {"重启猜干员"})
+    public ReplayInfo reGuessOperator(MessageInfo messageInfo) {
+        groupList.remove(messageInfo.getGroupId());
+        for (AngelinaListener listener: AngelinaEventSource.getInstance().listenerSet.keySet()) {
+            if (AngelinaEventSource.getInstance().listenerSet.get(listener).getGroupId().equals(messageInfo.getGroupId())) {
+                AngelinaEventSource.getInstance().listenerSet.remove(listener);
+            }
+        }
+        return guessOperator(messageInfo);
     }
 
     /**
@@ -128,7 +175,7 @@ public class GuessOperator {
      */
     private TextLine getTitle(String name, int i, List<Integer> list, int num) {
         /**
-         * 0-5分别代表 性别，稀有度，种族，出身地，技能图标，画师
+         * 0-6分别代表 性别，稀有度，种族，出身地，技能图标，画师, 职业
          */
         TextLine textLine = new TextLine();
         textLine.addString("第" + i + "题：");
@@ -137,8 +184,8 @@ public class GuessOperator {
             drawInfo(textLine, name, integer);
         }
         int j = 0;
-        while(j < num) {
-            int addInfo = new Random().nextInt(6);
+        while(j < num && list.size() < 7) {
+            int addInfo = new Random().nextInt(7);
             if (!list.contains(addInfo)) {
                 drawInfo(textLine, name, addInfo);
                 list.add(addInfo);
@@ -194,6 +241,37 @@ public class GuessOperator {
                 break;
             case 5:
                 textLine.addString("该干员的立绘画师为：" + operatorInfo.getDrawName());
+                textLine.nextLine();
+                break;
+            case 6:
+                String className = "";
+                switch (operatorInfo.getOperatorClass()) {
+                    case 1:
+                        className = "先锋";
+                        break;
+                    case 2:
+                        className = "近卫";
+                        break;
+                    case 3:
+                        className = "重装";
+                        break;
+                    case 4:
+                        className = "狙击";
+                        break;
+                    case 5:
+                        className = "术士";
+                        break;
+                    case 6:
+                        className = "辅助";
+                        break;
+                    case 7:
+                        className = "医疗";
+                        break;
+                    case 8:
+                        className = "特种";
+                        break;
+                }
+                textLine.addString("该干员的职业为：" + className);
                 textLine.nextLine();
                 break;
         }

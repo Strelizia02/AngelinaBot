@@ -4,6 +4,7 @@
     <resultMap id="BaseResultMap" type="top.strelitzia.model.OperatorBasicInfo">
         <result column="operator_id" property="operatorId" jdbcType="INTEGER"/>
         <result column="operator_rarity" property="operatorRarity" jdbcType="INTEGER"/>
+        <result column="operator_class" property="operatorClass" jdbcType="INTEGER"/>
         <result column="char_id" property="charId" jdbcType="VARCHAR"/>
         <result column="draw_name" property="drawName" jdbcType="VARCHAR"/>
         <result column="info_name" property="infoName" jdbcType="VARCHAR"/>
@@ -123,6 +124,7 @@
         SELECT
             operator_id,
             operator_rarity,
+            operator_class,
             char_id,
             draw_name,
             info_name,

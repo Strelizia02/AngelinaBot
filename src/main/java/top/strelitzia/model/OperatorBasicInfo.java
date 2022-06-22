@@ -8,6 +8,7 @@ package top.strelitzia.model;
 public class OperatorBasicInfo {
     private Integer operatorId;
     private Integer operatorRarity;
+    private Integer operatorClass;
     private String charId;
     private String drawName;
     private String infoName;
@@ -33,6 +34,14 @@ public class OperatorBasicInfo {
 
     public void setOperatorRarity(Integer operatorRarity) {
         this.operatorRarity = operatorRarity;
+    }
+
+    public Integer getOperatorClass() {
+        return operatorClass;
+    }
+
+    public void setOperatorClass(Integer operatorClass) {
+        this.operatorClass = operatorClass;
     }
 
     public Integer getOperatorId() {
