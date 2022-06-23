@@ -95,13 +95,15 @@ public class GuessOperator {
                                 if (realName != null && !realName.equals("")) {
                                     name = realName;
                                 }
-                                return allOperator.contains(name) || name.equals("提示");
+                                return message.getGroupId().equals(messageInfo.getGroupId()) &&
+                                        (allOperator.contains(name) || name.equals("提示"));
                         }
                     };
 
                     angelinaListener.setGroupId(messageInfo.getGroupId());
                     MessageInfo recall = AngelinaEventSource.waiter(angelinaListener).getMessageInfo();
                     if (recall == null) {
+                        groupList.remove(messageInfo.getGroupId());
                         return null;
                     }
 
