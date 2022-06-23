@@ -87,14 +87,23 @@ public class GuessOperator {
                 //仅有五次回答机会，超过五次就寄了，下一题
                 while (j < 5) {
                     //等待一个“洁哥回答”
-                    MessageInfo recall = AngelinaEventSource.waiter(message -> {
-                        String name = message.getText();
-                        String realName = nickNameMapper.selectNameByNickName(name);
-                        if (realName != null && !realName.equals(""))
-                            name = realName;
-                        return allOperator.contains(name) || name.equals("提示");
-                    }, messageInfo.getGroupId()).getMessageInfo();
+                    AngelinaListener angelinaListener = new AngelinaListener() {
+                        @Override
+                        public boolean callback(MessageInfo message) {
+                                String name = message.getText();
+                                String realName = nickNameMapper.selectNameByNickName(name);
+                                if (realName != null && !realName.equals("")) {
+                                    name = realName;
+                                }
+                                return allOperator.contains(name) || name.equals("提示");
+                        }
+                    };
 
+                    angelinaListener.setGroupId(messageInfo.getGroupId());
+                    MessageInfo recall = AngelinaEventSource.waiter(angelinaListener).getMessageInfo();
+                    if (recall == null) {
+                        return null;
+                    }
 
                     String name = recall.getText();
                     String realName = nickNameMapper.selectNameByNickName(name);
@@ -159,7 +168,7 @@ public class GuessOperator {
     public ReplayInfo reGuessOperator(MessageInfo messageInfo) {
         groupList.remove(messageInfo.getGroupId());
         for (AngelinaListener listener: AngelinaEventSource.getInstance().listenerSet.keySet()) {
-            if (AngelinaEventSource.getInstance().listenerSet.get(listener).getGroupId().equals(messageInfo.getGroupId())) {
+            if (listener.getGroupId().equals(messageInfo.getGroupId())) {
                 AngelinaEventSource.getInstance().listenerSet.remove(listener);
             }
         }
