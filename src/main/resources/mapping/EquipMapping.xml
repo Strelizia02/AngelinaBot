@@ -8,6 +8,7 @@
         <result column="phase" property="phase" jdbcType="INTEGER"/>
         <result column="level" property="level" jdbcType="INTEGER"/>
         <result column="desc" property="desc" jdbcType="VARCHAR"/>
+        <result column="equip_level" property="equipLevel" jdbcType="INTEGER"/>
     </resultMap>
 
     <resultMap id="BuffResultMap" type="top.strelitzia.model.EquipBuff">
@@ -57,7 +58,7 @@
 
     <select id="selectEquipByName" parameterType="java.lang.String" resultMap="BaseResultMap">
         SELECT
-            equip_id, equip_name, phase, `level`, `desc`
+            equip_id, equip_name, phase, `level`, `desc`, `equip_level`
         FROM
             t_equip
         WHERE
