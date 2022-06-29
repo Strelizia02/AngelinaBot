@@ -104,7 +104,8 @@ public class GuessOperator {
                     MessageInfo recall = AngelinaEventSource.waiter(angelinaListener).getMessageInfo();
                     if (recall == null) {
                         groupList.remove(messageInfo.getGroupId());
-                        return null;
+                        replayInfo.setReplayMessage("本轮猜干员已超时终止。");
+                        return replayInfo;
                     }
 
                     String name = recall.getText();

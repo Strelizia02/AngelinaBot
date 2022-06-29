@@ -93,8 +93,8 @@ public class UpdateDataService {
         if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
             replayInfo.setReplayMessage("您无更新权限");
         } else {
-            downloadDataFile(false);
-//            updateOperatorEquipByJson();
+//            downloadDataFile(false);
+            updateOperatorEquipByJson();
             replayInfo.setReplayMessage("更新完成，请从后台日志查看更新进度");
         }
         return replayInfo;
@@ -1076,45 +1076,96 @@ public class UpdateDataService {
                 equipInfo.setCharId(equipDict.getString("charId"));
 
                 JSONArray phases = equip.getJSONObject(key).getJSONArray("phases");
-                JSONArray candidates = phases.getJSONObject(0).getJSONArray("parts").getJSONObject(0).
-                        getJSONObject("overrideTraitDataBundle").getJSONArray("candidates");
-                //天赋变化
-                StringBuilder additionalDescription = new StringBuilder();
-                StringBuilder overrideDescripton = new StringBuilder();
-                for (int j = 0; j < candidates.length(); j++) {
-                    JSONObject candidate = candidates.getJSONObject(j);
-                    //获取key-value列表
-                    Map<String, Double> parameters = new HashMap<>();
-                    JSONArray mapList = candidate.getJSONArray("blackboard");
-                    for (int keyId = 0; keyId < mapList.length(); keyId++) {
-                        parameters.put(mapList.getJSONObject(keyId).getString("key").toLowerCase(),
-                                mapList.getJSONObject(keyId).getDouble("value"));
-                    }
-                    if (candidate.get("additionalDescription") instanceof String) {
-                        String additional = candidate.getString("additionalDescription");
-                        additionalDescription.append(getValueByKeysFormatString(additional, parameters));
-                    }
-                    if (candidate.get("overrideDescripton") instanceof String) {
-                        String override = candidate.getString("overrideDescripton");
-                        overrideDescripton.append(getValueByKeysFormatString(override, parameters));
-                    }
-                }
-                String addStr = additionalDescription.toString();
-                String overStr = overrideDescripton.toString();
 
-                if (addStr.equals("")) {
-                    addStr = "无";
-                }
-                if (overStr.equals("")) {
-                    overStr = "无";
-                }
-                String talentDesc = addStr + "|||" + overStr;
-                equipInfo.setDesc(talentDesc);
-                equipInfo.setLevel(candidates.getJSONObject(0).getJSONObject("unlockCondition").getInt("level"));
-                equipInfo.setPhase(candidates.getJSONObject(0).getJSONObject("unlockCondition").getInt("phase"));
-                equipMapper.insertEquipInfo(equipInfo);
 
                 for (int i = 0; i < phases.length(); i++) {
+                    equipInfo.setEquipLevel(i + 1);
+                    JSONArray parts = phases.getJSONObject(i).getJSONArray("parts");
+
+                    //天赋变化
+                    StringBuilder additionalDescription = new StringBuilder();
+                    StringBuilder overrideDescripton = new StringBuilder();
+
+                    for (int j = 0; j < parts.length(); j++) {
+                        JSONObject part = parts.getJSONObject(j);
+                        JSONArray candidates;
+                        switch (part.getString("target")) {
+                            case "DISPLAY":
+                                candidates = part.getJSONObject("overrideTraitDataBundle").getJSONArray("candidates");
+                                for (int k = 0; k < candidates.length(); k++) {
+                                    JSONObject candidate = candidates.getJSONObject(k);
+                                    //获取key-value列表
+                                    Map<String, Double> parameters = new HashMap<>();
+                                    JSONArray mapList = candidate.getJSONArray("blackboard");
+                                    for (int keyId = 0; keyId < mapList.length(); keyId++) {
+                                        parameters.put(mapList.getJSONObject(keyId).getString("key").toLowerCase(),
+                                                mapList.getJSONObject(keyId).getDouble("value"));
+                                    }
+                                    if (candidate.get("additionalDescription") instanceof String) {
+                                        String additional = candidate.getString("additionalDescription");
+                                        additionalDescription.append(getValueByKeysFormatString(additional, parameters));
+                                    }
+                                    if (candidate.get("overrideDescripton") instanceof String) {
+                                        String override = candidate.getString("overrideDescripton");
+                                        overrideDescripton.append(getValueByKeysFormatString(override, parameters));
+                                    }
+                                }
+                                break;
+                            case "TALENT_DATA_ONLY":
+                                candidates = part.getJSONObject("addOrOverrideTalentDataBundle").getJSONArray("candidates");
+                                for (int k = 0; k < candidates.length(); k++) {
+                                    JSONObject candidate = candidates.getJSONObject(k);
+                                    //获取key-value列表
+                                    Map<String, Double> parameters = new HashMap<>();
+                                    JSONArray mapList = candidate.getJSONArray("blackboard");
+                                    for (int keyId = 0; keyId < mapList.length(); keyId++) {
+                                        parameters.put(mapList.getJSONObject(keyId).getString("key").toLowerCase(),
+                                                mapList.getJSONObject(keyId).getDouble("value"));
+                                    }
+                                    if (candidate.get("upgradeDescription") instanceof String) {
+                                        String additional = candidate.getString("upgradeDescription");
+                                        additionalDescription.append(getValueByKeysFormatString(additional, parameters));
+                                    }
+                                }
+                                break;
+                            case "TRAIT_DATA_ONLY":
+                                candidates = part.getJSONObject("overrideTraitDataBundle").getJSONArray("candidates");
+                                for (int k = 0; k < candidates.length(); k++) {
+                                    JSONObject candidate = candidates.getJSONObject(k);
+                                    //获取key-value列表
+                                    Map<String, Double> parameters = new HashMap<>();
+                                    JSONArray mapList = candidate.getJSONArray("blackboard");
+                                    for (int keyId = 0; keyId < mapList.length(); keyId++) {
+                                        parameters.put(mapList.getJSONObject(keyId).getString("key").toLowerCase(),
+                                                mapList.getJSONObject(keyId).getDouble("value"));
+                                    }
+                                    if (candidate.get("overrideDescripton") instanceof String) {
+                                        String override = candidate.getString("overrideDescripton");
+                                        overrideDescripton.append(getValueByKeysFormatString(override, parameters));
+                                    }
+                                }
+                                break;
+                        }
+                    }
+
+                    String addStr = additionalDescription.toString();
+                    String overStr = overrideDescripton.toString();
+
+                    if (addStr.equals("")) {
+                        addStr = "无";
+                    }
+                    if (overStr.equals("")) {
+                        overStr = "无";
+                    }
+                    String talentDesc = addStr + "|||" + overStr;
+                    equipInfo.setDesc(talentDesc);
+                    equipInfo.setLevel(parts.getJSONObject(0).
+                            getJSONObject("overrideTraitDataBundle").getJSONArray("candidates").getJSONObject(0).getJSONObject("unlockCondition").getInt("level"));
+                    equipInfo.setPhase(parts.getJSONObject(0).
+                            getJSONObject("overrideTraitDataBundle").getJSONArray("candidates").getJSONObject(0).getJSONObject("unlockCondition").getInt("phase"));
+                    equipMapper.insertEquipInfo(equipInfo);
+
+
                     JSONArray buffs = phases.getJSONObject(i).getJSONArray("attributeBlackboard");
                     for (int j = 0; j < buffs.length(); j++) {
                         String buffKey = buffs.getJSONObject(j).getString("key");

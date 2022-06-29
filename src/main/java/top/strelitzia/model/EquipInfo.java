@@ -8,6 +8,15 @@ public class EquipInfo {
     private Integer phase;
     private Integer level;
     private String desc;
+    private Integer equipLevel;
+
+    public Integer getEquipLevel() {
+        return equipLevel;
+    }
+
+    public void setEquipLevel(Integer equipLevel) {
+        this.equipLevel = equipLevel;
+    }
 
     public String getEquipId() {
         return equipId;

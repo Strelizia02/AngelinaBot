@@ -24,10 +24,10 @@
 
     <insert id="insertEquipInfo" parameterType="top.strelitzia.model.EquipInfo">
         insert into t_equip
-            (equip_id, equip_name, char_id, phase, `level`, `desc`)
+            (equip_id, equip_name, char_id, phase, `level`, `desc`, `equip_level`)
             values(
                 #{equipId}, #{equipName}, #{charId},
-                #{phase}, #{level}, #{desc}
+                #{phase}, #{level}, #{desc}, #{equipLevel}
             )
     </insert>
 
