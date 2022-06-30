@@ -238,7 +238,12 @@ public class GuessOperator {
                         textLine.addImage(ImageIO.read(new File(skillDescMapper.selectSkillPngByNameAndIndex(name, new Random().nextInt(3) + 1))));
                     } else if (operatorInfo.getOperatorRarity() > 3) {
                         textLine.addString("该干员的某个技能图标为：");
-                        textLine.addImage(ImageIO.read(new File(skillDescMapper.selectSkillPngByNameAndIndex(name, new Random().nextInt(2) + 1))));
+                        if(name.equals("断罪者")){
+                            textLine.addImage(ImageIO.read(new File(skillDescMapper.selectSkillPngByNameAndIndex(name,2))));
+                        }else {
+                            textLine.addImage(ImageIO.read(new File(skillDescMapper.selectSkillPngByNameAndIndex(name, new Random().nextInt(2) + 1))));
+                        }
+
                     } else if (operatorInfo.getOperatorRarity() == 3) {
                         textLine.addString("该干员的某个技能图标为：");
                         textLine.addImage(ImageIO.read(new File(skillDescMapper.selectSkillPngByNameAndIndex(name, 1))));
