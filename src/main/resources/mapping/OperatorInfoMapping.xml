@@ -146,7 +146,7 @@
         FROM
             t_operator
         WHERE
-            operator_name = #{name}
+            operator_name = #{name} AND char_id is not null
     </select>
 
     <select id="getOperatorIdByChar" parameterType="java.lang.String" resultType="java.lang.Integer">
