@@ -3,7 +3,8 @@ package top.strelitzia.util;
 import com.madgag.gif.fmsware.AnimatedGifEncoder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import sun.misc.BASE64Encoder;
+
+import static java.util.Base64.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -12,6 +13,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.Objects;
 
 
@@ -167,7 +169,7 @@ public class PetPetUtil {
             data = new byte[in.available()];
             in.read(data);
             in.close();
-            String base = new BASE64Encoder().encode(Objects.requireNonNull(data));
+            String base = Base64.getEncoder().encodeToString(Objects.requireNonNull(data));
             imageUtil.getImgToLocal("F:/", 1, base, "gif");
         } catch (IOException e) {
             e.printStackTrace();

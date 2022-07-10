@@ -2,8 +2,12 @@ package top.strelitzia.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+import java.util.Base64.Decoder;
+import java.util.Base64.Encoder;
+
+import java.util.Base64;
+import java.util.Base64.Decoder;
+import java.util.Base64.Encoder;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -139,8 +143,8 @@ public class ImageUtil {
      * @return
      */
     public static String encode(byte[] image) {
-        BASE64Encoder decoder = new BASE64Encoder();
-        return replaceEnter(decoder.encode(image));
+        Encoder encoder = Base64.getEncoder();
+        return replaceEnter(encoder.encodeToString(image));
     }
 
     public static String replaceEnter(String str) {
@@ -158,10 +162,10 @@ public class ImageUtil {
     public void getImgToLocal(String dir, Integer id, String base64, String type) {
         if (base64 == null) // 图像数据为空
             return;
-        BASE64Decoder decoder = new BASE64Decoder();
+        Decoder decoder = Base64.getDecoder();
         try {
             // Base64解码
-            byte[] bytes = decoder.decodeBuffer(base64);
+            byte[] bytes = decoder.decode(base64);
             for (int i = 0; i < bytes.length; ++i) {
                 if (bytes[i] < 0) {// 调整异常数据
                     bytes[i] += 256;
@@ -180,10 +184,10 @@ public class ImageUtil {
     public static BufferedImage Base64ToImageBuffer(String base64) {
         if (base64 == null) // 图像数据为空
             return null;
-        BASE64Decoder decoder = new BASE64Decoder();
+        Decoder decoder = Base64.getDecoder();
         try {
             // Base64解码
-            byte[] bytes = decoder.decodeBuffer(base64);
+            byte[] bytes = decoder.decode(base64);
             for (int i = 0; i < bytes.length; ++i) {
                 if (bytes[i] < 0) {// 调整异常数据
                     bytes[i] += 256;

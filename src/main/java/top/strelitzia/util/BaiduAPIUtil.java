@@ -5,11 +5,10 @@ import com.baidu.aip.http.AipRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.*;
+import java.util.Base64.Decoder;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * @author strelitzia
@@ -84,11 +83,11 @@ public class BaiduAPIUtil{
     }
 
     public byte[] base64ToImgByteArray(String base64) throws IOException {
-        sun.misc.BASE64Decoder decoder = new sun.misc.BASE64Decoder();
+        Decoder decoder = Base64.getDecoder();
         //因为参数base64来源不一样，需要将附件数据替换清空掉。如果此入参来自canvas.toDataURL("image/png");
         base64 = base64.replaceAll("data:image/png;base64,", "");
         //base64解码并转为二进制数组
-        byte[] bytes = decoder.decodeBuffer(base64);
+        byte[] bytes = decoder.decode(base64);
         for (int i = 0; i < bytes.length; ++i) {
             if (bytes[i] < 0) {// 调整异常数据
                 bytes[i] += 256;
