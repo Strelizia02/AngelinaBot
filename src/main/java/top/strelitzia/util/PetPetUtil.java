@@ -3,16 +3,13 @@ package top.strelitzia.util;
 import com.madgag.gif.fmsware.AnimatedGifEncoder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import sun.misc.BASE64Encoder;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Objects;
+
 
 
 @Component
@@ -152,25 +149,25 @@ public class PetPetUtil {
         }
     }
 
-    public static void main(String[] args) {
-        PetPetUtil pet = new PetPetUtil();
-        ImageUtil imageUtil = new ImageUtil();
-        BufferedImage userImage = ImageUtil.Base64ToImageBuffer(
-                imageUtil.getImageBase64ByUrl("http://q.qlogo.cn/headimg_dl?dst_uin=412459523&spec=100"));
-        File file = new File("F:/a.png");
-        byte[] data;
-        try {
-            ImageIO.write(userImage, "png", file);
-            String path = "frame.gif";
-            pet.getGif(path, userImage);
-            InputStream in = new FileInputStream(path);
-            data = new byte[in.available()];
-            in.read(data);
-            in.close();
-            String base = new BASE64Encoder().encode(Objects.requireNonNull(data));
-            imageUtil.getImgToLocal("F:/", 1, base, "gif");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public static void main(String[] args) {
+//        PetPetUtil pet = new PetPetUtil();
+//        ImageUtil imageUtil = new ImageUtil();
+//        BufferedImage userImage = ImageUtil.Base64ToImageBuffer(
+//                imageUtil.getImageBase64ByUrl("http://q.qlogo.cn/headimg_dl?dst_uin=412459523&spec=100"));
+//        File file = new File("F:/a.png");
+//        byte[] data;
+//        try {
+//            ImageIO.write(userImage, "png", file);
+//            String path = "frame.gif";
+//            pet.getGif(path, userImage);
+//            InputStream in = new FileInputStream(path);
+//            data = new byte[in.available()];
+//            in.read(data);
+//            in.close();
+//            String base = new BASE64Encoder().encode(Objects.requireNonNull(data));
+//            imageUtil.getImgToLocal("F:/", 1, base, "gif");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

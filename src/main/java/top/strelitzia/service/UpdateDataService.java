@@ -23,7 +23,6 @@ import top.strelitzia.dao.*;
 import top.strelitzia.model.*;
 import top.strelitzia.util.AdminUtil;
 import top.strelitzia.util.FormatStringUtil;
-import top.strelitzia.util.ImageUtil;
 import top.strelitzia.util.XPathUtil;
 
 import java.io.*;
@@ -58,9 +57,6 @@ public class UpdateDataService {
 
     @Autowired
     private OperatorInfoMapper operatorInfoMapper;
-
-    @Autowired
-    private ImageUtil imageUtil;
 
     @Autowired
     private MaterialMadeMapper materialMadeMapper;
