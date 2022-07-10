@@ -93,8 +93,8 @@ public class UpdateDataService {
         if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
             replayInfo.setReplayMessage("您无更新权限");
         } else {
-//            downloadDataFile(false);
-            updateOperatorEquipByJson();
+            downloadDataFile(false);
+//            updateOperatorVoice();
             replayInfo.setReplayMessage("更新完成，请从后台日志查看更新进度");
         }
         return replayInfo;
@@ -757,7 +757,7 @@ public class UpdateDataService {
                 String url = a.attr("href");
                 String[] split = url.split("/");
                 String fileName = XPathUtil.decodeUnicode(split[split.length - 1].substring(0,split[split.length - 1].length() - 4));
-                String path = "runFile/voice/" + name.getCharId() + "/" + fileName + ".wav";
+                String path = "runFile/voice/" + name.getCharId() + "/" + fileName + ".mp3";
                 try {
                     downloadOneFile(path, url);
                 } catch (IOException e) {
