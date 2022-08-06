@@ -61,6 +61,10 @@ public class GuessOperator {
             int num = 10;
             if (messageInfo.getArgs().size() > 1) {
                 num = Integer.parseInt(messageInfo.getArgs().get(1));
+                if (num > 100 || num < 1) {
+                    replayInfo.setReplayMessage("请输入1-100之间的数字");
+                    return replayInfo;
+                }
             }
             replayInfo.setReplayMessage("本群猜干员正式开始，请听题");
             sendMessageUtil.sendGroupMsg(replayInfo);
