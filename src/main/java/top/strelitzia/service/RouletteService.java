@@ -102,11 +102,11 @@ public class RouletteService {
             rouletteInfo.remove(messageInfo.getGroupId());
         }else {
             switch ( trigger) {
-                case 0 -> replayInfo.setReplayMessage("无需退路。( 1 / 6 )");
-                case 1 -> replayInfo.setReplayMessage("英雄们，为这最强大的信念，请站在我们这边。( 2 / 6 )");
-                case 2 -> replayInfo.setReplayMessage("颤抖吧，在真正的勇敢面前。( 3 / 6 )");
-                case 3 -> replayInfo.setReplayMessage("哭嚎吧，为你们不堪一击的信念。( 4 / 6 ) ");
-                case 4 -> replayInfo.setReplayMessage("现在可没有后悔的余地了。( 5 / 6 )");
+                case 0 : replayInfo.setReplayMessage("无需退路。( 1 / 6 )");break;
+                case 1 : replayInfo.setReplayMessage("英雄们，为这最强大的信念，请站在我们这边。( 2 / 6 )");break;
+                case 2 : replayInfo.setReplayMessage("颤抖吧，在真正的勇敢面前。( 3 / 6 )");break;
+                case 3 : replayInfo.setReplayMessage("哭嚎吧，为你们不堪一击的信念。( 4 / 6 ) ");break;
+                case 4 : replayInfo.setReplayMessage("现在可没有后悔的余地了。( 5 / 6 )");break;
             }
             rouletteNum.remove(1);
             rouletteNum.add(trigger+1);
