@@ -92,12 +92,8 @@ public class RouletteService {
         Integer bullet = rouletteNum.get(0);
         Integer trigger = rouletteNum.get(1);
         if(bullet.equals(trigger)){
-            if(messageInfo.getBotPermission().getLevel() > messageInfo.getUserAdmin().getLevel()){
-                replayInfo.setMuted((new Random().nextInt(5) + 1) * 60);//轮盘赌禁言时间
-                replayInfo.setReplayMessage("对不起，"+replayInfo.getName()+"，我也不想这样的......");
-            }else {
-                replayInfo.setReplayMessage("我的手中的这把守护铳，找了无数工匠都难以修缮如新。不......不该如此......");
-            }
+            replayInfo.setMuted((new Random().nextInt(5) + 1) * 60);//轮盘赌禁言时间
+            replayInfo.setReplayMessage("对不起，"+replayInfo.getName()+"，我也不想这样的......");
             //清空这一次的轮盘赌
             rouletteInfo.remove(messageInfo.getGroupId());
         }else {
