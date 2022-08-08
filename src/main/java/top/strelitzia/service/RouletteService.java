@@ -61,10 +61,10 @@ public class RouletteService {
             sendMessageUtil.sendGroupMsg(replayInfo);
         }else {
             //加N个子弹,随机选弹仓加入子弹，则触发位置是最小的弹仓号
-            List<Integer> list = new ArrayList<>();
+            LinkedList<Integer> list = new LinkedList<>();
             List<Integer> situList = new ArrayList<>(Arrays.asList(0,1,2,3,4,5));
             for(int i=0;i<bulletNum;i++){
-                Integer situ = new Random().nextInt(situList.size());
+                int situ = new Random().nextInt(situList.size());
                 bullet = situList.get(situ);
                 situList.remove(situ);
                 list.add(bullet);
@@ -76,6 +76,42 @@ public class RouletteService {
         List<Integer> rouletteInitial = new ArrayList<>(Arrays.asList(bullet,0));
         rouletteInfo.put(messageInfo.getGroupId(),rouletteInitial);
         replayInfo.setReplayMessage("这是一把充满荣耀与死亡的守护铳，不幸者将再也发不出声音。勇士们啊，扣动你们的扳机！感谢Outcast提供的守护铳！");
+        return replayInfo;
+    }
+
+    @AngelinaGroup(keyWords = {"开枪"}, description = "进入生死的轮回")
+    public ReplayInfo openGun(MessageInfo messageInfo) {
+        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        List<Integer> rouletteNum = rouletteInfo.get(messageInfo.getGroupId());
+        //判断是否已经上膛
+        if (rouletteNum == null){
+            replayInfo.setReplayMessage("您还没上子弹呢");
+            return replayInfo;
+        }
+        //取出子弹位置和开枪次数进行对比
+        Integer bullet = rouletteNum.get(0);
+        Integer trigger = rouletteNum.get(1);
+        if(bullet.equals(trigger)){
+            if(messageInfo.getBotPermission().getLevel() > messageInfo.getUserAdmin().getLevel()){
+                replayInfo.setMuted((new Random().nextInt(5) + 1) * 60);//轮盘赌禁言时间
+                replayInfo.setReplayMessage("对不起，"+replayInfo.getName()+"，我也不想这样的......");
+            }else {
+                replayInfo.setReplayMessage("我的手中的这把守护铳，找了无数工匠都难以修缮如新。不......不该如此......");
+            }
+            //清空这一次的轮盘赌
+            rouletteInfo.remove(messageInfo.getGroupId());
+        }else {
+            switch ( trigger) {
+                case 0 : replayInfo.setReplayMessage("无需退路。( 1 / 6 )");break;
+                case 1 : replayInfo.setReplayMessage("英雄们，为这最强大的信念，请站在我们这边。( 2 / 6 )");break;
+                case 2 : replayInfo.setReplayMessage("颤抖吧，在真正的勇敢面前。( 3 / 6 )");break;
+                case 3 : replayInfo.setReplayMessage("哭嚎吧，为你们不堪一击的信念。( 4 / 6 ) ");break;
+                case 4 : replayInfo.setReplayMessage("现在可没有后悔的余地了。( 5 / 6 )");break;
+            }
+            rouletteNum.remove(1);
+            rouletteNum.add(trigger+1);
+            rouletteInfo.put(messageInfo.getGroupId(),rouletteNum);
+        }
         return replayInfo;
     }
 
