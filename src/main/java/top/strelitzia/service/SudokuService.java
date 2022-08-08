@@ -17,7 +17,12 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -33,18 +38,8 @@ public class SudokuService {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SudokuService.class);
 
-    @AngelinaGroup(keyWords = {"test"} )
-    public ReplayInfo sudokuTest(MessageInfo messageInfo) {
-        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        int[][] filled = new int[9][9];
-        SudokuGenerator s = new SudokuGenerator(9);
-        int[][] puzzle = s.generatePuzzle(generateAnswer(), Integer.parseInt(messageInfo.getArgs().get(1)),50);
-        replayInfo.setReplayImg(drawBoard(puzzle,filled, Integer.parseInt(messageInfo.getArgs().get(1))));
-        return replayInfo;
-    }
-
     @AngelinaGroup(keyWords = {"数独"} )
-    public ReplayInfo sudoku(MessageInfo messageInfo) {
+    public ReplayInfo sudoku(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         Long groupId = messageInfo.getGroupId();
         if (groupList.contains(groupId)) {
@@ -126,14 +121,13 @@ public class SudokuService {
                 }
                 answer = generateAnswer();
                 writeTxt(answer,path+"/answer.txt");
-                SudokuGenerator s = new SudokuGenerator(9);
-                puzzle = s.generatePuzzle(answer, difficulty,50);
+                puzzle = generatePuzzle(answer, difficulty,50);
                 writeTxt(puzzle,path+"/puzzle.txt");
                 writeTxt(filled,path+"/filled.txt");
 
                 //继续的话其实没什么操作需要做了，硬写写一个
             }else if (recall1.getText().equals("继续")){
-                replayInfo.setReplayMessage("稀音正在为您重连中......");
+                replayInfo.setReplayMessage("洁哥正在为您重连中......");
                 sendMessageUtil.sendGroupMsg(replayInfo);
                 replayInfo.setReplayMessage(null);
             }
@@ -172,8 +166,7 @@ public class SudokuService {
             }
             answer = generateAnswer();
             writeTxt(answer,path+"/answer.txt");
-            SudokuGenerator s = new SudokuGenerator(9);
-            puzzle = s.generatePuzzle(answer, difficulty,50);
+            puzzle = generatePuzzle(answer, difficulty,50);
             writeTxt(puzzle,path+"/puzzle.txt");
             writeTxt(filled,path+"/filled.txt");
         }
@@ -217,6 +210,7 @@ public class SudokuService {
                 i--;
                 continue;
             }
+            time = 0;
 
             if (recall.getText().equals("查看数独")){
                 replayInfo.setReplayImg(drawBoard(puzzle, filled, difficulty));
@@ -364,19 +358,6 @@ public class SudokuService {
         return replayInfo;
     }
 
-    public static void main(String[] args) {
-        String str = "1.14";
-        int num = str.charAt(str.length()-1)-'0';
-        str = str.substring(0, str.length() - 1);//去掉最后一位
-        //去掉无关信息，只保留数字和小数点
-        String REGEX ="[^(0-9).]";
-        str = Pattern.compile(REGEX).matcher(str).replaceAll("").trim();
-
-        BigDecimal xy = new BigDecimal(str);
-        int x = getX(xy);
-        int y = getY(xy);
-    }
-
     private boolean over(int[][] puzzle,int[][] filled){
         int zero = 0;
         for(int r=0;r<9;r++){
@@ -400,10 +381,10 @@ public class SudokuService {
         });*/
 
         //如果一定要返回一个map，就new一个LinkedHashMap，将list中所有值依次put进去就可以
-    LinkedHashMap<String,Integer> linkedHashMap=new LinkedHashMap<>();
-    lstEntry.forEach(o->{
-        linkedHashMap.put(o.getKey(),o.getValue());
-    });
+        LinkedHashMap<String,Integer> linkedHashMap=new LinkedHashMap<>();
+        lstEntry.forEach(o->{
+            linkedHashMap.put(o.getKey(),o.getValue());
+        });
         return linkedHashMap;
     }
 
@@ -464,13 +445,13 @@ public class SudokuService {
         FileOutputStream fileOutputStream = null;
         File file = new File(path);
         try {
-        if(!file.exists()){
-            file.createNewFile();
-        }
-        fileOutputStream = new FileOutputStream(file);
-        fileOutputStream.write(word.getBytes(StandardCharsets.UTF_8));
-        fileOutputStream.flush();
-        fileOutputStream.close();
+            if(!file.exists()){
+                file.createNewFile();
+            }
+            fileOutputStream = new FileOutputStream(file);
+            fileOutputStream.write(word.getBytes(StandardCharsets.UTF_8));
+            fileOutputStream.flush();
+            fileOutputStream.close();
         } catch (IOException e) {
             log.warn("写入txt错误");
             throw new RuntimeException(e);
@@ -518,31 +499,96 @@ public class SudokuService {
                 if (puzzle[r][c]==0) zero+=1;
             }
         }
-        switch (zero){
-            case 42:
-                difficulty = 0;
-                break;
-            case  50:
-                difficulty = 1;
-                break;
-            default:
-                difficulty = 2;
-                break;
+        if (zero<=42){
+            difficulty = 0;
+        }else if (zero<=50){
+            difficulty = 1;
+        }else {
+            difficulty = 2;
         }
         return difficulty;
     }
 
-    public BufferedImage drawBoard(int[][] puzzle,int[][] filled,int difficulty){
-        BufferedImage img = new BufferedImage(800,900,BufferedImage.TYPE_INT_BGR);
-        Graphics g = img.getGraphics();
-        //填充背景
-        g.setColor(Color.WHITE);
-        g.fillRect(0,0,800,900);
-        //设置字体
-        g.setFont(new Font("宋体", Font.BOLD, 60));
-        g.setColor(Color.black);
+    public BufferedImage drawBoard(int[][] puzzle,int[][] filled,int difficulty) throws IOException {
+        BufferedImage img = new BufferedImage(1029,1500,BufferedImage.TYPE_INT_BGR);
+        Graphics2D g = (Graphics2D) img.getGraphics();
+        InputStream is = null;
+        File file = new File("runFile/sudoku/material.png");
+        if (file.exists()) {
+            is = Files.newInputStream(Paths.get("runFile/sudoku/material.png"));
+            g.drawImage(ImageIO.read(is), 0, 0, 1029, 1500, null);
+            g.dispose();
+        }else {
+            //填充背景
+            File bg = new File("runFile/sudoku/background.png");
+            if (!bg.exists()) downloadOneFile("runFile/sudoku/background.png","http://r.photo.store.qq.com/psc?/V53NeKT03xtuqS1NsbU61gGDhB06f78P/6tCTPh7N*X6CBkvkDvKlZX37ahE6iM*YTtX0rYGKO75T4dm.x6WNrQyLqW4qFBsHDRMPnirMvh6rp7IGgydlPb6q9HtMzFh.Imum2LTwbiQ!/r&ek=1&kp=1&pt=0&bo=BQTcBQUE3AUDeVw!&tl=1&vuin=1790967910&tm=1659092400&dis_t=1659094785&dis_k=3de294d3b32044c1c3332b25cd11b1b9&sce=60-0-0&rf=viewer_4");
+            is = Files.newInputStream(Paths.get("runFile/sudoku/background.png"));
+            g.drawImage(ImageIO.read(is), 0, 0, 1029, 1500, null);
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            g.setColor(new Color(255, 255, 255, 163));
+            g.fillRect(32, 318, 964, 964);
+            g.fillRect(270, 180, 500, 90);
+            g.fillRect(376, 1422, 582, 25);
+
+            g.setFont(new Font("楷体", Font.BOLD, 20));
+            g.setColor(Color.BLACK);
+            g.drawString("洁哥Bot开源 https://github.com/Cuthbert-yong/SceneBot", 380, 1440);
+
+            //划细线
+            g.fillRect(64, 449, 900, 2);
+            g.fillRect(64, 549, 900, 2);
+            g.fillRect(64, 749, 900, 2);
+            g.fillRect(64, 849, 900, 2);
+            g.fillRect(64, 1049, 900, 2);
+            g.fillRect(64, 1149, 900, 2);
+
+            g.fillRect(163, 350, 2, 900);
+            g.fillRect(263, 350, 2, 900);
+            g.fillRect(463, 350, 2, 900);
+            g.fillRect(563, 350, 2, 900);
+            g.fillRect(763, 350, 2, 900);
+            g.fillRect(863, 350, 2, 900);
+
+            //划粗线
+            g.fillRect(62, 348, 904, 4);
+            g.fillRect(62, 648, 904, 4);
+            g.fillRect(62, 948, 904, 4);
+            g.fillRect(62, 1248, 904, 4);
+
+            g.fillRect(62, 348, 4, 904);
+            g.fillRect(362, 348, 4, 904);
+            g.fillRect(662, 348, 4, 904);
+            g.fillRect(962, 348, 4, 904);
+
+            //获取logo
+            is = new ClassPathResource("/pic/logo.jpg").getInputStream();
+            g.drawImage(ImageIO.read(is), 1004, 0, 25 , 25 , null);
+            g.dispose();
+
+            ImageIO.write(img,"png",file);
+        }
+
+        g = (Graphics2D) img.getGraphics();
+        //循环添加数字
+        g.setFont(new Font("AR PL UMing HK", Font.BOLD, 90));
+        g.setColor(new Color(54, 95, 178));
+        for(int r=0;r<9;r++){
+            for (int c=0;c<9;c++){
+                if (filled[r][c] !=0) g.drawString(String.valueOf(filled[r][c]),25 + 64 + c*100,-15 + 350 + (r+1)*100);
+            }
+        }
+        g.setColor(Color.BLACK);
+        for(int r=0;r<9;r++){
+            for (int c=0;c<9;c++){
+                if (puzzle[r][c] !=0) g.drawString(String.valueOf(puzzle[r][c]),25 + 64 + c*100,-15 + 350 + (r+1)*100);
+            }
+        }
+
+        g.setFont(new Font("宋体", Font.BOLD, 70));
+        g.setColor(Color.BLACK);
         StringBuilder s = new StringBuilder("数独");
-        switch (difficulty){
+        switch (difficulty) {
             case 0:
                 s.append("（Easy）");
                 break;
@@ -554,61 +600,14 @@ public class SudokuService {
                 break;
 
         }
-        g.drawString(String.valueOf(s),200,100);
+        g.drawString(String.valueOf(s), 274, 250);
 
-        //划细线
-        g.fillRect(40,219,720,2);
-        g.fillRect(40,299,720,2);
-        g.fillRect(40,459,720,2);
-        g.fillRect(40,539,720,2);
-        g.fillRect(40,699,720,2);
-        g.fillRect(40,779,720,2);
-
-        g.fillRect(119,140,2,720);
-        g.fillRect(199,140,2,720);
-        g.fillRect(359,140,2,720);
-        g.fillRect(439,140,2,720);
-        g.fillRect(599,140,2,720);
-        g.fillRect(679,140,2,720);
-
-        //划粗线
-        g.fillRect(40,138,720,4);
-        g.fillRect(40,378,720,4);
-        g.fillRect(40,618,720,4);
-        g.fillRect(40,858,720,4);
-
-        g.fillRect( 38,140,4,720);
-        g.fillRect(278,140,4,720);
-        g.fillRect(518,140,4,720);
-        g.fillRect(758,140,4,720);
-
-        //循环添加数字
-        g.setFont(new Font("AR PL UMing HK", Font.BOLD, 80));
-        for(int r=0;r<9;r++){
-            for (int c=0;c<9;c++){
-                if (puzzle[r][c] !=0) g.drawString(String.valueOf(puzzle[r][c]),18 + 40 + c*80,-10 + 140 + (r+1)*80);
-            }
-        }
-        g.setColor(new Color(54, 95, 178));
-        for(int r=0;r<9;r++){
-            for (int c=0;c<9;c++){
-                if (filled[r][c] !=0) g.drawString(String.valueOf(filled[r][c]),18 + 40 + c*80,-10 +140 + (r+1)*80);
-            }
-        }
-        //获取logo
-        try {
-            InputStream is = new ClassPathResource("/pic/logo.jpg").getInputStream();
-            g.drawImage(ImageIO.read(is), 780, 0, 20 , 20 , null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         g.dispose();
-
         return img;
     }
 
 
-    public static int[][] generateAnswer() {
+    public int[][] generateAnswer() {
         int k1, k2, counter = 1;
         SudokuBoard bd = new SudokuBoard();
         bd.generate();
@@ -633,6 +632,25 @@ public class SudokuService {
             counter++;
         }
         return bd.getBoard();
+    }
+
+    public int[][] generatePuzzle(int[][] answer,int difficulty, int patience){
+        SudokuGenerator s = new SudokuGenerator(9);
+        return s.generatePuzzle(answer, difficulty,50);
+    }
+
+    private void downloadOneFile(String fileName, String url) throws IOException {
+        URL u = new URL(url);
+        HttpURLConnection httpUrl = (HttpURLConnection) u.openConnection();
+        httpUrl.connect();
+        try (InputStream is = httpUrl.getInputStream(); FileOutputStream fs = new FileOutputStream(fileName)){
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = is.read(buffer)) != -1) {
+                fs.write(buffer, 0, len);
+            }
+        }
+        httpUrl.disconnect();
     }
 }
 

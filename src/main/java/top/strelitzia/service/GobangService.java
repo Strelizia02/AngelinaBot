@@ -18,9 +18,15 @@ import top.strelitzia.util.AdminUtil;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 
@@ -39,17 +45,6 @@ public class GobangService {
     @Autowired
     AdminUserMapper adminUserMapper;
 
-    //private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GobangService.class);
-
-    //@AngelinaGroup(keyWords = {"test"})
-    public ReplayInfo testGobang(MessageInfo messageInfo) {
-        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        BigDecimal xy = new BigDecimal(messageInfo.getArgs().get(1));
-        replayInfo.setReplayMessage(String.valueOf(getY(xy)));
-        return replayInfo;
-    }
-
-
     @AngelinaGroup(keyWords = {"重置棋盘" , "重置五子棋"} )
     public ReplayInfo resetGobang(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
@@ -65,13 +60,13 @@ public class GobangService {
 
 
     @AngelinaGroup(keyWords = {"五子棋"})
-    public ReplayInfo gobang(MessageInfo messageInfo) {
+    public ReplayInfo gobang(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         Long groupId = messageInfo.getGroupId();
         if (groupList.contains(groupId)) {
             replayInfo.setReplayMessage("本群正在进行五子棋，或五子棋匹配中" +
-                    "\n加入请发送“加入五子棋”或“稀音加入五子棋”" +
-                    "\n请如果遇到问题可以发送“稀音重置棋盘”");
+                    "\n加入请发送“加入五子棋”或“洁哥加入五子棋”" +
+                    "\n请如果遇到问题可以发送“洁哥重置棋盘”");
             return replayInfo;
         } else {
             long circleQq = 0L;
@@ -91,7 +86,7 @@ public class GobangService {
                 @Override
                 public boolean callback(MessageInfo message) {
                     return message.getGroupId().equals(messageInfo.getGroupId()) &&
-                            (message.getText().equals("加入五子棋") || message.getText().equals("稀音加入五子棋") ||
+                            (message.getText().equals("加入五子棋") || message.getText().equals("洁哥加入五子棋") ||
                                     message.getText().equals("取消") || message.getText().equals("取消匹配"));
                 }
             };
@@ -120,23 +115,8 @@ public class GobangService {
             boolean circleTurn = true;
             boolean surrender = false;
             int result = 0;
-            //生成一张棋盘并发送,0L用于记录上一枚棋子的落点
-            List<Long> board = Arrays.asList(messageInfo.getGroupId(),
-                    1000000000000000L,
-                    1000000000000000L,
-                    1000000000000000L,
-                    1000000000000000L,
-                    1000000000000000L,
-                    1000000000000000L,
-                    1000000000000000L,
-                    1000000000000000L,
-                    1000000000000000L,
-                    1000000000000000L,
-                    1000000000000000L,
-                    1000000000000000L,
-                    1000000000000000L,
-                    1000000000000000L,
-                    1000000000000000L);
+            //生成一张棋盘并发送
+            int[][] board = new int[15][15];
             BigDecimal lastPiece = null;
             //圆圈名字
             String circleName = Bot.getInstance(messageInfo.getLoginQq()).getGroup(groupId).get(circleQq).getNameCard();
@@ -226,17 +206,9 @@ public class GobangService {
                                 continue;
                             }
                             BigDecimal xy = lastPiece;
-                            int x = getX(xy);
-                            int y = getY(xy);
-                            Long row = board.get(x);
-                            int q = 15 - y;
-                            long add = 2L;
-                            while (q > 0) {
-                                add = add * 10;
-                                q--;
-                            }
-                            row = row - add;
-                            board.set(x, row);
+                            int x = getX(xy)-1;
+                            int y = getY(xy)-1;
+                            board[x][y] = 0;
                             lastPiece = null;
                             replayInfo.setReplayMessage("■悔棋");
                             replayInfo.setReplayImg(DrawBoard(board, circleTurn, circleName, squareName, lastPiece));
@@ -255,17 +227,9 @@ public class GobangService {
                                 continue;
                             }
                             BigDecimal xy = lastPiece;
-                            int x = getX(xy);
-                            int y = getY(xy);
-                            Long row = board.get(x);
-                            int q = 15 - y;
-                            long add = 1L;
-                            while (q > 0) {
-                                add = add * 10;
-                                q--;
-                            }
-                            row = row - add;
-                            board.set(x, row);
+                            int x = getX(xy)-1;
+                            int y = getY(xy)-1;
+                            board[x][y] = 0;
                             lastPiece = null;
                             replayInfo.setReplayMessage("●悔棋");
                             replayInfo.setReplayImg(DrawBoard(board, circleTurn, circleName, squareName, lastPiece));
@@ -308,27 +272,16 @@ public class GobangService {
                         continue;
                     }
                     //解析坐标
-                    int x = getX(xy);
-                    int y = getY(xy);
+                    int x = getX(xy)-1;
+                    int y = getY(xy)-1;
                     //判断落点是否有效
-                    if (GetPieceByXY(xy,board) != 0){
+                    if (board[x][y] != 0){
                         replayInfo.setReplayMessage("无效落子●");
                         sendMessageUtil.sendGroupMsg(replayInfo);
                         replayInfo.setReplayMessage(null);
                         i--;
                     }else {
-                        //落子有效，先计算落子后的row，并保存
-                        Long row = board.get(x);
-                        //这里需要乘方运算，如果用Math.pow需要int转double再转long，很可能会出事，所以用了这个办法
-                        int q = 15 - y;
-                        long add = 1L;
-                        while (q > 0) {
-                            add = add * 10;
-                            q--;
-                        }
-                        row = row + add;
-                        //将行写入board，并记录落子
-                        board.set(x, row);
+                        board[x][y] = 1;
                         lastPiece = xy;
                         //判断是否五连,是则跳出循环
                         if (GobangOver(xy, board)) {
@@ -355,7 +308,7 @@ public class GobangService {
                             i--;
                             continue;
                         }
-                        if (xy.compareTo(BigDecimal.valueOf(getX(xy)))==0){
+                        if (xy.compareTo(BigDecimal.valueOf(getX(xy)))==0 || !validXY(xy)){
                             replayInfo.setReplayMessage("错误的落子指令\n指令应形如4.2或13.14（小数点前为行，小数点后为列），且行与列均属于范围[1,15]");
                             sendMessageUtil.sendGroupMsg(replayInfo);
                             replayInfo.setReplayMessage(null);
@@ -363,27 +316,17 @@ public class GobangService {
                             continue;
                         }
                         //解析坐标
-                        int x = getX(xy);
-                        int y = getY(xy);
+                        int x = getX(xy)-1;
+                        int y = getY(xy)-1;
                         //判断落点是否有效
-                        if (GetPieceByXY(xy,board) != 0){
+                        if (board[x][y] != 0){
                             replayInfo.setReplayMessage("无效落子■");
                             sendMessageUtil.sendGroupMsg(replayInfo);
                             replayInfo.setReplayMessage(null);
                             i--;
                         }else {
-                            //落子有效，先计算落子后的row，并保存
-                            Long row = board.get(x);
-                            //这里需要乘方运算，如果用Math.pow需要int转double再转long，很可能会出事，所以用了这个办法
-                            int q = 15 - y;
-                            long add = 2L;
-                            while (q > 0) {
-                                add = add * 10;
-                                q--;
-                            }
-                            row = row + add;
                             //将行写入board，并记录落子
-                            board.set(x, row);
+                            board[x][y] = 2;
                             lastPiece = xy;
                             //判断是否五连,是则跳出循环
                             if (GobangOver(xy, board)) {
@@ -451,110 +394,112 @@ public class GobangService {
         }
     }
 
+    public BufferedImage DrawBoard(int[][] board,Boolean circleTurn,String circleName,String squareName,BigDecimal lastPiece) throws IOException {
+        BufferedImage img = new BufferedImage(1080,3541*1080/2508,BufferedImage.TYPE_INT_BGR);
+        Graphics2D g = (Graphics2D) img.getGraphics();
+        InputStream is = null;
+        File file = new File("runFile/gobang");
+        //如果文件夹不存在则创建
+        if (!file.exists() && !file.isDirectory()) file.mkdirs();
 
-    /**
-     * 图片绘制方法
-     *
-     * @param board 棋盘数据
-     * @param circleTurn 回合信息
-     */
-    public BufferedImage DrawBoard(List<Long> board,Boolean circleTurn,String circleName,String squareName,BigDecimal lastPiece) {
-        long groupId = board.get(0);
-        DrawGobang gobang = new DrawGobang();
-        //添加选手名字
-        gobang.addGobangBoard("选手信息：");
-        gobang.nextLine();
-        //姓名写入textLine
-        gobang.addGobangBoard(circleName + "（●）");
-        gobang.nextLine();
-        gobang.addGobangBoard(squareName + "（■）");
-        gobang.nextLine();
-        gobang.nextLine();
-        //获取回合情况以及上一枚落子信息
-        gobang.addGobangBoard("现在是");
-        if (circleTurn) {
-            gobang.addGobangBoard("●的回合");
-            gobang.nextLine();
-            if (lastPiece != null) {
-                gobang.addGobangBoard("上枚落子为" + lastPiece + "■");
-                gobang.nextLine();
-            }
+        file = new File("runFile/gobang/material.jpg");
+        if (file.exists()) {
+            is = Files.newInputStream(Paths.get("runFile/gobang/material.jpg"));
+            g.drawImage(ImageIO.read(is), 0, 0, 1080, 1524, null);
+            g.dispose();
         }else {
-            gobang.addGobangBoard("■的回合");
-            gobang.nextLine();
-            if (lastPiece != null) {
-                gobang.addGobangBoard("上枚落子为" + lastPiece + "●");
-                gobang.nextLine();
+            //填充背景
+            File bg = new File("runFile/gobang/background.jpg");
+            if (!bg.exists()) downloadOneFile("runFile/gobang/background.jpg","http://r.photo.store.qq.com/psc?/V53NeKT03xtuqS1NsbU61gGDhB2oURWx/6tCTPh7N*X6CBkvkDvKlZewyZoKm3FNlLZP2UROKKNQjv8vMO7BNGIwJjItKaA1b7QbjPba9ZrigkigcwriNs9usLnFG3YqdOCB2wUGiZBg!/r");
+            is = Files.newInputStream(Paths.get("runFile/gobang/background.jpg"));
+            g.drawImage(ImageIO.read(is), 0, 0, 1080, 1524, null);
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            g.setColor(new Color(255, 255, 255, 163));
+            g.fillRect(74, 445, 937, 929);
+            g.fillRect(472, 85, 136, 50);//标题的背景
+
+            g.setFont(new Font("楷体", Font.BOLD, 40));
+            g.setColor(Color.BLACK);
+            g.drawString("五子棋",477,125);
+            //循环划线
+            for(int i=0;i<15;i++){
+                g.fillRect(134,499+i*60,842,2);
+                g.fillRect(134+i*60,499,2,842);
+                if (i<9){
+                    //添加左侧数字
+                    g.drawString(String.valueOf(i+1),99,499+i*60+18);
+                    //添加上方数字
+                    g.drawString(String.valueOf(i+1),134+i*60-10,489);
+                }else {
+                    //添加左侧数字
+                    g.drawString(String.valueOf(i+1),79,499+i*60+18);
+                    //添加上方数字
+                    g.drawString(String.valueOf(i+1),134+i*60-25,489);
+                }
             }
+
+            g.setFont(new Font("楷体", Font.BOLD, 20));
+            g.drawString("安洁莉娜Bot开源 https://github.com/Strelizia02/AngelinaBot", 380, 1440);
+
+
+            //获取logo
+            is = new ClassPathResource("/pic/logo.jpg").getInputStream();
+            g.drawImage(ImageIO.read(is), 1055, 0, 25 , 25 , null);
+            g.dispose();
+
+            ImageIO.write(img,"jpg",file);
         }
 
-        //绘制棋盘
-        gobang.addGobangBoard("   1 2 3 4 5 6 7 89101112131415");
-        gobang.nextLine();
+        g = (Graphics2D) img.getGraphics();
+
+        String str = "上枚落子坐标为" + lastPiece;
+        g.setColor(new Color(255, 255, 255, 163));
+        g.fillRect(74, 225, circleName.length()*42+55, 50);
+        g.fillRect(74, 295, squareName.length()*42+55, 50);
+        g.fillRect(74, 360, 290, 50);//现在是谁的回合 的背景
+        if (lastPiece!=null) g.fillRect(540, 360, str.length()*42-42, 50);
+
+        g.setColor(new Color(145, 120, 99, 255));
+        g.fillOval(79,230,40,40);
+        if (circleTurn) g.fillOval(220,365,40,40);
+
+        g.setColor(new Color(156, 192, 102, 255));
+        g.fillOval(79,300,40,40);
+        if (!circleTurn) g.fillOval(220,365,40,40);
+
+        g.setFont(new Font("楷体", Font.BOLD, 40));
+        g.setColor(Color.BLACK);
+        g.drawString(circleName,124,265);
+        g.drawString(squareName,124,335);
+        g.drawString("现在是   的回合",79,400);
+        if (lastPiece!=null){
+            g.drawString(str,545,400);
+            //g.fillOval(21 + 135+getY(lastPiece)*60-25-60, 21 + 500+getX(lastPiece)*60-25-60,8,8);
+        }
+
         //循环添加所有的行
-        for (int a =1; a <= 15; a++){
-            if (a<10){
-                gobang.addGobangBoard(" ");
-            }
-            gobang.addGobangBoard(  a + "");
-            long row = board.get(a);
+        for (int a=0;a<15;a++){
             //循环添加一行里所有的列
-            for (int b = 1; b<= 15; b++){
-                int piece = intAt(row, b);
+            for (int b=0;b<15;b++){
+                int piece = board[a][b];
                 switch (piece){
                     case 1:
-                        gobang.addGobangBoard("●");
+                        g.setColor(new Color(145, 120, 99, 255));
+                        g.fillOval(135+b*60-25,500+a*60-25,50,50);
                         break;
                     case 2:
-                        gobang.addGobangBoard("■");
-                        break;
-                    default:
-                        gobang.addGobangBoard("□");
+                        g.setColor(new Color(156, 192, 102, 255));
+                        g.fillOval(135+b*60-25,500+a*60-25,50,50);
                         break;
                 }
             }
-            gobang.nextLine();
         }
-        return gobang.drawGobangBoard();
+
+        g.dispose();
+        return img;
+
     }
-
-
-
-
-    /**
-     * 根据点的坐标获取点的落子情况
-     *
-     * @param xy 点的坐标
-     * @param board 棋盘数据
-     */
-    public Integer GetPieceByXY(BigDecimal xy, List<Long> board){
-        int x = getX(xy);
-        int y = getY(xy);
-        long row = board.get(x);
-        return intAt(row , y);
-    }
-
-    /**
-     * 根据int类型的x与y获取点的落子情况
-     */
-    public Integer GetPieceByXAndY(int x, int y, List<Long> board){
-        long row = board.get(x);
-        return intAt(row , y);
-    }
-
-
-    /**
-     * 从row提取坐标y的数值，通过转str的方式来提取，简化了不少步骤
-     *
-     * @param row 此行的数据
-     * @param y 需要获取第几位，会跳过每行第一位的无关数字
-     */
-    public static Integer intAt(Long row,int y){
-        String str = String.valueOf(row);
-        return Integer.parseInt(str.charAt(y)+"");
-    }
-
-
 
 
     /**
@@ -563,26 +508,25 @@ public class GobangService {
      * @param xy 落子的坐标
      * @param board 棋盘数据
      */
-    public boolean GobangOver(BigDecimal xy, List<Long> board){
-        //p为落子类型（circle或square）
-        int p = GetPieceByXY(xy, board);
+    private boolean GobangOver(BigDecimal xy, int[][] board){
         //将xy坐标解析为x坐标及y坐标
-        int x = getX(xy);
-        int y = getY(xy);
+        int x = getX(xy) -1;
+        int y = getY(xy) -1;
+        //p为落子类型（circle或square）
+        int p = board[x][y];
         //先判断横向
         int total = 1;
-        long row = board.get(x);
         //向右，将连续的棋子数累计至total
-        for (int yBy = y + 1; yBy >= 1 && yBy <= 15; yBy++ ){
-            if (intAt(row,yBy) == p){
+        for (int yBy = y + 1; yBy >= 0 && yBy <= 14; yBy++ ){
+            if (board[x][yBy] == p){
                 total++;
             }else {
                 break;
             }
         }
         //向左，将连续的棋子数累计至total
-        for (int yBy = y -1; yBy >= 1 && yBy <= 15; yBy-- ){
-            if (intAt(row,yBy) == p){
+        for (int yBy = y -1; yBy >= 0 && yBy <= 14; yBy-- ){
+            if (board[x][yBy] == p){
                 total++;
             }else {
                 break;
@@ -596,16 +540,16 @@ public class GobangService {
         }
 
         //纵向，先向上
-        for (int xBy = x - 1; xBy >= 1 && xBy <= 15; xBy-- ){
-            if (GetPieceByXAndY(xBy, y, board) == p){
+        for (int xBy = x - 1; xBy >= 0 && xBy <= 14; xBy-- ){
+            if (board[xBy][y] == p){
                 total++;
             }else {
                 break;
             }
         }
         //向下
-        for (int xBy = x + 1; xBy >= 1 && xBy <= 15; xBy++ ){
-            if (GetPieceByXAndY(xBy, y, board) == p){
+        for (int xBy = x + 1; xBy >= 0 && xBy <= 14; xBy++ ){
+            if (board[xBy][y] == p){
                 total++;
             }else {
                 break;
@@ -620,8 +564,8 @@ public class GobangService {
 
         //斜向（右上至左下），先向右上。
         int yBy = y + 1;
-        for (int xBy = x - 1 ;xBy>=1 && xBy<=15 && yBy>=1 && yBy<=15; xBy--  ){
-            if (GetPieceByXAndY(xBy, yBy, board) == p){
+        for (int xBy = x - 1 ;xBy>=0 && xBy<=14 && yBy>=0 && yBy<=14; xBy--  ){
+            if (board[xBy][yBy] == p){
                 total++;
                 yBy++;
             }else {
@@ -630,8 +574,8 @@ public class GobangService {
         }
         //向左下
         yBy = y - 1;
-        for (int xBy = x + 1 ;xBy>=1 && xBy<=15 && yBy>=1 && yBy<=15; xBy++){
-            if (GetPieceByXAndY(xBy, yBy, board) == p){
+        for (int xBy = x + 1 ;xBy>=0 && xBy<=14 && yBy>=0 && yBy<=14; xBy++){
+            if (board[xBy][yBy] == p){
                 total++;
                 yBy--;
             }else {
@@ -647,8 +591,8 @@ public class GobangService {
 
         //斜向（左上至右下），先左上
         yBy = y - 1;
-        for (int xBy = x - 1 ;xBy>=1 && xBy<=15 && yBy>=1 && yBy<=15; xBy--){
-            if (GetPieceByXAndY(xBy, yBy, board) == p){
+        for (int xBy = x - 1 ;xBy>=0 && xBy<=14 && yBy>=0 && yBy<=14; xBy--){
+            if (board[xBy][yBy] == p){
                 total++;
                 yBy--;
             }else {
@@ -657,8 +601,8 @@ public class GobangService {
         }
         //向右下
         yBy = y + 1;
-        for (int xBy = x + 1 ;xBy>=1 && xBy<=15 && yBy>=1 && yBy<=15; xBy++){
-            if (GetPieceByXAndY(xBy, yBy, board) == p){
+        for (int xBy = x + 1 ;xBy>=0 && xBy<=14 && yBy>=0 && yBy<=14; xBy++){
+            if (board[xBy][yBy] == p){
                 total++;
                 yBy++;
             }else {
@@ -711,159 +655,19 @@ public class GobangService {
         return y.intValue();
     }
 
-
-
-
-}
-
-
-/**
- * 内置了棋盘绘画，相较于框架里的textLine删掉了自动换行
- */
-class DrawGobang {
-    //文本内容
-    private final List<List<Object>> text = new ArrayList<>();
-    //单行内容
-    private List<Object> line = new ArrayList<>();
-    //列数
-    private int width = 0;
-    //行数
-    private int height = 0;
-    //画图指针
-    private int pointers;
-
-
-
-    /**
-     * 为内容增加一个图片，图片可以超出最长字符限制
-     *
-     * @param image 图片
-     */
-    public void addImage(BufferedImage image) {
-        pointers += 3;
-        addSpace();
-        line.add(image);
-        addSpace();
-    }
-
-
-    /**
-     * 为内容添加空格，若添加空格后超出最长限制，则仅添加一个
-     *
-     * @param spaceNum 空格数
-     */
-    public void addSpace(int spaceNum) {
-        line.add(spaceNum);
-        pointers += spaceNum;
-    }
-
-    /**
-     * 默认只增加一个空格
-     */
-    public void addSpace() {
-        addSpace(1);
-    }
-
-    /**
-     * 换行
-     */
-    public void nextLine() {
-        if (pointers > width) {
-            width = pointers;
-        }
-        pointers = 0;
-        height++;
-        text.add(line);
-        line = new ArrayList<>();
-    }
-
-    /**
-     * 添加单独一行的居中字符串，居中字符串必须单独一行
-     *
-     * @param s 字符串
-     */
-    public void addCenterStringLine(String s) {
-        StringBuilder sb = new StringBuilder(s);
-        if (pointers != 0) {
-            nextLine();
-        }
-        pointers = s.length();
-        line.add(sb);
-        nextLine();
-    }
-
-    /**
-     * 为内容增加一行字符串，为了便于画棋盘去除了换行判断（你丫明明画的下为啥换行？？）
-     *
-     * @param s 字符串
-     */
-    public void addGobangBoard(String s) {
-        pointers += s.length();
-        line.add(s);
-    }
-
-    public BufferedImage drawGobangBoard() {
-        return drawGobangBoard(50);
-    }
-
-    /**
-     * 将TextLine生成一个图片
-     *
-     * @param size 单个字符大小
-     * @return 生成图片
-     */
-    public BufferedImage drawGobangBoard(int size) {
-        if (!line.isEmpty()) {
-            height++;
-            text.add(line);
-        }
-        width = 18;
-        BufferedImage image = new BufferedImage((width + 2) * size, (height + 2) * size, BufferedImage.TYPE_INT_RGB);
-        Graphics graphics = image.getGraphics();
-
-        graphics.setColor(new Color(245, 218, 107));
-        graphics.fillRect(0, 0, (width + 2) * size, (height + 2) * size);
-        graphics.setColor(new Color(243, 236, 217, 255));
-        graphics.fillRect(size / 2, size / 2, (width + 1) * size, (height + 1) * size);
-        graphics.setColor(Color.BLACK);
-        graphics.setFont(new Font("宋体", Font.BOLD, size));
-
-        int x = size / 2;
-        int y = size / 2;
-        for (List<Object> line : text) {
-            for (Object obj : line) {
-                if (obj instanceof String) {
-                    String str = (String) obj;
-                    graphics.drawString(str, x, y + size);
-                    x += str.length() * size;
-                }
-                if (obj instanceof StringBuilder) {
-                    String str = ((StringBuilder) obj).toString();
-                    graphics.drawString(str, (width - str.length()) / 2 * size, y + size);
-                    x = size / 2;
-                }
-                if (obj instanceof BufferedImage) {
-                    BufferedImage bf = (BufferedImage) obj;
-                    graphics.drawImage(bf, x, y, size, size, null);
-                    x += size;
-                }
-                if (obj instanceof Integer) {
-                    x += (int) obj * size;
-                }
+    private void downloadOneFile(String fileName, String url) throws IOException {
+        URL u = new URL(url);
+        HttpURLConnection httpUrl = (HttpURLConnection) u.openConnection();
+        httpUrl.connect();
+        try (InputStream is = httpUrl.getInputStream(); FileOutputStream fs = new FileOutputStream(fileName)){
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = is.read(buffer)) != -1) {
+                fs.write(buffer, 0, len);
             }
-            x = size / 2;
-            y += size;
         }
-
-        //这个logo为什么能获取到我也没明白
-        try {
-            InputStream is = new ClassPathResource("/pic/logo.jpg").getInputStream();
-            graphics.drawImage(ImageIO.read(is), image.getWidth() - size / 2, 0, size / 2, size / 2, null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        graphics.dispose();
-        return image;
+        httpUrl.disconnect();
     }
+
 
 }
