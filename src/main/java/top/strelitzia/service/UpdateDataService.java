@@ -341,9 +341,12 @@ public class UpdateDataService {
                     case "基础档案":
                         String[] split = storyText.split("\n");
                         int point = storyText.lastIndexOf("【矿石病感染情况】");
-                        String infection = storyText.substring(point+9);
-                        operatorBasicInfo.setInfection(infection);
-                        //operatorBasicInfo.setInfection(split[split.length - 1]);
+                        if(point != -1){
+                            String infection = storyText.substring(point+9);
+                            operatorBasicInfo.setInfection(infection);
+                        }else {
+                            operatorBasicInfo.setInfection(split[split.length - 1]);
+                        }
                         for (String s : split) {
                             if (s.length() < 1) {
                                 break;
