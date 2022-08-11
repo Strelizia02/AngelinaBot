@@ -19,7 +19,8 @@ import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.strelitzia.arknightsDao.*;
-import top.strelitzia.dao.*;
+import top.strelitzia.dao.AdminUserMapper;
+import top.strelitzia.dao.UserFoundMapper;
 import top.strelitzia.model.*;
 import top.strelitzia.util.AdminUtil;
 import top.strelitzia.util.FormatStringUtil;
@@ -79,7 +80,7 @@ public class UpdateDataService {
 //    private String url = "https://cdn.jsdelivr.net/gh/Kengxxiao/ArknightsGameData@master/zh_CN/gamedata/";
 //    private String url = "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/";
 //    private String url = "http://vivien8261.gitee.io/arknights-bot-resource/gamedata/";
-    private String url = "https://raw.fastgit.org/yuanyan3060/Arknights-Bot-Resource/master/";
+    private final String url = "https://raw.fastgit.org/yuanyan3060/Arknights-Bot-Resource/master/";
 
     @AngelinaGroup(keyWords = {"更新"}, description = "尝试更新数据")
     @AngelinaFriend(keyWords = {"更新"}, description = "尝试更新数据")
@@ -89,9 +90,9 @@ public class UpdateDataService {
         if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
             replayInfo.setReplayMessage("您无更新权限");
         } else {
-            downloadDataFile(false);
-//            updateOperatorVoice();
-            replayInfo.setReplayMessage("更新完成，请从后台日志查看更新进度");
+           downloadDataFile(false);
+            updateOperatorEquipByJson();
+            replayInfo.setReplayMessage("更新结束，请从后台日志查看更新情况");
         }
         return replayInfo;
     }
@@ -327,82 +328,63 @@ public class UpdateDataService {
      */
     private void updateOperatorInfoById(String operatorId, Integer operatorNum, JSONObject infoJsonObj) {
         OperatorBasicInfo operatorBasicInfo = new OperatorBasicInfo();
-            operatorBasicInfo.setOperatorId(operatorNum);
-            operatorBasicInfo.setCharId(operatorId);
-            operatorBasicInfo.setDrawName(infoJsonObj.getString("drawName"));
-            operatorBasicInfo.setInfoName(infoJsonObj.getString("infoName"));
+        operatorBasicInfo.setOperatorId(operatorNum);
+        operatorBasicInfo.setCharId(operatorId);
+        operatorBasicInfo.setDrawName(infoJsonObj.getString("drawName"));
+        operatorBasicInfo.setInfoName(infoJsonObj.getString("infoName"));
 
-            JSONArray storyTextAudio = infoJsonObj.getJSONArray("storyTextAudio");
-            for (int i = 0; i < storyTextAudio.length(); i++) {
-                JSONObject story = storyTextAudio.getJSONObject(i);
-                String storyText = story.getJSONArray("stories").getJSONObject(0).getString("storyText");
-                String storyTitle = story.getString("storyTitle");
-                switch (storyTitle) {
-                    case "基础档案":
-                        String[] split = storyText.split("\n");
+        JSONArray storyTextAudio = infoJsonObj.getJSONArray("storyTextAudio");
+        for (int i = 0; i < storyTextAudio.length(); i++) {
+            JSONObject story = storyTextAudio.getJSONObject(i);
+            String storyText = story.getJSONArray("stories").getJSONObject(0).getString("storyText");
+            String storyTitle = story.getString("storyTitle");
+            switch (storyTitle) {
+                case "基础档案" : {
+                    String[] split = storyText.split("\n");
+                    int point = storyText.lastIndexOf("【矿石病感染情况】");
+                    if(point != -1){
+                        String infection = storyText.substring(point+9);
+                        operatorBasicInfo.setInfection(infection);
+                    }else {
                         operatorBasicInfo.setInfection(split[split.length - 1]);
-                        for (String s : split) {
-                            if (s.length() < 1) {
-                                break;
-                            }
-                            String[] basicText = s.substring(1).split("】");
-                            switch (basicText[0]) {
-                                case "代号":
-                                    operatorBasicInfo.setCodeName(basicText[1]);
-                                    break;
-                                case "性别":
-                                    operatorBasicInfo.setSex(basicText[1]);
-                                    break;
-                                case "出身地":
-                                    operatorBasicInfo.setComeFrom(basicText[1]);
-                                    break;
-                                case "生日":
-                                    operatorBasicInfo.setBirthday(basicText[1]);
-                                    break;
-                                case "种族":
-                                    operatorBasicInfo.setRace(basicText[1]);
-                                    break;
-                                case "身高":
-                                    String str = basicText[1];
-                                    StringBuilder str2 = new StringBuilder();
-                                    if (str != null && !"".equals(str)) {
-                                        for (int j = 0; j < str.length(); j++) {
-                                            if (str.charAt(j) >= 48 && str.charAt(j) <= 57) {
-                                                str2.append(str.charAt(j));
-                                            }
+                    }
+                    for (String s : split) {
+                        if (s.length() < 1) {
+                            break;
+                        }
+                        String[] basicText = s.substring(1).split("】");
+                        switch (basicText[0]) {
+                            case "代号" : operatorBasicInfo.setCodeName(basicText[1]);break;
+                            case "性别" : operatorBasicInfo.setSex(basicText[1]);break;
+                            case "出身地" : operatorBasicInfo.setComeFrom(basicText[1]);break;
+                            case "生日" : operatorBasicInfo.setBirthday(basicText[1]);break;
+                            case "种族" : operatorBasicInfo.setRace(basicText[1]);break;
+                            case "身高" : {
+                                String str = basicText[1];
+                                StringBuilder str2 = new StringBuilder();
+                                if (str != null && !"".equals(str)) {
+                                    for (int j = 0; j < str.length(); j++) {
+                                        if (str.charAt(j) >= 48 && str.charAt(j) <= 57) {
+                                            str2.append(str.charAt(j));
                                         }
                                     }
-                                    operatorBasicInfo.setHeight(Integer.parseInt(str2.toString()));
-                                    break;
-                            }
+                                }
+                                operatorBasicInfo.setHeight(Integer.parseInt(str2.toString()));
+                            }break;
                         }
-                        break;
-                    case "综合体检测试":
-                        operatorBasicInfo.setComprehensiveTest(storyText);
-                        break;
-                    case "客观履历":
-                        operatorBasicInfo.setObjectiveResume(storyText);
-                        break;
-                    case "临床诊断分析":
-                        operatorBasicInfo.setClinicalDiagnosis(storyText);
-                        break;
-                    case "档案资料一":
-                        operatorBasicInfo.setArchives1(storyText);
-                        break;
-                    case "档案资料二":
-                        operatorBasicInfo.setArchives2(storyText);
-                        break;
-                    case "档案资料三":
-                        operatorBasicInfo.setArchives3(storyText);
-                        break;
-                    case "档案资料四":
-                        operatorBasicInfo.setArchives4(storyText);
-                        break;
-                    case "晋升记录":
-                    case "晋升资料":
-                        operatorBasicInfo.setPromotionInfo(storyText);
-                        break;
-                }
+                    }
+                }break;
+                case "综合体检测试" : operatorBasicInfo.setComprehensiveTest(storyText);break;
+                case "客观履历" : operatorBasicInfo.setObjectiveResume(storyText);break;
+                case "临床诊断分析" : operatorBasicInfo.setClinicalDiagnosis(storyText);break;
+                case "档案资料一" : operatorBasicInfo.setArchives1(storyText);break;
+                case "档案资料二" : operatorBasicInfo.setArchives2(storyText);break;
+                case "档案资料三" : operatorBasicInfo.setArchives3(storyText);break;
+                case "档案资料四" : operatorBasicInfo.setArchives4(storyText);break;
+                case "晋升记录":
+                case "晋升资料" : 
+                operatorBasicInfo.setPromotionInfo(storyText);break;
+            }
             updateMapper.updateOperatorInfo(operatorBasicInfo);
         }
     }
@@ -753,7 +735,7 @@ public class UpdateDataService {
                 String url = a.attr("href");
                 String[] split = url.split("/");
                 String fileName = XPathUtil.decodeUnicode(split[split.length - 1].substring(0,split[split.length - 1].length() - 4));
-                String path = "runFile/voice/" + name.getCharId() + "/" + fileName + ".mp3";
+                String path = "runFile/voice/" + name.getCharId() + "/" + fileName + ".wav";
                 try {
                     downloadOneFile(path, url);
                 } catch (IOException e) {
