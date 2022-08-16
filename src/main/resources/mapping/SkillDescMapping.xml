@@ -37,13 +37,14 @@
             a.duration,
             a.description,
             a.max_charge,
-            b.skill_png,
+            p.skill_png,
             d.avatar
         FROM
             t_operator_skill_desc a
         LEFT JOIN t_operator_skill b ON a.skill_id = b.skill_id
         LEFT JOIN t_operator c ON b.operator_id = c.operator_id
         LEFT JOIN t_operator_png d ON c.char_id = d.char_id
+        LEFT JOIN t_operator_skill_png p ON b.skill_id_yj = p.skill_id_yj
         WHERE
             (
                 skill_name = #{name}
@@ -57,17 +58,19 @@
 
     <select id="selectAllSkillPng" resultMap="SkillResultMap">
         SELECT
-            skill_id, skill_name, skill_id_yj, skill_png
+            skill_id, skill_name, s.skill_id_yj, skill_png
         FROM
-            t_operator_skill
+            t_operator_skill s left join t_operator_skill_png p
+        ON s.skill_id_yj = p.skill_id_yj
     </select>
 
     <select id="selectSkillPngByNameAndIndex" resultType="java.lang.String">
         SELECT
-            b.skill_png
+            p.skill_png
         FROM
             t_operator_skill b
         LEFT JOIN t_operator c ON b.operator_id = c.operator_id
+        LEFT JOIN t_operator_skill_png p ON b.skill_id_yj = p.skill_id_yj
         WHERE
             operator_name = #{name}
         AND skill_index = #{index}

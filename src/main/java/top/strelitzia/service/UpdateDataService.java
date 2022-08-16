@@ -82,6 +82,9 @@ public class UpdateDataService {
 //    private String url = "http://vivien8261.gitee.io/arknights-bot-resource/gamedata/";
     private final String url = "https://raw.fastgit.org/yuanyan3060/Arknights-Bot-Resource/master/";
 
+    /** 先判断版本是否相同→如果版本不同，开始更新→置位1→下载数据文件→置位0→下载完成→置位2→写入数据→置位0→写入完成 */
+    private static int updateStatus = 0;
+
     @AngelinaGroup(keyWords = {"更新"}, description = "尝试更新数据")
     @AngelinaFriend(keyWords = {"更新"}, description = "尝试更新数据")
     public ReplayInfo downloadDataFile(MessageInfo messageInfo) {
@@ -90,8 +93,7 @@ public class UpdateDataService {
         if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
             replayInfo.setReplayMessage("您无更新权限");
         } else {
-           downloadDataFile(false);
-            updateOperatorEquipByJson();
+            downloadDataFile(false);
             replayInfo.setReplayMessage("更新结束，请从后台日志查看更新情况");
         }
         return replayInfo;
@@ -132,10 +134,10 @@ public class UpdateDataService {
     public void downloadDataFile(boolean force) {
         String koKoDaYoKeyUrl = url + "gamedata/excel/data_version.txt";
         String charKey = getJsonStringFromUrl(koKoDaYoKeyUrl);
-        Integer versionStatus = updateMapper.getVersionStatus();
+//        Integer versionStatus = updateMapper.getVersionStatus();
         File dataVersionFile = new File("runFile/download/data_version.txt");
         //确保状态是未正在下载
-        if (versionStatus == 0) {
+        if (updateStatus == 0) {
             boolean canDownload = true;
             //version文件不存在时，进行下载操作
             if (dataVersionFile.exists()) {
@@ -151,6 +153,7 @@ public class UpdateDataService {
                 log.info("数据文件不存在，准备下载");
             }
             if (canDownload || force) {
+                updateStatus = 1;
                 File dir = new File("runFile/download");
                 File skin = new File("runFile/skin");
                 File voice = new File("runFile/voice");
@@ -184,7 +187,7 @@ public class UpdateDataService {
                 }
                 try {
                     log.info("开始下载数据文件");
-                    updateMapper.doingDownloadVersion();
+//                    updateMapper.doingDownloadVersion();
                     downloadOneFile("runFile/download/character_table.json", url + "gamedata/excel/character_table.json");
                     downloadOneFile("runFile/download/gacha_table.json", url + "gamedata/excel/gacha_table.json");
                     downloadOneFile("runFile/download/skill_table.json", url + "gamedata/excel/skill_table.json");
@@ -198,22 +201,28 @@ public class UpdateDataService {
                     downloadOneFile("runFile/download/enemy_database.json", url + "gamedata/levels/enemydata/enemy_database.json");
                     downloadOneFile("runFile/download/data_version.txt", url + "gamedata/excel/data_version.txt");
                     log.info("数据文件下载完成");
-                    updateMapper.doneUpdateVersion();
+//                    updateMapper.doneUpdateVersion();
+                    updateStatus = 0;
                 } catch (IOException e) {
                     log.error("下载数据文件失败");
+                    log.error(e.toString());
                 }
             }
             updateAllData();
-        } else if (versionStatus == 1) {
-            log.info("数据库正在更新中，无法重复更新，请等待更新完成");
+        } else if (updateStatus == 1) {
+            log.warn("数据文件正在下载中，无法重复下载，请等待文件下载完成");
         } else {
-            log.info("数据文件正在下载中，无法重复下载，请等待文件下载完成");
+            log.warn("数据库正在写入数据中，请等待更新完成");
         }
     }
 
     private void downloadOneFile(String fileName, String url) throws IOException {
         URL u = new URL(url);
         HttpURLConnection httpUrl = (HttpURLConnection) u.openConnection();
+        //5分钟超时时间
+        httpUrl.setConnectTimeout(300000);
+        httpUrl.setReadTimeout(300000);
+
         httpUrl.connect();
         try (InputStream is = httpUrl.getInputStream();FileOutputStream fs = new FileOutputStream(fileName)){
             byte[] buffer = new byte[1024];
@@ -221,6 +230,9 @@ public class UpdateDataService {
             while ((len = is.read(buffer)) != -1) {
                 fs.write(buffer, 0, len);
             }
+        } catch (IOException e) {
+            log.error("下载{}文件失败", fileName);
+            log.error(e.toString());
         }
         log.info("下载{}文件成功", fileName);
         httpUrl.disconnect();
@@ -229,12 +241,13 @@ public class UpdateDataService {
     public void updateAllData() {
         String charKey = getJsonStringFromFile("data_version.txt");
         String dataVersion = updateMapper.getVersion();
-        Integer versionStatus = updateMapper.getVersionStatus();
+//        Integer versionStatus = updateMapper.getVersionStatus();
 
-        if (versionStatus == 0) {
+        if (updateStatus == 0) {
             if(!charKey.equals(dataVersion)) { 
                 log.info("数据库和数据文件版本不同，开始更新全部数据");
-                updateMapper.doingUpdateVersion();
+                updateStatus = 2;
+//                updateMapper.doingUpdateVersion();
                 //清理干员数据(因部分召唤物无char_id，不方便进行增量更新)
                 log.info("清理干员数据");
                 updateMapper.clearOperatorData();
@@ -247,15 +260,16 @@ public class UpdateDataService {
                 updateOperatorSkillPng();
 //                updateOperatorVoice();
                 updateMapper.updateVersion(charKey);
-                updateMapper.doneUpdateVersion();
+                updateStatus = 0;
+//                updateMapper.doneUpdateVersion();
                 log.info("游戏数据更新完成--");
             } else {
                 log.info("数据库和数据文件版本相同，无需更新");
             }
-        } else if (versionStatus == 1) {
-            log.info("数据库正在更新中，无法重复更新，请等待更新完成");
-        } else {
+        } else if (updateStatus == 1) {
             log.info("数据文件正在下载中，无法重复下载，请等待文件下载完成");
+        } else {
+            log.warn("数据库正在写入数据中，请等待更新完成");
         }
     }
 

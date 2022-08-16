@@ -241,10 +241,10 @@
     </insert>
 
     <insert id="insertOperatorSkillPngById">
-        INSERT INTO t_operator_skill (skill_id, skill_png)
+        INSERT INTO t_operator_skill_png (skill_id_yj, skill_png)
         VALUES
         (#{id}, #{base})
-        ON CONFLICT(skill_id)
+        ON CONFLICT(skill_id_yj)
         DO update set skill_png = #{base}
     </insert>
 </mapper>

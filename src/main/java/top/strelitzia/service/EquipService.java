@@ -48,7 +48,10 @@ public class EquipService {
             List<EquipInfo> equipInfos = equipMapper.selectEquipByName(name);
             if (equipInfos.size() > 0) {
                 TextLine textLine = new TextLine(100);
-                textLine.addImage(ImageIO.read(new File(operatorInfoMapper.selectAvatarByName(name))));
+                String pathname1 = operatorInfoMapper.selectAvatarByName(name);
+                if (pathname1 != null) {
+                    textLine.addImage(ImageIO.read(new File(pathname1)));
+                }
                 textLine.addString(name + "的模组信息为：");
 
                 textLine.nextLine();
@@ -111,7 +114,10 @@ public class EquipService {
 
                     List<MaterialInfo> materialInfos = equipMapper.selectEquipCostById(equipId, i);
                     for (MaterialInfo m : materialInfos) {
-                        textLine.addImage(ImageIO.read(new File(materialMadeMapper.selectMaterialPicByName(m.getMaterialName()))));
+                        String pathname = materialMadeMapper.selectMaterialPicByName(m.getMaterialName());
+                        if (pathname != null) {
+                            textLine.addImage(ImageIO.read(new File(pathname)));
+                        }
                         textLine.addString(m.getMaterialName() + " * " + m.getMaterialNum() + "个");
                         textLine.nextLine();
                     }

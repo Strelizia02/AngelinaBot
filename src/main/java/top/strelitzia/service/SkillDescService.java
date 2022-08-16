@@ -111,11 +111,13 @@ public class SkillDescService {
                 textLine.nextLine();
                 for (List<SkillDesc> list : skillDesc) {
                     for (SkillDesc sd : list) {
-                        File png = new File(sd.getSkillPng());
-                        if (png.exists()) {
-                            textLine.addImage(ImageIO.read(png));
-                        } else {
-                            textLine.addSpace(3);
+                        if (sd.getSkillPng() != null) {
+                            File png = new File(sd.getSkillPng());
+                            if (png.exists()) {
+                                textLine.addImage(ImageIO.read(png));
+                            } else {
+                                textLine.addSpace(3);
+                            }
                         }
                         textLine.addString(sd.getSkillName() + " level" + sd.getSkillLevel() + ":");
                         textLine.nextLine();
