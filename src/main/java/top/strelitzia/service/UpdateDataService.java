@@ -198,7 +198,7 @@ public class UpdateDataService {
                     downloadOneFile("runFile/download/skin_table.json", url + "gamedata/excel/skin_table.json");
                     downloadOneFile("runFile/download/battle_equip_table.json", url + "gamedata/excel/battle_equip_table.json");
                     downloadOneFile("runFile/download/uniequip_table.json", url + "gamedata/excel/uniequip_table.json");
-                    downloadOneFile("runFile/download/enemy_database.json", url + "gamedata/levels/enemydata/enemy_database.json");
+                    downloadOneFile("runFile/download/enemy_database.json", url + "gamedata/levels/enemydata/enemy_database.json", 20);
                     downloadOneFile("runFile/download/data_version.txt", url + "gamedata/excel/data_version.txt");
                     log.info("数据文件下载完成");
 //                    updateMapper.doneUpdateVersion();
@@ -216,12 +216,12 @@ public class UpdateDataService {
         }
     }
 
-    private void downloadOneFile(String fileName, String url) throws IOException {
+    private void downloadOneFile(String fileName, String url, int timeoutMinute) throws IOException {
         URL u = new URL(url);
         HttpURLConnection httpUrl = (HttpURLConnection) u.openConnection();
-        //5分钟超时时间
-        httpUrl.setConnectTimeout(300000);
-        httpUrl.setReadTimeout(300000);
+        //超时时间
+        httpUrl.setConnectTimeout(timeoutMinute * 60000);
+        httpUrl.setReadTimeout(timeoutMinute * 60000);
 
         httpUrl.connect();
         try (InputStream is = httpUrl.getInputStream();FileOutputStream fs = new FileOutputStream(fileName)){
@@ -236,6 +236,10 @@ public class UpdateDataService {
         }
         log.info("下载{}文件成功", fileName);
         httpUrl.disconnect();
+    }
+    
+    private void downloadOneFile(String fileName, String url) throws IOException {
+        downloadOneFile(fileName, url, 3);
     }
 
     public void updateAllData() {
