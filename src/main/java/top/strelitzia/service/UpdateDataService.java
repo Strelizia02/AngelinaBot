@@ -730,7 +730,7 @@ public class UpdateDataService {
                 try {
                     String fileName = "runFile/skill/skill_icon_" + skill.getSkillIdYj() + ".png";
                     downloadOneFile(fileName, url + "skill/skill_icon_" + skill.getSkillIdYj() + ".png");
-                    operatorInfoMapper.insertOperatorSkillPngById(skill.getSkillId(), fileName);
+                    operatorInfoMapper.insertOperatorSkillPngById(skill.getSkillIdYj(), fileName);
                 } catch (IOException e) {
                     log.error("下载{}干员技能图标失败", skill.getSkillName());
                 }
