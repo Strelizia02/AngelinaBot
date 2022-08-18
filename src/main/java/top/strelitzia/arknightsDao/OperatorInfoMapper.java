@@ -67,7 +67,7 @@ public interface OperatorInfoMapper {
     Integer insertOperatorAvatarPngById(@Param("id") String id, @Param("avatar") String avatar);
 
     //插入技能图标
-    Integer insertOperatorSkillPngById(@Param("id") Integer id, @Param("base") String base);
+    Integer insertOperatorSkillPngById(@Param("id") String id, @Param("base") String base);
 
     //根据干员名查找干员天赋
     List<TalentInfo> getOperatorTalent(String name);
