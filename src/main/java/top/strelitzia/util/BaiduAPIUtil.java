@@ -74,6 +74,7 @@ public class BaiduAPIUtil{
         List<String> str = new ArrayList<>();
         for (int i = 0; i < words_result.length(); i++) {
             String words = words_result.getJSONObject(i).getString("words");
+            if (words.contains("高级资深")) words = "高级资深干员";
             if (allTag.contains(words)) {
                 str.add(words);
             }
