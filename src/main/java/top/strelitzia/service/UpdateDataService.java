@@ -188,17 +188,17 @@ public class UpdateDataService {
                 try {
                     log.info("开始下载数据文件");
 //                    updateMapper.doingDownloadVersion();
-                    downloadOneFile("runFile/download/character_table.json", url + "gamedata/excel/character_table.json");
-                    downloadOneFile("runFile/download/gacha_table.json", url + "gamedata/excel/gacha_table.json");
-                    downloadOneFile("runFile/download/skill_table.json", url + "gamedata/excel/skill_table.json");
-                    downloadOneFile("runFile/download/building_data.json", url + "gamedata/excel/building_data.json");
-                    downloadOneFile("runFile/download/handbook_info_table.json", url + "gamedata/excel/handbook_info_table.json");
-                    downloadOneFile("runFile/download/char_patch_table.json", url + "gamedata/excel/char_patch_table.json");
-                    downloadOneFile("runFile/download/item_table.json", url + "gamedata/excel/item_table.json");
-                    downloadOneFile("runFile/download/skin_table.json", url + "gamedata/excel/skin_table.json");
-                    downloadOneFile("runFile/download/battle_equip_table.json", url + "gamedata/excel/battle_equip_table.json");
-                    downloadOneFile("runFile/download/uniequip_table.json", url + "gamedata/excel/uniequip_table.json");
-                    downloadOneFile("runFile/download/enemy_database.json", url + "gamedata/levels/enemydata/enemy_database.json", 20);
+                    downloadOneFile("runFile/download/character_table.json", url + "gamedata/excel/character_table.json", 30);
+                    downloadOneFile("runFile/download/gacha_table.json", url + "gamedata/excel/gacha_table.json", 10);
+                    downloadOneFile("runFile/download/skill_table.json", url + "gamedata/excel/skill_table.json", 30);
+                    downloadOneFile("runFile/download/building_data.json", url + "gamedata/excel/building_data.json", 20);
+                    downloadOneFile("runFile/download/handbook_info_table.json", url + "gamedata/excel/handbook_info_table.json", 20);
+                    downloadOneFile("runFile/download/char_patch_table.json", url + "gamedata/excel/char_patch_table.json", 20);
+                    downloadOneFile("runFile/download/item_table.json", url + "gamedata/excel/item_table.json", 20);
+                    downloadOneFile("runFile/download/skin_table.json", url + "gamedata/excel/skin_table.json", 20);
+                    downloadOneFile("runFile/download/battle_equip_table.json", url + "gamedata/excel/battle_equip_table.json", 20);
+                    downloadOneFile("runFile/download/uniequip_table.json", url + "gamedata/excel/uniequip_table.json", 20);
+                    downloadOneFile("runFile/download/enemy_database.json", url + "gamedata/levels/enemydata/enemy_database.json", 30);
                     downloadOneFile("runFile/download/data_version.txt", url + "gamedata/excel/data_version.txt");
                     log.info("数据文件下载完成");
 //                    updateMapper.doneUpdateVersion();
