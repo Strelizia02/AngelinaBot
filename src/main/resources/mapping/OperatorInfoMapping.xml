@@ -247,4 +247,42 @@
         ON CONFLICT(skill_id_yj)
         DO update set skill_png = #{base}
     </insert>
+
+    <select id="selectOperatorVoiceByCharIdAndName" resultType="java.lang.Integer">
+        SELECT
+            COUNT( char_id )
+        FROM
+            t_operator_voice
+        WHERE
+            char_id = #{charId}
+        AND voice_name = #{name}
+    </select>
+
+    <insert id="insertOperatorVoice">
+        INSERT INTO t_operator_voice
+            (char_id, voice_name, file)
+        VALUES(#{charId}, #{name}, #{file})
+    </insert>
+
+    <select id="selectOperatorVoiceByName" resultType="java.lang.String">
+        SELECT
+            file
+        FROM
+            t_operator_voice v
+        LEFT JOIN t_operator o ON o.char_id = v.char_id
+        WHERE
+            operator_name = #{name}
+    </select>
+
+    <select id="selectOperatorVoiceByNameAndVoice" resultType="java.lang.String">
+        SELECT
+            file
+        FROM
+            t_operator_voice v
+        LEFT JOIN t_operator o ON o.char_id = v.char_id
+        WHERE
+            operator_name = #{name}
+        AND voice_name = #{voiceName}
+        LIMIT 1
+    </select>
 </mapper>

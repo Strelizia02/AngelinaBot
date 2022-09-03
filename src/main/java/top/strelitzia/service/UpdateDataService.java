@@ -131,6 +131,20 @@ public class UpdateDataService {
         return replayInfo;
     }
 
+    @AngelinaGroup(keyWords = {"更新语音"}, description = "更新语音数据")
+    @AngelinaFriend(keyWords = {"更新语音"}, description = "更新语音数据")
+    public ReplayInfo updateVoiceFile(MessageInfo messageInfo) {
+        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        List<AdminUserInfo> admins = adminUserMapper.selectAllAdmin();
+        if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
+            replayInfo.setReplayMessage("您无更新权限");
+        } else {
+            updateOperatorVoice();
+            replayInfo.setReplayMessage("更新语音完成");
+        }
+        return replayInfo;
+    }
+
     public void downloadDataFile(boolean force) {
         String koKoDaYoKeyUrl = url + "gamedata/excel/data_version.txt";
         String charKey = getJsonStringFromUrl(koKoDaYoKeyUrl);
@@ -745,19 +759,27 @@ public class UpdateDataService {
     public void updateOperatorVoice() {
         log.info("开始更新干员语音");
         List<OperatorName> allOperatorId = operatorInfoMapper.getAllOperatorIdAndName();
+        String[] voiceList = new String[]{"任命助理", "交谈1", "交谈2", "交谈3", "晋升后交谈1", "晋升后交谈2", "信赖提升后交谈1", "信赖提升后交谈2", "信赖提升后交谈3", "闲置", "干员报到", "观看作战记录", "精英化晋升1", "精英化晋升2", "编入队伍", "任命队长", "行动出发", "行动开始", "选中干员1", "选中干员2", "部署1", "部署2", "作战中1", "作战中2", "作战中3", "作战中4", "4星结束行动", "3星结束行动", "非3星结束行动", "行动失败", "进驻设施", "戳一下", "信赖触摸", "标题", "问候"};
+        String url = "https://static.prts.wiki/voice/";
         for (OperatorName name : allOperatorId) {
-            String html = XPathUtil.getHtmlByUrl("https://prts.wiki/w/" + name.getOperatorName() + "/语音记录");
-            Document document = Jsoup.parse(html);
-            Elements as = document.select("a[download]");
-            for (Element a: as){
-                String url = a.attr("href");
-                String[] split = url.split("/");
-                String fileName = XPathUtil.decodeUnicode(split[split.length - 1].substring(0,split[split.length - 1].length() - 4));
-                String path = "runFile/voice/" + name.getCharId() + "/" + fileName + ".wav";
-                try {
-                    downloadOneFile(path, url);
-                } catch (IOException e) {
-                    log.error("下载{}语音失败", name.getCharId() + "/" + fileName);
+            File file = new File("runFile/voice/" + name.getCharId());
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+            for (String voiceName : voiceList) {
+                //判断是否存在该语言
+                if (operatorInfoMapper.selectOperatorVoiceByCharIdAndName(name.getCharId(), voiceName) == 0) {
+                    String path = name.getCharId() + "/" + name.getOperatorName() + "_" + voiceName + ".wav";
+                    try {
+                        downloadOneFile("runFile/voice/" + path, url + path);
+                        //写入数据库
+                        operatorInfoMapper.insertOperatorVoice(name.getCharId(), voiceName, "runFile/voice/" + path);
+                        Thread.sleep(new Random().nextInt(5) * 1000);
+                    } catch (IOException e) {
+                        log.error("下载{}语音失败", name.getCharId() + "/" + voiceName);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }

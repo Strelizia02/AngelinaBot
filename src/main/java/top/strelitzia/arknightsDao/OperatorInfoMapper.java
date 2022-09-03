@@ -75,4 +75,15 @@ public interface OperatorInfoMapper {
     //根据干员名查找其职业
     Integer selectOperatorClassByName(String name);
 
+    //根据干员编号和语音名查找语音是否存在
+    Integer selectOperatorVoiceByCharIdAndName(@Param("charId") String charId, @Param("name") String name);
+
+    //插入一条新的语音记录
+    Integer insertOperatorVoice(@Param("charId") String charId, @Param("name") String name, @Param("file") String file);
+
+    //根据干员名查找语音记录
+    List<String> selectOperatorVoiceByName( @Param("name") String name);
+
+    //根据干员名和语音名查找语音记录
+    String selectOperatorVoiceByNameAndVoice(@Param("name") String name, @Param("voiceName") String voiceName);
 }
