@@ -3,10 +3,6 @@ package top.strelitzia.service;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
@@ -24,7 +20,6 @@ import top.strelitzia.dao.UserFoundMapper;
 import top.strelitzia.model.*;
 import top.strelitzia.util.AdminUtil;
 import top.strelitzia.util.FormatStringUtil;
-import top.strelitzia.util.XPathUtil;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -231,6 +226,11 @@ public class UpdateDataService {
     }
 
     private void downloadOneFile(String fileName, String url, int timeoutMinute) throws IOException {
+        File file = new File(fileName);
+        if (file.exists()) {
+            log.info("{}文件已存在，无需下载", fileName);
+            return;
+        }
         URL u = new URL(url);
         HttpURLConnection httpUrl = (HttpURLConnection) u.openConnection();
         //超时时间
