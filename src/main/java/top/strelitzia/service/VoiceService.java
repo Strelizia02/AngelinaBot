@@ -27,19 +27,8 @@ public class VoiceService {
     @AngelinaGroup(keyWords = {"语音"}, description = "查询干员的某条语音")
     public ReplayInfo getOperatorSkinByInfo(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        if (messageInfo.getArgs().size() > 1) {
+        if (messageInfo.getArgs().size() > 2) {
             //干员名或者技能名
-            String name = messageInfo.getArgs().get(1);
-
-            String realName = nickNameMapper.selectNameByNickName(name);
-            if (realName != null && !realName.equals(""))
-                name = realName;
-
-            List<String> voices = operatorInfoMapper.selectOperatorVoiceByName(name);
-            if (voices.size() > 0) {
-                replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
-            }
-        } else if (messageInfo.getArgs().size() > 2) {
             String name = messageInfo.getArgs().get(1);
 
             String realName = nickNameMapper.selectNameByNickName(name);
@@ -50,6 +39,19 @@ public class VoiceService {
             if (voice != null) {
                 replayInfo.setMp3(voice);
             }
+            return replayInfo;
+        } else if (messageInfo.getArgs().size() > 1) {
+            String name = messageInfo.getArgs().get(1);
+
+            String realName = nickNameMapper.selectNameByNickName(name);
+            if (realName != null && !realName.equals(""))
+                name = realName;
+
+            List<String> voices = operatorInfoMapper.selectOperatorVoiceByName(name);
+            if (voices.size() > 0) {
+                replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
+            }
+            return replayInfo;
         } else {
             replayInfo.setReplayMessage("请输入干员名");
         }

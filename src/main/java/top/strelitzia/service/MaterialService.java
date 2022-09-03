@@ -125,7 +125,7 @@ public class MaterialService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"精一材料", "精二材料"}, description = "查询干员精英化材料")
+    @AngelinaGroup(keyWords = {"精一", "精二", "精一材料", "精二材料"}, description = "查询干员精英化材料")
     public ReplayInfo JingYingHuaCaiLiao(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -171,7 +171,7 @@ public class MaterialService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"材料合成", "合成路线"}, description = "查询材料的合成途径")
+    @AngelinaGroup(keyWords = {"合成", "材料合成", "合成路线"}, description = "查询材料的合成途径")
     public ReplayInfo HeChengLuXian(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {

@@ -93,7 +93,7 @@ public class SkillDescService {
                 //不可分解(输入准确的等级)
             } else if (levels.length == 1) {
                 if (levelStr.containsKey(skillLevel))
-                    messageInfo.getArgs().add(2, levelStr.get(skillLevel));
+                    skillLevel = levelStr.get(skillLevel);
                 List<SkillDesc> descs = skillDescMapper.selectSkillDescByNameAndLevel(name, Integer.parseInt(skillLevel));
                 if (descs.size() > 0) {
                     skillDesc.add(descs);

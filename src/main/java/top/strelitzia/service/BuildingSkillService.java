@@ -31,7 +31,7 @@ public class BuildingSkillService {
     private NickNameMapper nickNameMapper;
 
 
-    @AngelinaGroup(keyWords = {"基建技能"}, description = "查询基建技能信息")
+    @AngelinaGroup(keyWords = {"基建技能", "基建"}, description = "查询基建技能信息")
     public ReplayInfo getBuildSkillNameServiceByInfos(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
 

@@ -26,7 +26,7 @@ public class OperatorInfoService {
     private NickNameMapper nickNameMapper;
 
 
-    @AngelinaGroup(keyWords = {"干员查询", "查询干员"}, description = "根据条件查询干员")
+    @AngelinaGroup(keyWords = {"干员搜索", "搜索干员"}, description = "根据条件搜索干员")
     public ReplayInfo getOperatorByInfos(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         List<String> infos = messageInfo.getArgs();
@@ -57,7 +57,7 @@ public class OperatorInfoService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"档案信息", "查询档案", "干员档案", "档案查询"}, description = "查询干员档案信息")
+    @AngelinaGroup(keyWords = {"档案", "档案信息", "查询档案", "干员档案", "档案查询"}, description = "查询干员档案信息")
     public ReplayInfo getOperatorInfo(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -164,7 +164,7 @@ public class OperatorInfoService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"天赋查询", "干员天赋"}, description = "查询干员的天赋信息")
+    @AngelinaGroup(keyWords = {"天赋", "天赋查询", "干员天赋"}, description = "查询干员的天赋信息")
     public ReplayInfo getTalentByName(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
