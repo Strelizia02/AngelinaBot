@@ -34,7 +34,7 @@
 
 # 鸣谢
 
-感谢[兔兔阿米娅](https://github.com/vivien8261/Amiya-Bot)，[企鹅物流](https://penguin-stats.cn/)，[PRTS=明日方舟WIKI](https://penguin-stats.cn/)，[Arknights-Bot-Resource](https://github.com/yuanyan3060/Arknights-Bot-Resource)提供的数据支持。
+感谢[兔兔阿米娅](https://github.com/vivien8261/Amiya-Bot)，[Arknights-Bot-Resource](https://github.com/yuanyan3060/Arknights-Bot-Resource)，[企鹅物流](https://penguin-stats.cn/)，[PRTS=明日方舟WIKI](https://penguin-stats.cn/)提供的数据支持。
 
 感谢[百度智能云](https://cloud.baidu.com/)提供的图像识别技术。
 
