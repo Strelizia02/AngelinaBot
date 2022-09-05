@@ -5,8 +5,10 @@
 <div>
     <img alt="Java" src="https://img.shields.io/badge/Java-1.8-blue">
     <img alt="SQLite" src="https://img.shields.io/badge/SQLite-3.36-pink?logo=SQLite&logoColor=white">
-    <img alt="platform" src="https://img.shields.io/badge/platform-windows%20%7C%20Liunx-blueviolet">
-    <img alt="license" src="https://img.shields.io/badge/license-AGPL-green">
+    <img alt="AngelinaFrame" src="https://img.shields.io/badge/BotFrame-AngelinaFrame-red">
+    <img alt="SpringBoot" src="https://img.shields.io/badge/SpringBoot-2.4.0-green?logo=Spring Boot">
+    <img alt="platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux-blueviolet">
+    <img alt="license" src="https://img.shields.io/badge/license-AGPL3.0-green">
 </div>
 
 # 责任声明
