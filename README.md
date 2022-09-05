@@ -24,11 +24,9 @@
 
 # 如何使用
 
-- [如何搭建一个自己的AngelinaBot]()
-
 - [如何使用AngelinaFrame编写一个自己的Bot](https://github.com/Strelizia02/AngelinaFrame/wiki)
 
-- [视频教程]()
+- [视频教程](https://b23.tv/g71n2yg)
 
 - BUG反馈、问题求助：提issue或在QQ群【洁哥妙妙屋(691029037)】中私聊群主。
 
@@ -36,9 +34,9 @@
 
 # 鸣谢
 
-感谢[兔兔阿米娅](https://github.com/vivien8261/Amiya-Bot)，[企鹅物流](https://penguin-stats.cn/)提供的数据支持。
+感谢[兔兔阿米娅](https://github.com/vivien8261/Amiya-Bot)，[企鹅物流](https://penguin-stats.cn/)，[PRTS=明日方舟WIKI](https://penguin-stats.cn/)，[Arknights-Bot-Resource](https://github.com/yuanyan3060/Arknights-Bot-Resource)提供的数据支持。
 
-感谢[百度智能云](https://cloud.baidu.com/)提供的图像识别技术，公开招募可以直接截图查询。
+感谢[百度智能云](https://cloud.baidu.com/)提供的图像识别技术。
 
 前端主页：[Angelina's Home](http://www.angelina-bot.top/)
 
