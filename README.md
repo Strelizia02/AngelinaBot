@@ -2,16 +2,6 @@
 
 基于[AngelinaFrame](https://github.com/Strelizia02/AngelinaFrame)的明日方舟主题QQ群聊机器人
 
-# 警告！！
-
-**本项目中包含：**
-
-​	**HanYuPinYin**
-
-​	**命名不规范**
-
-​	**代码重复**
-
 # 责任声明
 
 本项目完全开源，开源许可采用AGPLv3，详情请参见[LICENSE](https://github.com/Strelizia02/AngelinaBot/blob/master/LICENSE)
