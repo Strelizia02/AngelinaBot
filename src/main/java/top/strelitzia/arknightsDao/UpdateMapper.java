@@ -76,6 +76,10 @@ public interface UpdateMapper {
     Integer updateVersion(String newVersion);
 
     Integer updateOperatorInfo(OperatorBasicInfo operatorInfo);
+    
+    Integer insertVersion();
+
+    Integer updateCVNameByOperatorId(OperatorBasicInfo operatorBasicInfo);
 
     Integer updateSkillDecs(SkillDesc skillDesc);
 }

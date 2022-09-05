@@ -36,8 +36,11 @@ public interface OperatorInfoMapper {
     //查找全部声优
     List<String> getAllInfoName();
 
-    //条件模糊查询声优
-    List<String> getAllInfoNameLikeStr(String str);
+    //按版本查找全部声优
+    List<String> getAllInfoName(String str);
+
+    //按版本模糊查询声优
+    List<String> getAllInfoNameLikeStr(String area,String str);
 
     //根据生日查找干员
     List<String> getOperatorByBirthday(String birthday);

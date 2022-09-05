@@ -10,6 +10,8 @@ import top.strelitzia.arknightsDao.OperatorInfoMapper;
 import top.strelitzia.model.OperatorBasicInfo;
 import top.strelitzia.model.TalentInfo;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -57,7 +59,7 @@ public class OperatorInfoService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"档案", "档案信息", "查询档案", "干员档案", "档案查询"}, description = "查询干员档案信息")
+    @AngelinaGroup(keyWords = {"档案信息", "查询档案", "干员档案", "档案查询"}, description = "查询干员档案信息")
     public ReplayInfo getOperatorInfo(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -71,7 +73,7 @@ public class OperatorInfoService {
             if (messageInfo.getArgs().size() == 2) {
                 s += "基础档案：\n" +
                         "画师：" + operatorInfoByName.getDrawName() + '\t' +
-                        "声优：" + operatorInfoByName.getInfoName() + '\n' +
+                        "声优：" + operatorInfoByName.getCvNameOfJP() + '\n' +
                         "代号：" + operatorInfoByName.getCodeName() + '\t' +
                         "性别：" + operatorInfoByName.getSex() + '\t' +
                         "出身地：" + operatorInfoByName.getComeFrom() + '\n' +
@@ -87,7 +89,7 @@ public class OperatorInfoService {
                     case "基础档案":
                         s += "基础档案：\n" +
                                 "画师：" + operatorInfoByName.getDrawName() + '\t' +
-                                "声优：" + operatorInfoByName.getInfoName() + '\n' +
+                                "声优：" + operatorInfoByName.getCvNameOfJP() + '\n' +
                                 "代号：" + operatorInfoByName.getCodeName() + '\t' +
                                 "性别：" + operatorInfoByName.getSex() + '\t' +
                                 "出身地：" + operatorInfoByName.getComeFrom() + '\n' +
@@ -133,17 +135,36 @@ public class OperatorInfoService {
     @AngelinaGroup(keyWords = {"声优查询", "查询声优"}, description = "根据条件查询声优信息")
     public ReplayInfo getCVByName(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        List<String> allCV;
+        List<String> allCV = new ArrayList<>();
         StringBuilder s = new StringBuilder();
         if (messageInfo.getArgs().size() > 1) {
-            allCV = operatorInfoMapper.getAllInfoNameLikeStr(messageInfo.getArgs().get(1));
+            switch (messageInfo.getArgs().get(1)){
+                case "普通话" : allCV = operatorInfoMapper.getAllInfoName("CN_mandarin");break;
+                case "方言" : allCV = operatorInfoMapper.getAllInfoName("CN_topolect");break;
+                case "日配" : allCV = operatorInfoMapper.getAllInfoName("JP");break;
+                case "韩配" : allCV = operatorInfoMapper.getAllInfoName("KR");break;
+                case "英配" : allCV = operatorInfoMapper.getAllInfoName("EN");break;
+                default : {
+                    List<String> areaList = new ArrayList<>(Arrays.asList("CN_mandarin","CN_topolect","JP","KR","EN"));
+                    for (String area :areaList) {
+                        allCV.addAll(operatorInfoMapper.getAllInfoNameLikeStr(area,messageInfo.getArgs().get(1)));
+                    }
+                }break;
+            }
+            int i=0;
+            for (String name : allCV) {
+                if(name == null) continue;
+                s.append(name).append("   ");
+                i++;
+                if(i==3){
+                    s.append('\n');
+                    i = 0;
+                }
+            }
+            replayInfo.setReplayMessage(s.toString());
         } else {
-            allCV = operatorInfoMapper.getAllInfoName();
+            replayInfo.setReplayMessage("请输入要查询的内容，可以输入配音版本（普通话、方言、中配、日配、韩配、英配），也可以对声优名字进行模糊查询");
         }
-        for (String name : allCV) {
-            s.append(name).append('\n');
-        }
-        replayInfo.setReplayMessage(s.toString());
         return replayInfo;
     }
 

@@ -11,7 +11,11 @@ public class OperatorBasicInfo {
     private Integer operatorClass;
     private String charId;
     private String drawName;
-    private String infoName;
+    private String cvNameOfCNMandarin;
+    private String cvNameOfCNTopolect;
+    private String cvNameOfJP;
+    private String cvNameOfKR;
+    private String cvNameOfEN;
     private String codeName;
     private String sex;
     private String comeFrom;
@@ -28,9 +32,7 @@ public class OperatorBasicInfo {
     private String archives4;
     private String promotionInfo;
 
-    public Integer getOperatorRarity() {
-        return operatorRarity;
-    }
+    public Integer getOperatorRarity() { return operatorRarity; }
 
     public void setOperatorRarity(Integer operatorRarity) {
         this.operatorRarity = operatorRarity;
@@ -56,11 +58,10 @@ public class OperatorBasicInfo {
         return charId;
     }
 
-    public void setCharId(String charId) {
-        this.charId = charId;
-    }
+    public void setCharId(String charId) { this.charId = charId; }
 
     public String getDrawName() {
+        drawName = drawName.trim();
         return drawName;
     }
 
@@ -68,13 +69,25 @@ public class OperatorBasicInfo {
         this.drawName = drawName;
     }
 
-    public String getInfoName() {
-        return infoName;
-    }
+    public String getCvNameOfCNMandarin() { return cvNameOfCNMandarin; }
 
-    public void setInfoName(String infoName) {
-        this.infoName = infoName;
-    }
+    public void setCvNameOfCNMandarin(String cvNameOfCNMandarin) { this.cvNameOfCNMandarin = cvNameOfCNMandarin; }
+
+    public String getCvNameOfCNTopolect() { return cvNameOfCNTopolect; }
+
+    public void setCvNameOfCNTopolect(String cvNameOfCNTopolect) { this.cvNameOfCNTopolect = cvNameOfCNTopolect; }
+
+    public String getCvNameOfJP() { return cvNameOfJP; }
+
+    public void setCvNameOfJP(String cvNameOfJP) { this.cvNameOfJP = cvNameOfJP; }
+
+    public String getCvNameOfKR() { return cvNameOfKR; }
+
+    public void setCvNameOfKR(String cvNameOfKR) { this.cvNameOfKR = cvNameOfKR; }
+
+    public String getCvNameOfEN() { return cvNameOfEN; }
+
+    public void setCvNameOfEN(String cvNameOfEN) { this.cvNameOfEN = cvNameOfEN; }
 
     public String getCodeName() {
         return codeName;
@@ -85,46 +98,52 @@ public class OperatorBasicInfo {
     }
 
     public String getSex() {
+        if(sex==null){
+            sex ="";
+        }else {
+            sex = sex.trim();
+        }
         return sex;
     }
 
-    public void setSex(String sex) {
-        this.sex = sex;
-    }
+    public void setSex(String sex) { this.sex = sex; }
 
     public String getComeFrom() {
+        if(comeFrom==null){
+            comeFrom ="";
+        }else {
+            comeFrom = comeFrom.trim();
+        }
         return comeFrom;
     }
 
-    public void setComeFrom(String comeFrom) {
-        this.comeFrom = comeFrom;
-    }
+    public void setComeFrom(String comeFrom) { this.comeFrom = comeFrom; }
 
-    public String getBirthday() {
-        return birthday;
-    }
+    public String getBirthday() { return birthday; }
 
-    public void setBirthday(String birthday) {
-        this.birthday = birthday;
-    }
+    public void setBirthday(String birthday) { this.birthday = birthday; }
 
     public String getRace() {
+        if(race==null){
+            race ="";
+        }else {
+            race = race.trim();
+        }
         return race;
     }
 
-    public void setRace(String race) {
-        this.race = race;
-    }
+    public void setRace(String race) { this.race = race; }
 
-    public Integer getHeight() {
-        return height;
-    }
+    public Integer getHeight() { return height; }
 
-    public void setHeight(Integer height) {
-        this.height = height;
-    }
+    public void setHeight(Integer height) { this.height = height; }
 
     public String getInfection() {
+        if(infection==null){
+            infection ="";
+        }else {
+            infection = infection.trim();
+        }
         return infection;
     }
 
@@ -200,7 +219,7 @@ public class OperatorBasicInfo {
     public String toString() {
         return "基础档案：\n" +
                 "画师：" + drawName + '\t' +
-                "声优：" + infoName + '\n' +
+                "声优：" + cvNameOfJP + '\n' +
                 "代号：" + codeName + '\t' +
                 "性别：" + sex + '\t' +
                 "出身地：" + comeFrom + '\n' +
