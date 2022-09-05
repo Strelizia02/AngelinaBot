@@ -24,7 +24,7 @@
 * [传播垃圾广告](https://www.baidu.com/s?ie=UTF-8&wd=%E4%BC%A0%E6%92%AD%E5%9E%83%E5%9C%BE%E4%BF%A1%E6%81%AF%E5%88%A4%E5%87%A0%E5%B9%B4)
 * [传播违禁资源](https://www.baidu.com/s?ie=UTF-8&wd=%E4%BC%A0%E6%92%AD%E6%B7%AB%E7%A7%BD%E4%BF%A1%E6%81%AF%E5%88%A4%E5%87%A0%E5%B9%B4)
 * [运营非法活动](https://www.baidu.com/s?ie=UTF-8&wd=%E4%BC%A0%E9%94%80%E6%9C%80%E9%AB%98%E5%88%A4%E5%87%A0%E5%B9%B4)
-* [电信诈骗](https://www.baidu.com/s?ie=UTF-8&wd=%E7%94%B5%E4%BF%A1%E8%AF%88%E9%AA%97%E6%9C%80%E9%AB%98%E5%88%A4%E5%87%A0%E5%B9%B4)
+* [参与电信诈骗](https://www.baidu.com/s?ie=UTF-8&wd=%E7%94%B5%E4%BF%A1%E8%AF%88%E9%AA%97%E6%9C%80%E9%AB%98%E5%88%A4%E5%87%A0%E5%B9%B4)
 
 ***
 
