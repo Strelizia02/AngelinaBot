@@ -2,6 +2,13 @@
 
 基于[AngelinaFrame](https://github.com/Strelizia02/AngelinaFrame)的明日方舟主题QQ群聊机器人
 
+<div>
+    <img alt="Java" src="https://img.shields.io/badge/Java-1.8-yellowgreen">
+    <img alt="SQLite" src="https://img.shields.io/badge/SQLite-^3.24-%23003B57?logo=SQLite&logoColor=white">
+    <img alt="platform" src="https://img.shields.io/badge/platform-windows%20%7C%20Liunx-blueviolet">
+    <img alt="license" src="https://img.shields.io/badge/license-AGPL-green">
+</div>
+
 # 责任声明
 
 本项目完全开源，开源许可采用AGPLv3，详情请参见[LICENSE](https://github.com/Strelizia02/AngelinaBot/blob/master/LICENSE)
