@@ -5,8 +5,8 @@
 <div>
     <img alt="Java" src="https://img.shields.io/badge/Java-1.8-blue?style=plastic">
     <img alt="SQLite" src="https://img.shields.io/badge/SQLite-3.36-pink?logo=SQLite&logoColor=pink&style=plastic">    
-    <img alt="SpringBoot" src="https://img.shields.io/badge/SpringBoot-2.4.0-green?logo=Spring Boot&style=plastic">
-    <img alt="AngelinaFrame" src="https://img.shields.io/badge/BotFrame-AngelinaFrame-red?style=plastic">
+    <img alt="SpringBoot" src="https://img.shields.io/badge/SpringBoot-2.4.0-brightgreen?logo=Spring Boot&style=plastic">
+    <img alt="AngelinaFrame" src="https://img.shields.io/badge/BotFrame-AngelinaFrame-orange?style=plastic">
     </br>
     <img alt="platform" src="https://img.shields.io/badge/platform-Windows-blueviolet?logo=Windows&style=plastic">
     <img alt="platform" src="https://img.shields.io/badge/platform-Linux-blueviolet?logo=Linux&style=plastic">
