@@ -121,11 +121,8 @@ public class UpdateDataService {
             }
             downloadInfo.setForce(true);
             boolean finish = downloadDataFile(downloadInfo);
-            if (finish) {
-                replayInfo.setReplayMessage("更新完成");
-            } else {
-                replayInfo.setReplayMessage("更新失败，请从后台日志查看更新情况");
-            }
+            if(finish) { replayInfo.setReplayMessage("更新完成"); }
+            else { replayInfo.setReplayMessage("更新失败，请从后台日志查看更新情况"); }
         }
         return replayInfo;
     }
@@ -139,7 +136,6 @@ public class UpdateDataService {
             replayInfo.setReplayMessage("您无更新权限");
         } else {
             DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
-            rebuildDatabase();
             if(messageInfo.getArgs().size()>2){
                 downloadInfo.setHostname(messageInfo.getArgs().get(1));
                 downloadInfo.setPort(Integer.parseInt(messageInfo.getArgs().get(2)));
@@ -165,7 +161,6 @@ public class UpdateDataService {
             replayInfo.setReplayMessage("您无更新权限");
         } else {
             DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
-            rebuildDatabase();
             if(messageInfo.getArgs().size()>2){
                 downloadInfo.setHostname(messageInfo.getArgs().get(1));
                 downloadInfo.setPort(Integer.parseInt(messageInfo.getArgs().get(2)));
@@ -921,8 +916,8 @@ public class UpdateDataService {
                     String path = name.getCharId() + "/" + name.getOperatorName() + "_" + voiceName + ".wav";
                     try {
                         downloadInfo.setSecond(300);
-                        downloadInfo.setFileName(path);
-                        downloadInfo.setUrl(url);
+                        downloadInfo.setFileName("runFile/voice/" + path);
+                        downloadInfo.setUrl(url+path);
                         downloadOneFile(downloadInfo);
                         downloadInfo.setFileName(null);
                         downloadInfo.setUrl(null);
