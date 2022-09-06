@@ -7,7 +7,11 @@
         <result column="operator_class" property="operatorClass" jdbcType="INTEGER"/>
         <result column="char_id" property="charId" jdbcType="VARCHAR"/>
         <result column="draw_name" property="drawName" jdbcType="VARCHAR"/>
-        <result column="info_name" property="infoName" jdbcType="VARCHAR"/>
+        <result column="CN_mandarin" property="cvNameOfCNMandarin" jdbcType="VARCHAR"/>
+        <result column="CN_topolect" property="cvNameOfCNTopolect" jdbcType="VARCHAR"/>
+        <result column="JP" property="cvNameOfJP" jdbcType="VARCHAR"/>
+        <result column="KR" property="cvNameOfKR" jdbcType="VARCHAR"/>
+        <result column="EN" property="cvNameOfEN" jdbcType="VARCHAR"/>
         <result column="code_name" property="codeName" jdbcType="VARCHAR"/>
         <result column="sex" property="sex" jdbcType="VARCHAR"/>
         <result column="come_from" property="comeFrom" jdbcType="VARCHAR"/>
@@ -42,17 +46,21 @@
 
     <select id="getOperatorNameByInfo" parameterType="java.lang.String" resultType="java.lang.String">
         SELECT
-            operator_name
+        operator_name
         FROM
-            t_operator
+        t_operator
         WHERE
-            draw_name = #{info}
-            OR info_name = #{info}
-            OR sex = #{info}
-            OR come_from = #{info}
-            OR birthday = #{info}
-            OR race = #{info}
-            OR operator_name like '%'||#{info}||'%'
+        draw_name = #{info}
+        OR CN_mandarin = #{info}
+        OR CN_topolect = #{info}
+        OR JP = #{info}
+        OR KR = #{info}
+        OR EN = #{info}
+        OR sex = #{info}
+        OR come_from = #{info}
+        OR birthday = #{info}
+        OR race = #{info}
+        OR operator_name like '%'||#{info}||'%'
     </select>
 
     <select id="getOperatorByBirthday" parameterType="java.lang.String" resultType="java.lang.String">
@@ -122,31 +130,11 @@
 
     <select id="getOperatorInfoByName" parameterType="java.lang.String" resultMap="BaseResultMap">
         SELECT
-            operator_id,
-            operator_rarity,
-            operator_class,
-            char_id,
-            draw_name,
-            info_name,
-            code_name,
-            sex,
-            come_from,
-            birthday,
-            race,
-            height,
-            infection,
-            comprehensive_test,
-            objective_resume,
-            clinical_diagnosis,
-            archives1,
-            archives2,
-            archives3,
-            archives4,
-            promotion_info
+        *
         FROM
-            t_operator
+        t_operator
         WHERE
-            operator_name = #{name}
+        operator_name = #{name} AND char_id is not null
     </select>
 
     <select id="getOperatorIdByChar" parameterType="java.lang.String" resultType="java.lang.Integer">
@@ -158,7 +146,12 @@
     </select>
 
     <select id="getAllInfoName" resultType="java.lang.String">
-        SELECT info_name from t_operator GROUP BY info_name
+        SELECT
+        ${str}
+        from
+        t_operator
+        GROUP BY
+        ${str}
     </select>
 
     <select id="getAllDrawNameLikeStr" parameterType="java.lang.String" resultType="java.lang.String">
@@ -166,7 +159,14 @@
     </select>
 
     <select id="getAllInfoNameLikeStr" parameterType="java.lang.String" resultType="java.lang.String">
-        SELECT info_name from (SELECT info_name from t_operator GROUP BY info_name)a1 WHERE info_name LIKE '%'||#{str}||'%'
+        SELECT
+        ${area}
+        FROM
+        (SELECT ${area} FROM t_operator GROUP BY ${area})
+        WHERE
+        ${area}
+        LIKE
+        '%'||#{str}||'%'
     </select>
 
     <select id="selectOperatorPngByName" resultType="java.lang.String">

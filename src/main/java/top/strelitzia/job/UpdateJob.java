@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import top.strelitzia.model.DownloadOneFileInfo;
 import top.strelitzia.service.UpdateDataService;
 
 /**
@@ -24,6 +25,9 @@ public class UpdateJob {
     @Scheduled(cron = "${scheduled.updateJob}")
     @Async
     public void cleanDayCountJob() {
-        updateDataService.downloadDataFile(false);
+        DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
+        downloadInfo.setUseHost(false);
+        downloadInfo.setForce(false);
+        updateDataService.downloadDataFile(downloadInfo);
     }
 }

@@ -249,9 +249,8 @@
 
     <update id="updateOperatorInfo" parameterType="top.strelitzia.model.OperatorBasicInfo">
         UPDATE t_operator
-        SET char_id=#{charId},
+        SET char_id = #{charId},
         draw_name = #{drawName},
-        info_name = #{infoName},
         code_name = #{codeName},
         sex = #{sex},
         come_from = #{comeFrom},
@@ -268,6 +267,20 @@
         archives4 = #{archives4},
         promotion_info = #{promotionInfo}
         where operator_id = #{operatorId}
+    </update>
+
+    <insert id="insertVersion" parameterType="java.lang.String">
+        insert into a_data_version values (0)
+    </insert>
+
+    <update id="updateCVNameByOperatorId" parameterType="top.strelitzia.model.OperatorBasicInfo">
+        UPDATE t_operator
+        SET CN_mandarin = #{cvNameOfCNMandarin},
+        CN_topolect = #{cvNameOfCNTopolect},
+        JP = #{cvNameOfJP},
+        EN = #{cvNameOfEN},
+        KR = #{cvNameOfKR}
+        WHERE operator_id = #{operatorId}
     </update>
 
     <delete id="clearOperatorData">
