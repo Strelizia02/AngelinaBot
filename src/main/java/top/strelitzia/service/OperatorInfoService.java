@@ -59,7 +59,7 @@ public class OperatorInfoService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"档案信息", "查询档案", "干员档案", "档案查询"}, description = "查询干员档案信息")
+    @AngelinaGroup(keyWords = {"档案", "档案信息", "查询档案", "干员档案", "档案查询"}, description = "查询干员档案信息")
     public ReplayInfo getOperatorInfo(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -132,7 +132,7 @@ public class OperatorInfoService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"声优查询", "查询声优"}, description = "根据条件查询声优信息")
+    @AngelinaGroup(keyWords = {"声优", "声优查询", "查询声优"}, description = "根据条件查询声优信息")
     public ReplayInfo getCVByName(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         List<String> allCV = new ArrayList<>();

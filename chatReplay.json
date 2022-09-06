@@ -70,5 +70,13 @@
     "replay": [
 		"框架地址：https://github.com/Strelizia02/AngelinaFrame/\n教学视频：https://www.bilibili.com/video/BV1hw411f7a4/\n洁哥官网：https://www.angelina-bot.top/\n喜欢安洁莉娜的博士麻烦在github点一个star，或者给视频点赞，感谢！"
 	]
+  },
+  {
+    "keyWords": [
+      "你好"
+    ],
+    "replay": [
+      "{userName},你好{img@runFile/avatar/char_291_aglina.png}{audio@voice/char_291_aglina/安洁莉娜_问候.wav}"
+    ]
   }
 ]

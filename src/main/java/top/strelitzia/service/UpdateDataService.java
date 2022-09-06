@@ -121,8 +121,11 @@ public class UpdateDataService {
             }
             downloadInfo.setForce(true);
             boolean finish = downloadDataFile(downloadInfo);
-            if(finish) replayInfo.setReplayMessage("更新完成");
-            else replayInfo.setReplayMessage("更新失败，请从后台日志查看更新情况");
+            if (finish) {
+                replayInfo.setReplayMessage("更新完成");
+            } else {
+                replayInfo.setReplayMessage("更新失败，请从后台日志查看更新情况");
+            }
         }
         return replayInfo;
     }
