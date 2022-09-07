@@ -174,12 +174,17 @@ public class GuessOperator {
     @AngelinaGroup(keyWords = {"重启猜干员"})
     public ReplayInfo reGuessOperator(MessageInfo messageInfo) {
         groupList.remove(messageInfo.getGroupId());
-        for (AngelinaListener listener: AngelinaEventSource.getInstance().listenerSet.keySet()) {
-            if (listener.getGroupId().equals(messageInfo.getGroupId())) {
-                AngelinaEventSource.getInstance().listenerSet.remove(listener);
-            }
-        }
+        AngelinaEventSource.remove(messageInfo.getGroupId());
         return guessOperator(messageInfo);
+    }
+
+    @AngelinaGroup(keyWords = {"结束猜干员", "终止猜干员", "中止猜干员"})
+    public ReplayInfo stopGuessOperator(MessageInfo messageInfo) {
+        groupList.remove(messageInfo.getGroupId());
+        AngelinaEventSource.remove(messageInfo.getGroupId());
+        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        replayInfo.setReplayMessage("本群猜干员已结束");
+        return replayInfo;
     }
 
     /**
