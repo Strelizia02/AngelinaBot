@@ -231,6 +231,7 @@ public class UpdateDataService {
                 try {
                     log.info("开始下载数据文件");
                     downloadInfo.setSecond(600);
+                    downloadInfo.setCheckExist(false);
                     //updateMapper.doingDownloadVersion();
                     downloadInfo.setFileName("runFile/download/character_table.json");
                     downloadInfo.setUrl( url + "gamedata/excel/character_table.json");
@@ -272,6 +273,7 @@ public class UpdateDataService {
                     downloadInfo.setUrl( url+ "gamedata/excel/data_version.txt");
                     downloadOneFile(downloadInfo);
                     downloadInfo.setSecond(300);
+                    downloadInfo.setCheckExist(true);
                     downloadInfo.setFileName(null);
                     downloadInfo.setUrl(null);
 
@@ -308,10 +310,12 @@ public class UpdateDataService {
     }
 
     private void downloadOneFile(DownloadOneFileInfo downloadInfo) throws IOException {
-        File file = new File(downloadInfo.getFileName());
-        if (file.exists()) {
-            log.info("{}文件已存在，无需下载", downloadInfo.getFileName());
-            return;
+        if (downloadInfo.isCheckExist()) {
+            File file = new File(downloadInfo.getFileName());
+            if (file.exists()) {
+                log.info("{}文件已存在，无需下载", downloadInfo.getFileName());
+                return;
+            }
         }
         URL u = new URL(downloadInfo.getUrl());
         HttpURLConnection httpUrl;

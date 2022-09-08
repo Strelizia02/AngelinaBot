@@ -15,6 +15,8 @@ public class DownloadOneFileInfo {
     private String hostname;
     //代理端口
     private int port;
+    //是否进行文件存在性检查
+    private boolean checkExist = true;
 
     public boolean isForce() { return force; }
 
@@ -43,4 +45,8 @@ public class DownloadOneFileInfo {
     public int getPort() { return port; }
 
     public void setPort(int port) { this.port = port; }
+
+    public boolean isCheckExist() { return checkExist; }
+
+    public void setCheckExist(boolean checkExist) { this.checkExist = checkExist; }
 }
