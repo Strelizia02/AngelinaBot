@@ -12,6 +12,8 @@
     <img alt="platform" src="https://img.shields.io/badge/platform-Linux-blueviolet?logo=Linux&style=plastic">
     <img alt="license" src="https://img.shields.io/badge/license-AGPL3.0-green?style=plastic">
     <img alt="IntelliJ IDEA" src="https://img.shields.io/badge/JetBrains-IDEA-red?logo=IntelliJ IDEA&logoColor=white&style=plastic"
+    </br>
+    <img alt="size" src="https://img.shields.io/github/repo-size/Strelizia02/AngelinaBot?color=%23ffeb3b">
 </div>
 
 # 责任声明
