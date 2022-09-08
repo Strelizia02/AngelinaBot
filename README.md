@@ -13,7 +13,7 @@
     <img alt="license" src="https://img.shields.io/badge/license-AGPL3.0-green?style=plastic">
     <img alt="IntelliJ IDEA" src="https://img.shields.io/badge/JetBrains-IDEA-red?logo=IntelliJ IDEA&logoColor=white&style=plastic"
     </br>
-    <img alt="size" src="https://img.shields.io/github/repo-size/Strelizia02/AngelinaBot?color=%23ffeb3b">
+    <img alt="size" src="https://img.shields.io/github/repo-size/Strelizia02/AngelinaBot?color=%23ffeb3b&style=plastic">
 </div>
 
 # 责任声明
