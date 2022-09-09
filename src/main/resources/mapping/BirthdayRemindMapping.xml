@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.BirthdayRemindMapper">
+
+    <insert id="insertBirthdayRemind">
+        INSERT INTO a_birthday_remind(group_id, operator_name)
+        VALUES (#{groupId},#{name})
+    </insert>
+
+    <select id="selectNameByGroupId" parameterType="java.lang.Long" resultType="java.lang.String">
+        SELECT operator_name FROM a_birthday_remind WHERE group_id = #{groupId}
+    </select>
+
+    <select id="selectGroupIdByName" parameterType="java.lang.String" resultType="java.lang.Long">
+        SELECT group_id FROM a_birthday_remind WHERE operator_name = #{name}
+    </select>
+
+    <delete id="deleteBirthdayRemind">
+        DELETE FROM a_birthday_remind WHERE group_id = #{groupId} and operator_name = #{name}
+    </delete>
+
+</mapper>
