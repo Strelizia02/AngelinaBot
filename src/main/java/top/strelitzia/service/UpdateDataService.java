@@ -1279,6 +1279,7 @@ public class UpdateDataService {
                                 }
                                 break;
                             case "TALENT_DATA_ONLY":
+                            case "TALENT":
                                 candidates = part.getJSONObject("addOrOverrideTalentDataBundle").getJSONArray("candidates");
                                 for (int k = 0; k < candidates.length(); k++) {
                                     JSONObject candidate = candidates.getJSONObject(k);
@@ -1296,6 +1297,7 @@ public class UpdateDataService {
                                 }
                                 break;
                             case "TRAIT_DATA_ONLY":
+                            case "TRAIT":
                                 candidates = part.getJSONObject("overrideTraitDataBundle").getJSONArray("candidates");
                                 for (int k = 0; k < candidates.length(); k++) {
                                     JSONObject candidate = candidates.getJSONObject(k);
