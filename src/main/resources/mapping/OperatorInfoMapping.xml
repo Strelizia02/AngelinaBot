@@ -260,8 +260,8 @@
 
     <insert id="insertOperatorVoice">
         INSERT INTO t_operator_voice
-            (char_id, voice_name, file)
-        VALUES(#{charId}, #{name}, #{file})
+            (char_id, type, voice_name, file)
+        VALUES(#{charId}, #{type}, #{name}, #{file})
     </insert>
 
     <select id="selectOperatorVoiceByName" resultType="java.lang.String">
@@ -283,6 +283,7 @@
         WHERE
             operator_name = #{name}
         AND voice_name = #{voiceName}
+        AND type = #{type}
         LIMIT 1
     </select>
 </mapper>

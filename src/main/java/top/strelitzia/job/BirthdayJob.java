@@ -13,8 +13,7 @@ import top.strelitzia.dao.BirthdayRemindMapper;
 import top.strelitzia.dao.UserFoundMapper;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author wangzy
@@ -68,7 +67,6 @@ public class BirthdayJob {
                     }
                 }
             }
-            for (Long groupId: MiraiFrameUtil.messageIdMap.keySet()) {
             for(Long groupId : birthdayMap.keySet()){
                 StringBuilder s = new StringBuilder("今天是" + today + "祝 ");
                 List<String> nameList = birthdayMap.get(groupId);
@@ -80,7 +78,7 @@ public class BirthdayJob {
                 replayInfo.setReplayMessage(s.toString());
                 replayInfo.setGroupId(groupId);
                 //只发给查询到的最新的群组列表
-                if (groupList.containsKey(groupId)) {
+                if (birthdayMap.containsKey(groupId)) {
                     replayInfo.setLoginQQ(MiraiFrameUtil.messageIdMap.get(groupId));
                     sendMessageUtil.sendGroupMsg(replayInfo);
                 }
