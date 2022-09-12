@@ -256,6 +256,7 @@
         WHERE
             char_id = #{charId}
         AND voice_name = #{name}
+        AND type = #{type}
     </select>
 
     <insert id="insertOperatorVoice">
