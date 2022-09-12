@@ -875,7 +875,7 @@ public class UpdateDataService {
         log.info("开始更新干员语音");
 
         //原配
-//        downloadVoiceByType("voice", downloadInfo);
+        downloadVoiceByType("voice", downloadInfo);
         //中配
         downloadVoiceByType("voice_cn", downloadInfo);
         //方言
