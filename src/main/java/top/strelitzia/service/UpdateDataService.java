@@ -875,7 +875,7 @@ public class UpdateDataService {
         log.info("开始更新干员语音");
 
         //原配
-        downloadVoiceByType("voice", downloadInfo);
+//        downloadVoiceByType("voice", downloadInfo);
         //中配
         downloadVoiceByType("voice_cn", downloadInfo);
         //方言
@@ -890,14 +890,13 @@ public class UpdateDataService {
 
     private void downloadVoiceByType(String type, DownloadOneFileInfo downloadInfo) {
         List<OperatorName> allOperatorId = operatorInfoMapper.getAllOperatorIdAndName();
-        String[] voiceList = new String[]{"任命助理", "交谈1", "交谈2", "交谈3", "晋升后交谈1", "晋升后交谈2", "信赖提升后交谈1", "信赖提升后交谈2", "信赖提升后交谈3", "闲置", "干员报到", "观看作战记录", "精英化晋升1", "精英化晋升2", "编入队伍", "任命队长", "行动出发", "行动开始", "选中干员1", "选中干员2", "部署1", "部署2", "作战中1", "作战中2", "作战中3", "作战中4", "4星结束行动", "3星结束行动", "非3星结束行动", "行动失败", "进驻设施", "戳一下", "信赖触摸", "标题", "问候"};
         String url = "https://static.prts.wiki/" + type + "/";
         for (OperatorName name : allOperatorId) {
             File file = new File("runFile/" + type + "/" + name.getCharId());
             if (!file.exists()) {
                 file.mkdirs();
             }
-            for (String voiceName : voiceList) {
+            for (String voiceName : VoiceService.voiceList) {
                 //判断是否存在该语音
                 if (operatorInfoMapper.selectOperatorVoiceByCharIdAndName(type, name.getCharId(), voiceName) == 0) {
                     String path = name.getCharId() + "/" + name.getOperatorName() + "_" + voiceName + ".wav";
