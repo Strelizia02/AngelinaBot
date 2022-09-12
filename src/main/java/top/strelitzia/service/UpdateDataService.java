@@ -332,7 +332,7 @@ public class UpdateDataService {
                 updateItemIcon(downloadOneFileInfo);
                 updateOperatorPng(downloadOneFileInfo);
                 updateOperatorSkillPng(downloadOneFileInfo);
-                updateOperatorVoice(downloadOneFileInfo);
+//                updateOperatorVoice(downloadOneFileInfo);
                 updateMapper.updateVersion(charKey);
                 updateStatus = 0;
                 //updateMapper.doneUpdateVersion();

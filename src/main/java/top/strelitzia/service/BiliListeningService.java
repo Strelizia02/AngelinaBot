@@ -102,7 +102,6 @@ public class BiliListeningService {
                             replayInfo.setGroupId(groupId);
                             replayInfo.setLoginQQ(MiraiFrameUtil.messageIdMap.get(groupId));
                             sendMessageUtil.sendGroupMsg(replayInfo);
-                            Thread.sleep(new Random().nextInt(5) * 100);
                         }
                     }
                 }
