@@ -42,9 +42,7 @@ public class GuessOperator {
 
     @Autowired
     NickNameMapper nickNameMapper;
-    
-    @Autowired
-    private OperatorInfoMapper operatorInfoMapper;
+
 
     private static final Set<Long> groupList = new HashSet<>();
 
@@ -90,10 +88,11 @@ public class GuessOperator {
                 boolean result = false;
                 replayInfo.setReplayImg(getTitle(list.get(i), i, hintsList, 3).drawImage());
                 if (hintsList.get(hintsList.size() - 1).equals(7)) {
-                    List<String> voices = operatorInfoMapper.selectOperatorVoiceByName(name);
+                    List<String> voices = operatorInfoMapper.selectOperatorVoiceByName(list.get(i));
                     replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
                 } else {
-                    replayInfo.setMp3(null);
+                    File f = null;
+                    replayInfo.setMp3(f);
                 }
                 sendMessageUtil.sendGroupMsg(replayInfo);
                 replayInfo.getReplayImg().clear();
@@ -307,7 +306,7 @@ public class GuessOperator {
                 textLine.nextLine();
                 break;
             case 7:
-                textLine.addString("请听该干员的语音：" + className);
+                textLine.addString("请听该干员的语音：");
                 textLine.nextLine();
                 isVoice = true;
                 break;

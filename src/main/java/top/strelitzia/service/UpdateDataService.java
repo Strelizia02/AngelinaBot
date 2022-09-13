@@ -307,6 +307,7 @@ public class UpdateDataService {
         } catch (IOException e) {
             log.error("下载{}文件失败", downloadInfo.getFileName());
             log.error(e.toString());
+            throw e;
         }
         httpUrl.disconnect();
     }
@@ -900,15 +901,19 @@ public class UpdateDataService {
                 //判断是否存在该语音
                 if (operatorInfoMapper.selectOperatorVoiceByCharIdAndName(type, name.getCharId(), voiceName) == 0) {
                     String path = name.getCharId() + "/" + name.getOperatorName() + "_" + voiceName + ".wav";
+                    if (type.equals("voice_custom")) {
+                        path = name.getCharId() + "_cn_topolect/" + name.getOperatorName() + "_" + voiceName + ".wav";
+                    }
                     try {
                         downloadInfo.setSecond(300);
-                        downloadInfo.setFileName("runFile/" + type + "/" + path);
+                        String filePath = "runFile/" + type + "/" + path;
+                        downloadInfo.setFileName(filePath);
                         downloadInfo.setUrl(url+path);
                         downloadOneFile(downloadInfo);
                         downloadInfo.setFileName(null);
                         downloadInfo.setUrl(null);
                         //写入数据库
-                        operatorInfoMapper.insertOperatorVoice(name.getCharId(), type, voiceName, "runFile/" + type + "/" + path);
+                        operatorInfoMapper.insertOperatorVoice(name.getCharId(), type, voiceName, filePath);
                         Thread.sleep(new Random().nextInt(5) * 1000);
                     } catch (IOException e) {
                         log.error("下载{}类型{}语音失败", type, name.getCharId() + "/" + voiceName);
