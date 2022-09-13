@@ -14,6 +14,7 @@ import top.angelinaBot.util.SendMessageUtil;
 import top.strelitzia.arknightsDao.OperatorInfoMapper;
 import top.strelitzia.arknightsDao.SkillDescMapper;
 import top.strelitzia.dao.AdminUserMapper;
+import top.strelitzia.arknightsDao.OperatorInfoMapper;
 import top.strelitzia.dao.NickNameMapper;
 import top.strelitzia.model.OperatorBasicInfo;
 import top.strelitzia.util.AdminUtil;
@@ -41,6 +42,9 @@ public class GuessOperator {
 
     @Autowired
     NickNameMapper nickNameMapper;
+    
+    @Autowired
+    private OperatorInfoMapper operatorInfoMapper;
 
     private static final Set<Long> groupList = new HashSet<>();
 
@@ -85,6 +89,12 @@ public class GuessOperator {
 
                 boolean result = false;
                 replayInfo.setReplayImg(getTitle(list.get(i), i, hintsList, 3).drawImage());
+                if (hintsList.get(hintsList.size() - 1).equals(7)) {
+                    List<String> voices = operatorInfoMapper.selectOperatorVoiceByName(name);
+                    replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
+                } else {
+                    replayInfo.setMp3(null);
+                }
                 sendMessageUtil.sendGroupMsg(replayInfo);
                 replayInfo.getReplayImg().clear();
                 int j = 0;
@@ -205,8 +215,8 @@ public class GuessOperator {
             drawInfo(textLine, name, integer);
         }
         int j = 0;
-        while(j < num && list.size() < 7) {
-            int addInfo = new Random().nextInt(7);
+        while(j < num && list.size() < 8) {
+            int addInfo = new Random().nextInt(8);
             if (!list.contains(addInfo)) {
                 drawInfo(textLine, name, addInfo);
                 list.add(addInfo);
@@ -221,7 +231,8 @@ public class GuessOperator {
      * @param textLine 图片
      * @param i 画哪个条件
      */
-    private void drawInfo(TextLine textLine, String name, int i) {
+    private boolean drawInfo(TextLine textLine, String name, int i) {
+        boolean isVoice = false;
         OperatorBasicInfo operatorInfo = operatorInfoMapper.getOperatorInfoByName(name);
         switch (i) {
             case 0:
@@ -295,6 +306,12 @@ public class GuessOperator {
                 textLine.addString("该干员的职业为：" + className);
                 textLine.nextLine();
                 break;
+            case 7:
+                textLine.addString("请听该干员的语音：" + className);
+                textLine.nextLine();
+                isVoice = true;
+                break;
         }
+        return isVoice;
     }
 }
