@@ -67,8 +67,8 @@ public class VoiceService {
 
                 List<String> voices = operatorInfoMapper.selectOperatorVoiceByNameAndVoice(type, name, voiceName);
 
-                if (voice != null) {
-                    replayInfo.setMp3(voice);
+                if (voices.size() > 0) {
+                    replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
                 }
                 return replayInfo;
             } else {
