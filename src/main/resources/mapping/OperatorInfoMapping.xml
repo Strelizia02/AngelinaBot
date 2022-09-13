@@ -283,8 +283,11 @@
         LEFT JOIN t_operator o ON o.char_id = v.char_id
         WHERE
             operator_name = #{name}
-        AND voice_name = #{voiceName}
-        AND type = #{type}
-        LIMIT 1
+        <if test = "voiceName != null">
+            AND voice_name = #{voiceName}
+        </if>
+        <if test = "type != null">
+            AND type = #{type}
+        </if>
     </select>
 </mapper>
