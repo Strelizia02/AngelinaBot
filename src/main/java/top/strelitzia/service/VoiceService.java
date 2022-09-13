@@ -65,15 +65,7 @@ public class VoiceService {
                     }
                 }
 
-                if (voiceName == null) {
-                    voiceName = voiceList[new Random().nextInt(voiceList.length)];
-                }
-
-                if (type == null) {
-                    type = types[new Random().nextInt(types.length)];
-                }
-
-                String voice = operatorInfoMapper.selectOperatorVoiceByNameAndVoice(type, name, voiceName);
+                List<String> voices = operatorInfoMapper.selectOperatorVoiceByNameAndVoice(type, name, voiceName);
 
                 if (voice != null) {
                     replayInfo.setMp3(voice);
