@@ -82,6 +82,7 @@ public class GuessOperator {
                 list.add(allOperator.get(index));
                 allOperator.remove(index);
             }
+            allOperator.addAll(list);
 
             Map<String, Integer> score = new HashMap<>();
             //记录都提示了哪些信息
@@ -123,6 +124,7 @@ public class GuessOperator {
                     if (recall == null) {
                         groupList.remove(messageInfo.getGroupId());
                         replayInfo.setReplayMessage("本轮猜干员已超时终止。");
+                        replayInfo.setMp3((File) null);
                         return replayInfo;
                     }
 
@@ -135,6 +137,7 @@ public class GuessOperator {
                         //答对了，直接下一题
                         replayInfo.setReplayMessage(recall.getName() + " 回答正确，答案是 " + name + " ,下一题");
                         replayInfo.setReplayImg(new File(operatorInfoMapper.selectAvatarByName(name)));
+                        replayInfo.setMp3((File) null);
                         sendMessageUtil.sendGroupMsg(replayInfo);
                         //把消息内容清掉，后续复用
                         replayInfo.setReplayMessage(null);
@@ -334,7 +337,7 @@ public class GuessOperator {
                 i.setText("该干员的身高为：" + operatorInfo.getHeight());
                 break;
             case Infection:
-                i.setText("该干员的感染情况为：" + operatorInfo.getInfection());
+                i.setText("该干员的感染情况为：" + operatorInfo.getInfection().replace("name", "xxx"));
                 break;
             case Voice:
                 List<String> voices = operatorInfoMapper.selectOperatorVoiceByNameAndVoice("voice", name, null);
