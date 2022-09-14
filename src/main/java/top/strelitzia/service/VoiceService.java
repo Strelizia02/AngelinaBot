@@ -45,7 +45,6 @@ public class VoiceService {
 
         map.put("日语", "voice");
         map.put("原配", "voice");
-        String[] types = new String[]{"voice", "voice_cn", "voice_custom", "voice_en", "voice_kr"};
 
         if (args.size() > 1) {
             String name = args.get(1);

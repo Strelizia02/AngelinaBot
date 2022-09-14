@@ -893,17 +893,19 @@ public class UpdateDataService {
         List<OperatorName> allOperatorId = operatorInfoMapper.getAllOperatorIdAndName();
         String url = "https://static.prts.wiki/" + type + "/";
         for (OperatorName name : allOperatorId) {
-            File file = new File("runFile/" + type + "/" + name.getCharId());
+            String voiceCharId = name.getCharId();
+            if (type.equals("voice_custom")) {
+                voiceCharId = name.getCharId() + "_cn_topolect";
+            }
+            File file = new File("runFile/" + type + "/" + voiceCharId);
             if (!file.exists()) {
                 file.mkdirs();
             }
             for (String voiceName : VoiceService.voiceList) {
                 //判断是否存在该语音
                 if (operatorInfoMapper.selectOperatorVoiceByCharIdAndName(type, name.getCharId(), voiceName) == 0) {
-                    String path = name.getCharId() + "/" + name.getOperatorName() + "_" + voiceName + ".wav";
-                    if (type.equals("voice_custom")) {
-                        path = name.getCharId() + "_cn_topolect/" + name.getOperatorName() + "_" + voiceName + ".wav";
-                    }
+                    String path = voiceCharId + "/" + name.getOperatorName() + "_" + voiceName + ".wav";
+
                     try {
                         downloadInfo.setSecond(300);
                         String filePath = "runFile/" + type + "/" + path;

@@ -16,6 +16,9 @@ import top.strelitzia.arknightsDao.SkillDescMapper;
 import top.strelitzia.dao.AdminUserMapper;
 import top.strelitzia.arknightsDao.OperatorInfoMapper;
 import top.strelitzia.dao.NickNameMapper;
+import top.strelitzia.model.GuessOperatorInfo;
+import top.strelitzia.model.HintsInfo;
+import top.strelitzia.model.HintsType;
 import top.strelitzia.model.OperatorBasicInfo;
 import top.strelitzia.util.AdminUtil;
 
@@ -75,21 +78,26 @@ public class GuessOperator {
             List<String> list = new ArrayList<>(num);
             //随机抽取干员名
             for (int i = 0; i < num; i++) {
-                list.add(allOperator.get(new Random().nextInt(allOperator.size())));
+                int index = new Random().nextInt(allOperator.size());
+                list.add(allOperator.get(index));
+                allOperator.remove(index);
             }
 
             Map<String, Integer> score = new HashMap<>();
             //记录都提示了哪些信息
-            List<Integer> hintsList = new ArrayList<>(7);
+            Map<HintsType, HintsInfo> hintsList = new HashMap<>();
             //开始循环问
             for (int i = 0; i < num; i++) {
-                log.info(list.get(i));
+                String name = list.get(i);
+                log.info(name);
 
                 boolean result = false;
-                replayInfo.setReplayImg(getTitle(list.get(i), i, hintsList, 3).drawImage());
-                if (hintsList.contains(7)) {
-                    List<String> voices = operatorInfoMapper.selectOperatorVoiceByName(list.get(i));
-                    replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
+                GuessOperatorInfo title = getTitle(name, i, hintsList, 3);
+                replayInfo.setReplayImg(title.getTextLine().drawImage());
+                if (title.getVoice() != null) {
+                    replayInfo.setMp3(title.getVoice());
+                } else {
+                    replayInfo.setMp3((File) null);
                 }
                 sendMessageUtil.sendGroupMsg(replayInfo);
                 replayInfo.getReplayImg().clear();
@@ -118,11 +126,12 @@ public class GuessOperator {
                         return replayInfo;
                     }
 
-                    String name = recall.getText();
-                    String realName = nickNameMapper.selectNameByNickName(name);
+                    String replayName = recall.getText();
+                    String realName = nickNameMapper.selectNameByNickName(replayName);
                     if (realName != null && !realName.equals(""))
-                        name = realName;
-                    if (name.equals(list.get(i))) {
+                        replayName = realName;
+
+                    if (name.equals(replayName)) {
                         //答对了，直接下一题
                         replayInfo.setReplayMessage(recall.getName() + " 回答正确，答案是 " + name + " ,下一题");
                         replayInfo.setReplayImg(new File(operatorInfoMapper.selectAvatarByName(name)));
@@ -139,28 +148,15 @@ public class GuessOperator {
                         }
                         result = true;
                         break;
-                    } else if (name.equals("提示")) {
-                        replayInfo.setReplayImg(getTitle(list.get(i), i, hintsList, 1).drawImage());
-                        if (hintsList.get(hintsList.size() - 1).equals(7)) {
-                            List<String> voices = operatorInfoMapper.selectOperatorVoiceByName(list.get(i));
-                            replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
-                        } else {
-                            File f = null;
-                            replayInfo.setMp3(f);
-                        }
-                        sendMessageUtil.sendGroupMsg(replayInfo);
-                        replayInfo.getReplayImg().clear();
-                        j++;
                     } else {
                         //答错了
                         replayInfo.setReplayMessage("回答错误");
-                        replayInfo.setReplayImg(getTitle(list.get(i), i, hintsList, 1).drawImage());
-                        if (hintsList.get(hintsList.size() - 1).equals(7)) {
-                            List<String> voices = operatorInfoMapper.selectOperatorVoiceByName(list.get(i));
-                            replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
+                        GuessOperatorInfo title1 = getTitle(name, i, hintsList, 1);
+                        replayInfo.setReplayImg(title1.getTextLine().drawImage());
+                        if (title1.getVoice() != null) {
+                            replayInfo.setMp3(title1.getVoice());
                         } else {
-                            File f = null;
-                            replayInfo.setMp3(f);
+                            replayInfo.setMp3((File) null);
                         }
                         sendMessageUtil.sendGroupMsg(replayInfo);
                         replayInfo.getReplayImg().clear();
@@ -168,9 +164,11 @@ public class GuessOperator {
                         j++;
                     }
                 }
+
                 if (!result) {
-                    replayInfo.setReplayMessage("5次还没回答正确，正确答案是：" + list.get(i) + " ,下一题");
-                    replayInfo.setReplayImg(new File(operatorInfoMapper.selectAvatarByName(list.get(i))));
+                    replayInfo.setReplayMessage("5次还没回答正确，正确答案是：" + name + " ,下一题");
+                    replayInfo.setReplayImg(new File(operatorInfoMapper.selectAvatarByName(name)));
+                    replayInfo.setMp3((File) null);
                     sendMessageUtil.sendGroupMsg(replayInfo);
                     //把消息内容清掉，后续复用
                     replayInfo.setReplayMessage(null);
@@ -211,81 +209,95 @@ public class GuessOperator {
      * 获取一个干员的信息
      * @param name 干员名
      * @param i 这是第几道题
-     * @param list 当前已经有了哪几个信息
+     * @param maps 当前已经有了哪几个信息
      * @param num 需要添加几条信息
      */
-    private TextLine getTitle(String name, int i, List<Integer> list, int num) {
-        /**
-         * 0-6分别代表 性别，稀有度，种族，出身地，技能图标，画师, 职业
-         */
+    private GuessOperatorInfo getTitle(String name, int i, Map<HintsType, HintsInfo> maps, int num) {
+        GuessOperatorInfo guessOperatorInfo = new GuessOperatorInfo();
         TextLine textLine = new TextLine();
         textLine.addString("第" + i + "题：");
         textLine.nextLine();
-        for (Integer integer : list) {
-            drawInfo(textLine, name, integer);
-        }
         int j = 0;
-        while(j < num && list.size() < 8) {
-            int addInfo = new Random().nextInt(8);
-            if (!list.contains(addInfo)) {
-                drawInfo(textLine, name, addInfo);
-                list.add(addInfo);
-                j++;
+        while(j < num && maps.size() < HintsType.values().length) {
+            HintsType hintsType = HintsType.values()[new Random().nextInt(HintsType.values().length)];
+            HintsInfo addInfo = new HintsInfo(hintsType);
+            if (!maps.containsKey(hintsType)) {
+                if (addHintsInfo(name, addInfo)) {
+                    maps.put(hintsType, addInfo);
+                    j++;
+                } else {
+                    maps.put(hintsType, addInfo);
+                }
             }
         }
-        return textLine;
+
+        for (HintsInfo hints: maps.values()) {
+            drawInfo(textLine, hints);
+            if (hints.getIsSendVoice()) {
+                guessOperatorInfo.setVoice(hints.getVoice());
+                hints.setSendVoice(false);
+            }
+        }
+        guessOperatorInfo.setTextLine(textLine);
+
+        return guessOperatorInfo;
     }
 
     /**
      * 把对应的信息条件画在图上
      * @param textLine 图片
-     * @param i 画哪个条件
+     * @param hints 画哪个条件
      */
-    private boolean drawInfo(TextLine textLine, String name, int i) {
-        boolean isVoice = false;
+    private void drawInfo(TextLine textLine, HintsInfo hints) {
+        textLine.addString(hints.getText());
+        if (hints.getImg() != null) {
+            try {
+                textLine.addImage(ImageIO.read(new File(hints.getImg())));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        textLine.nextLine();
+    }
+    private boolean addHintsInfo(String name, HintsInfo i) {
+        boolean add = true;
+
         OperatorBasicInfo operatorInfo = operatorInfoMapper.getOperatorInfoByName(name);
-        switch (i) {
-            case 0:
-                textLine.addString("该干员的性别为：" + operatorInfo.getSex());
-                textLine.nextLine();
+        switch (i.getHintsType()) {
+            case Sex:
+                i.setText("该干员的性别为：" + operatorInfo.getSex());
                 break;
-            case 1:
-                textLine.addString("该干员的稀有度为：" + operatorInfo.getOperatorRarity());
-                textLine.nextLine();
+            case Rarity:
+                i.setText("该干员的稀有度为：" + operatorInfo.getOperatorRarity());
                 break;
-            case 2:
-                textLine.addString("该干员的种族为：" + operatorInfo.getRace());
-                textLine.nextLine();
+            case Race:
+                i.setText("该干员的种族为：" + operatorInfo.getRace());
                 break;
-            case 3:
-                textLine.addString("该干员的出身地为：" + operatorInfo.getComeFrom());
-                textLine.nextLine();
+            case ComeFrom:
+                i.setText("该干员的出身地为：" + operatorInfo.getComeFrom());
                 break;
-            case 4:
+            case SkillImg:
                 try {
+                    i.setText("该干员的某个技能图标为：");
                     if (operatorInfo.getOperatorRarity() == 6) {
-                        textLine.addString("该干员的某个技能图标为：");
-                        textLine.addImage(ImageIO.read(new File(skillDescMapper.selectSkillPngByNameAndIndex(name, new Random().nextInt(3) + 1))));
+                        i.setImg(skillDescMapper.selectSkillPngByNameAndIndex(name, new Random().nextInt(3) + 1));
                     } else if (operatorInfo.getOperatorRarity() > 3) {
-                        textLine.addString("该干员的某个技能图标为：");
-                        textLine.addImage(ImageIO.read(new File(skillDescMapper.selectSkillPngByNameAndIndex(name, new Random().nextInt(2) + 1))));
+                        i.setImg(skillDescMapper.selectSkillPngByNameAndIndex(name, new Random().nextInt(2) + 1));
                     } else if (operatorInfo.getOperatorRarity() == 3) {
-                        textLine.addString("该干员的某个技能图标为：");
-                        textLine.addImage(ImageIO.read(new File(skillDescMapper.selectSkillPngByNameAndIndex(name, 1))));
+                        i.setImg(skillDescMapper.selectSkillPngByNameAndIndex(name, 1));
                     } else {
-                        textLine.addString("该干员没有技能");
+                        i.setText("该干员没有技能");
                     }
-                } catch (IOException | NullPointerException e) {
-                    textLine.addString("查找该干员技能失败");
+                } catch (NullPointerException e) {
+                    i.setText("查找该干员技能失败");
                     e.printStackTrace();
+                    add = false;
                 }
-                textLine.nextLine();
                 break;
-            case 5:
-                textLine.addString("该干员的立绘画师为：" + operatorInfo.getDrawName());
-                textLine.nextLine();
+            case DrawName:
+                i.setText("该干员的立绘画师为：" + operatorInfo.getDrawName());
                 break;
-            case 6:
+            case Class:
                 String className = "";
                 switch (operatorInfo.getOperatorClass()) {
                     case 1:
@@ -313,15 +325,29 @@ public class GuessOperator {
                         className = "特种";
                         break;
                 }
-                textLine.addString("该干员的职业为：" + className);
-                textLine.nextLine();
+                i.setText("该干员的职业为：" + className);
                 break;
-            case 7:
-                textLine.addString("请听该干员的语音：");
-                textLine.nextLine();
-                isVoice = true;
+            case Birthday:
+                i.setText("该干员的生日为：" + operatorInfo.getBirthday());
+                break;
+            case Height:
+                i.setText("该干员的身高为：" + operatorInfo.getHeight());
+                break;
+            case Infection:
+                i.setText("该干员的感染情况为：" + operatorInfo.getInfection());
+                break;
+            case Voice:
+                List<String> voices = operatorInfoMapper.selectOperatorVoiceByNameAndVoice("voice", name, null);
+                if (voices.size() > 0) {
+                    i.setText("请听该干员的语音：");
+                    i.setVoice(voices.get(new Random().nextInt(voices.size())));
+                    i.setSendVoice(true);
+                } else {
+                    i.setText("语音缺失");
+                    add = false;
+                }
                 break;
         }
-        return isVoice;
+        return add;
     }
 }
