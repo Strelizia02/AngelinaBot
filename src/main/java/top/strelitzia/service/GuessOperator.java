@@ -87,12 +87,9 @@ public class GuessOperator {
 
                 boolean result = false;
                 replayInfo.setReplayImg(getTitle(list.get(i), i, hintsList, 3).drawImage());
-                if (hintsList.get(hintsList.size() - 1).equals(7)) {
+                if (hintsList.contains(7)) {
                     List<String> voices = operatorInfoMapper.selectOperatorVoiceByName(list.get(i));
                     replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
-                } else {
-                    File f = null;
-                    replayInfo.setMp3(f);
                 }
                 sendMessageUtil.sendGroupMsg(replayInfo);
                 replayInfo.getReplayImg().clear();
@@ -144,6 +141,13 @@ public class GuessOperator {
                         break;
                     } else if (name.equals("提示")) {
                         replayInfo.setReplayImg(getTitle(list.get(i), i, hintsList, 1).drawImage());
+                        if (hintsList.get(hintsList.size() - 1).equals(7)) {
+                            List<String> voices = operatorInfoMapper.selectOperatorVoiceByName(list.get(i));
+                            replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
+                        } else {
+                            File f = null;
+                            replayInfo.setMp3(f);
+                        }
                         sendMessageUtil.sendGroupMsg(replayInfo);
                         replayInfo.getReplayImg().clear();
                         j++;
@@ -151,6 +155,13 @@ public class GuessOperator {
                         //答错了
                         replayInfo.setReplayMessage("回答错误");
                         replayInfo.setReplayImg(getTitle(list.get(i), i, hintsList, 1).drawImage());
+                        if (hintsList.get(hintsList.size() - 1).equals(7)) {
+                            List<String> voices = operatorInfoMapper.selectOperatorVoiceByName(list.get(i));
+                            replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
+                        } else {
+                            File f = null;
+                            replayInfo.setMp3(f);
+                        }
                         sendMessageUtil.sendGroupMsg(replayInfo);
                         replayInfo.getReplayImg().clear();
                         replayInfo.setReplayMessage(null);
