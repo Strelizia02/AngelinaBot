@@ -470,7 +470,11 @@ public class UpdateDataService {
                                         }
                                     }
                                 }
-                                operatorBasicInfo.setHeight(Integer.parseInt(str2.toString()));
+                                try {
+                                    operatorBasicInfo.setHeight(Integer.parseInt(str2.toString()));
+                                } catch (NumberFormatException e) {
+                                    log.error("缺少身高数据");
+                                }
                             }break;
                         }
                     }
