@@ -36,7 +36,7 @@
 
 # 如何使用
 
-- [如何使用AngelinaFrame编写一个自己的Bot](https://github.com/Strelizia02/AngelinaFrame/wiki)
+- [使用Wiki](https://www.angelina-bot.top)
 
 - [视频教程](https://b23.tv/g71n2yg)
 
@@ -52,7 +52,5 @@
 感谢[兔兔阿米娅](https://github.com/vivien8261/Amiya-Bot)，[Arknights-Bot-Resource](https://github.com/yuanyan3060/Arknights-Bot-Resource)，[企鹅物流](https://penguin-stats.cn/)，[PRTS=明日方舟WIKI](https://penguin-stats.cn/)提供的数据支持。
 
 感谢[百度智能云](https://cloud.baidu.com/)提供的图像识别技术。
-
-前端主页：[Angelina's Home](http://www.angelina-bot.top/)
 
 前端项目链接：[Angelina-bot](https://github.com/aStrangerPassingBy/Angelina-bot)
