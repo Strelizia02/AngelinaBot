@@ -170,6 +170,7 @@ public class GuessOperator {
 
                 if (!result) {
                     replayInfo.setReplayMessage("5次还没回答正确，正确答案是：" + name + " ,下一题");
+                    replayInfo.getReplayImg().clear();
                     replayInfo.setReplayImg(new File(operatorInfoMapper.selectAvatarByName(name)));
                     replayInfo.setMp3((File) null);
                     sendMessageUtil.sendGroupMsg(replayInfo);
