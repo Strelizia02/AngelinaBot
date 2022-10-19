@@ -23,7 +23,7 @@ public class VoiceService {
     @Autowired
     private NickNameMapper nickNameMapper;
 
-    public static String[] voiceList = new String[]{"任命助理", "交谈1", "交谈2", "交谈3", "晋升后交谈1", "晋升后交谈2", "信赖提升后交谈1", "信赖提升后交谈2", "信赖提升后交谈3", "闲置", "干员报到", "观看作战记录", "精英化晋升1", "精英化晋升2", "编入队伍", "任命队长", "行动出发", "行动开始", "选中干员1", "选中干员2", "部署1", "部署2", "作战中1", "作战中2", "作战中3", "作战中4", "4星结束行动", "3星结束行动", "非3星结束行动", "行动失败", "进驻设施", "戳一下", "信赖触摸", "标题", "问候"};
+    public static String[] voiceList = new String[]{"任命助理", "交谈1", "交谈2", "交谈3", "晋升后交谈1", "晋升后交谈2", "信赖提升后交谈1", "信赖提升后交谈2", "信赖提升后交谈3", "闲置", "干员报到", "观看作战记录", "精英化晋升1", "精英化晋升2", "编入队伍", "任命队长", "行动出发", "行动开始", "选中干员1", "选中干员2", "部署1", "部署2", "作战中1", "作战中2", "作战中3", "作战中4", "3星结束行动", "非3星结束行动", "行动失败", "进驻设施", "戳一下", "信赖触摸", "标题", "问候"};
 
     @AngelinaGroup(keyWords = {"语音"}, description = "查询干员的某条语音")
     public ReplayInfo getOperatorVoice(MessageInfo messageInfo) {
@@ -39,11 +39,15 @@ public class VoiceService {
 
         map.put("英语", "voice_en");
         map.put("英配", "voice_en");
+        map.put("英文", "voice_en");
 
         map.put("韩配", "voice_kr");
         map.put("韩语", "voice_kr");
+        map.put("韩文配", "voice_kr");
 
         map.put("日语", "voice");
+        map.put("日配", "voice");
+        map.put("日文", "voice");
         map.put("原配", "voice");
 
         if (args.size() > 1) {

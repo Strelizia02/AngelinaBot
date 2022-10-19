@@ -894,7 +894,27 @@ public class UpdateDataService {
     }
 
     private void downloadVoiceByType(String type, DownloadOneFileInfo downloadInfo) {
-        List<OperatorName> allOperatorId = operatorInfoMapper.getAllOperatorIdAndName();
+        String area;
+
+        switch (type) {
+            case "voice_cn":
+                area = "CN_mandarin";
+                break;
+            case "voice_custom":
+                area = "CN_topolect";
+                break;
+            case "voice_en":
+                area = "EN";
+                break;
+            case "voice_kr":
+                area = "KR";
+                break;
+            default:
+                area = "JP";
+                break;
+        }
+
+        List<OperatorName> allOperatorId = operatorInfoMapper.getAllOperatorIdAndNameAndCV(area);
         String url = "https://static.prts.wiki/" + type + "/";
         for (OperatorName name : allOperatorId) {
             String voiceCharId = name.getCharId();
@@ -908,23 +928,24 @@ public class UpdateDataService {
             for (String voiceName : VoiceService.voiceList) {
                 //判断是否存在该语音
                 if (operatorInfoMapper.selectOperatorVoiceByCharIdAndName(type, name.getCharId(), voiceName) == 0) {
-                    String path = voiceCharId + "/" + name.getOperatorName() + "_" + voiceName + ".wav";
-
-                    try {
-                        downloadInfo.setSecond(300);
-                        String filePath = "runFile/" + type + "/" + path;
-                        downloadInfo.setFileName(filePath);
-                        downloadInfo.setUrl(url+path);
-                        downloadOneFile(downloadInfo);
-                        downloadInfo.setFileName(null);
-                        downloadInfo.setUrl(null);
-                        //写入数据库
-                        operatorInfoMapper.insertOperatorVoice(name.getCharId(), type, voiceName, filePath);
-                        Thread.sleep(new Random().nextInt(5) * 1000);
-                    } catch (IOException e) {
-                        log.error("下载{}类型{}语音失败", type, name.getCharId() + "/" + voiceName);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    if (!"近卫阿米娅".equals(name.getOperatorName())) {
+                        String path = voiceCharId + "/" + name.getOperatorName() + "_" + voiceName + ".wav";
+                        try {
+                            downloadInfo.setSecond(300);
+                            String filePath = "runFile/" + type + "/" + path;
+                            downloadInfo.setFileName(filePath);
+                            downloadInfo.setUrl(url + path);
+                            downloadOneFile(downloadInfo);
+                            downloadInfo.setFileName(null);
+                            downloadInfo.setUrl(null);
+                            //写入数据库
+                            operatorInfoMapper.insertOperatorVoice(name.getCharId(), type, voiceName, filePath);
+                            Thread.sleep(new Random().nextInt(5) * 1000);
+                        } catch (IOException e) {
+                            log.error("下载{}类型{}语音失败", type, name.getCharId() + "/" + voiceName);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }

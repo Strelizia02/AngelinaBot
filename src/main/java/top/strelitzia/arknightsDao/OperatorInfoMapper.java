@@ -89,4 +89,6 @@ public interface OperatorInfoMapper {
 
     //根据干员名和语音名查找语音记录
     List<String> selectOperatorVoiceByNameAndVoice(@Param("type") String type, @Param("name") String name, @Param("voiceName") String voiceName);
+
+    List<OperatorName> getAllOperatorIdAndNameAndCV(@Param("area") String area);
 }

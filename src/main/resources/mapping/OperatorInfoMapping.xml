@@ -290,4 +290,13 @@
             AND type = #{type}
         </if>
     </select>
+
+    <select id="getAllOperatorIdAndNameAndCV" resultMap="NameResultMap">
+        SELECT
+            char_id, operator_name
+        From
+            t_operator
+        WHERE
+            ${area} IS NOT NULL and char_id IS NOT NULL
+    </select>
 </mapper>
