@@ -22,7 +22,7 @@ public class BiliListeningJob {
 
     @Scheduled(cron = "${scheduled.biliJob}")
     @Async
-    public void dailyCountJob() {
+    public void dailyCountJob() throws InterruptedException {
         biliListeningService.getDynamicList();
         log.info("拉取最新动态中{}", new Date());
     }
