@@ -37,6 +37,7 @@ public class CleanDayCountJob {
     @Async
     public void cleanDayCountJob() {
         userFoundMapper.cleanTodayCount();
+        userFoundMapper.deleteNotBili();
         log.info("{}每日抽卡数清空", new Date());
     }
 

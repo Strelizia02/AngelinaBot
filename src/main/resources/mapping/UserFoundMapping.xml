@@ -64,4 +64,9 @@
     <select id="selectCakeGroups" resultType="java.lang.Long">
         SELECT group_id from a_group_bili_rel where uid = #{uid}
     </select>
+
+    <delete id="deleteNotBili">
+        DELETE from a_bili_dynamic where uid not in (
+            SELECT uid from a_group_bili_rel GROUP BY uid) or name is NULL
+    </delete>
 </mapper>
