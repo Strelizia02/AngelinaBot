@@ -29,9 +29,6 @@ public class ExecuteSqlService {
     private AdminUserMapper adminUserMapper;
 
     @Autowired
-    private UserFoundMapper userFoundMapper;
-
-    @Autowired
     private SendMessageUtil sendMessageUtil;
 
     @AngelinaGroup(keyWords = {"sql", "SQL"})
@@ -58,7 +55,6 @@ public class ExecuteSqlService {
 
     @AngelinaGroup(keyWords = {"群发消息"})
     public ReplayInfo sendGroupMessage(MessageInfo messageInfo) {
-
         List<AdminUserInfo> admins = adminUserMapper.selectAllAdmin();
         boolean b = AdminUtil.getSqlAdmin(messageInfo.getQq(), admins);
         String s = "您没有群发消息权限";
@@ -75,11 +71,8 @@ public class ExecuteSqlService {
                 replayInfo.setReplayImg(url);
             }
 
-            for (Long groupId: MiraiFrameUtil.messageIdMap.keySet()) {
-                replayInfo.setGroupId(groupId);
-                replayInfo.setLoginQQ(MiraiFrameUtil.messageIdMap.get(groupId));
-                sendMessageUtil.sendGroupMsg(replayInfo);
-            }
+            replayInfo.setGroupId(MiraiFrameUtil.messageIdMap.keySet());
+            sendMessageUtil.sendGroupMsg(replayInfo);
             return null;
         }
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);

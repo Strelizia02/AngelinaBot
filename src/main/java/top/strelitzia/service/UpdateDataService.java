@@ -2,6 +2,7 @@ package top.strelitzia.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -16,7 +17,6 @@ import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.strelitzia.arknightsDao.*;
 import top.strelitzia.dao.AdminUserMapper;
-import top.strelitzia.dao.UserFoundMapper;
 import top.strelitzia.model.*;
 import top.strelitzia.util.AdminUtil;
 import top.strelitzia.util.FormatStringUtil;
@@ -34,9 +34,6 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class UpdateDataService {
-
-    @Autowired
-    private UserFoundMapper userFoundMapper;
 
     @Autowired
     private UpdateMapper updateMapper;
@@ -72,7 +69,7 @@ public class UpdateDataService {
     private AgentTagsMapper agentTagsMapper;
 
 //    private String url = "https://cdn.jsdelivr.net/gh/Kengxxiao/ArknightsGameData@master/zh_CN/gamedata/";
-//    private String url = "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/";
+//    private String url = "https://raw.githubusercontent.com/yuanyan3060/Arknights-Bot-Resource/master/";
 //    private String url = "http://vivien8261.gitee.io/arknights-bot-resource/gamedata/";
     private final String url = "https://raw.fastgit.org/yuanyan3060/Arknights-Bot-Resource/master/";
 
@@ -87,17 +84,24 @@ public class UpdateDataService {
         if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
             replayInfo.setReplayMessage("您无更新权限");
         } else {
-            DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
-            if(messageInfo.getArgs().size()>2){
-                downloadInfo.setHostname(messageInfo.getArgs().get(1));
-                downloadInfo.setPort(Integer.parseInt(messageInfo.getArgs().get(2)));
-                downloadInfo.setUseHost(true);
-            }else {
-                downloadInfo.setUseHost(false);
+            if (updateStatus == 0) {
+                DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
+
+                if (messageInfo.getArgs().size() > 2) {
+                    downloadInfo.setHostname(messageInfo.getArgs().get(1));
+                    downloadInfo.setPort(Integer.parseInt(messageInfo.getArgs().get(2)));
+                    downloadInfo.setUseHost(true);
+                } else {
+                    downloadInfo.setUseHost(false);
+                }
+                downloadInfo.setForce(false);
+                downloadDataFile(downloadInfo);
+                replayInfo.setReplayMessage("更新结束，请从后台日志查看更新情况");
+            } else if (updateStatus == 1) {
+                replayInfo.setReplayMessage("正在下载数据文件中，请稍后再试");
+            } else {
+                replayInfo.setReplayMessage("正在写入数据库中，请稍后再试");
             }
-            downloadInfo.setForce(false);
-            downloadDataFile(downloadInfo);
-            replayInfo.setReplayMessage("更新结束，请从后台日志查看更新情况");
         }
         return replayInfo;
     }
@@ -110,19 +114,28 @@ public class UpdateDataService {
         if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
             replayInfo.setReplayMessage("您无更新权限");
         } else {
-            DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
-            rebuildDatabase();
-            if(messageInfo.getArgs().size()>2){
-                downloadInfo.setHostname(messageInfo.getArgs().get(1));
-                downloadInfo.setPort(Integer.parseInt(messageInfo.getArgs().get(2)));
-                downloadInfo.setUseHost(true);
-            }else {
-                downloadInfo.setUseHost(false);
+            if (updateStatus == 0) {
+                DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
+                rebuildDatabase();
+                if (messageInfo.getArgs().size() > 2) {
+                    downloadInfo.setHostname(messageInfo.getArgs().get(1));
+                    downloadInfo.setPort(Integer.parseInt(messageInfo.getArgs().get(2)));
+                    downloadInfo.setUseHost(true);
+                } else {
+                    downloadInfo.setUseHost(false);
+                }
+                downloadInfo.setForce(true);
+                boolean finish = downloadDataFile(downloadInfo);
+                if (finish) {
+                    replayInfo.setReplayMessage("更新完成");
+                } else {
+                    replayInfo.setReplayMessage("更新失败，请从后台日志查看更新情况");
+                }
+            } else if (updateStatus == 1) {
+                replayInfo.setReplayMessage("正在下载数据文件中，请重启Bot后再试");
+            } else {
+                replayInfo.setReplayMessage("正在写入数据库中，请重启Bot后再试");
             }
-            downloadInfo.setForce(true);
-            boolean finish = downloadDataFile(downloadInfo);
-            if(finish) { replayInfo.setReplayMessage("更新完成"); }
-            else { replayInfo.setReplayMessage("更新失败，请从后台日志查看更新情况"); }
         }
         return replayInfo;
     }
@@ -246,19 +259,6 @@ public class UpdateDataService {
                     downloadInfo.setFileName(null);
                     downloadInfo.setUrl(null);
 
-                    //downloadOneFile("runFile/download/character_table.json", url + "gamedata/excel/character_table.json",600);
-                    //downloadOneFile("runFile/download/gacha_table.json", url + "gamedata/excel/gacha_table.json",600);
-                    //downloadOneFile("runFile/download/skill_table.json", url + "gamedata/excel/skill_table.json",600);
-                    //downloadOneFile("runFile/download/building_data.json", url + "gamedata/excel/building_data.json",600);
-                    //downloadOneFile("runFile/download/handbook_info_table.json", url + "gamedata/excel/handbook_info_table.json",600);
-                    //downloadOneFile("runFile/download/charword_table.json", url + "gamedata/excel/charword_table.json",600);
-                    //downloadOneFile("runFile/download/char_patch_table.json", url + "gamedata/excel/char_patch_table.json",600);
-                    //downloadOneFile("runFile/download/item_table.json", url + "gamedata/excel/item_table.json",600);
-                    //downloadOneFile("runFile/download/skin_table.json", url + "gamedata/excel/skin_table.json",600);
-                    //downloadOneFile("runFile/download/battle_equip_table.json", url + "gamedata/excel/battle_equip_table.json",600);
-                    //downloadOneFile("runFile/download/uniequip_table.json", url + "gamedata/excel/uniequip_table.json",600);
-                    //downloadOneFile("runFile/download/enemy_database.json", url + "gamedata/levels/enemydata/enemy_database.json",600);
-                    //downloadOneFile("runFile/download/data_version.txt", url + "gamedata/excel/data_version.txt",600);
                     log.info("数据文件下载完成");
                     //updateMapper.doneUpdateVersion();
                     updateStatus = 0;
@@ -317,34 +317,39 @@ public class UpdateDataService {
         String dataVersion = updateMapper.getVersion();
         if (dataVersion == null) updateMapper.insertVersion();//如果不存在，手动更新一个0出来避免后续无法更新数据库的版本号
         //Integer versionStatus = updateMapper.getVersionStatus();
+        try {
 
-        if (updateStatus == 0) {
-            if(!charKey.equals(dataVersion)) { 
-                log.info("数据库和数据文件版本不同，开始更新全部数据");
-                updateStatus = 2;
-                //updateMapper.doingUpdateVersion();
-                //清理干员数据(因部分召唤物无char_id，不方便进行增量更新)
-                log.info("清理干员数据");
-                updateMapper.clearOperatorData();
-                updateAllOperator();
-                updateAllEnemy();
-                updateMapAndItem();
+            if (updateStatus == 0) {
+                if (!charKey.equals(dataVersion)) {
+                    log.info("数据库和数据文件版本不同，开始更新全部数据");
+                    updateStatus = 2;
+                    //updateMapper.doingUpdateVersion();
+                    //清理干员数据(因部分召唤物无char_id，不方便进行增量更新)
+                    log.info("清理干员数据");
+                    updateMapper.clearOperatorData();
+                    updateAllOperator();
+                    updateAllEnemy();
+                    updateMapAndItem();
 //                updateSkin(downloadOneFileInfo);
-                updateItemIcon(downloadOneFileInfo);
-                updateOperatorPng(downloadOneFileInfo);
-                updateOperatorSkillPng(downloadOneFileInfo);
+                    updateItemIcon(downloadOneFileInfo);
+                    updateOperatorPng(downloadOneFileInfo);
+                    updateOperatorSkillPng(downloadOneFileInfo);
 //                updateOperatorVoice(downloadOneFileInfo);
-                updateMapper.updateVersion(charKey);
-                updateStatus = 0;
-                //updateMapper.doneUpdateVersion();
-                log.info("游戏数据更新完成--");
+                    updateMapper.updateVersion(charKey);
+                    updateStatus = 0;
+                    //updateMapper.doneUpdateVersion();
+                    log.info("游戏数据更新完成--");
+                } else {
+                    log.info("数据库和数据文件版本相同，无需更新");
+                }
+            } else if (updateStatus == 1) {
+                log.info("数据文件正在下载中，无法重复下载，请等待文件下载完成");
             } else {
-                log.info("数据库和数据文件版本相同，无需更新");
+                log.warn("数据库正在写入数据中，请等待更新完成");
             }
-        } else if (updateStatus == 1) {
-            log.info("数据文件正在下载中，无法重复下载，请等待文件下载完成");
-        } else {
-            log.warn("数据库正在写入数据中，请等待更新完成");
+        } catch (JSONException e) {
+            updateStatus = 0;
+            throw e;
         }
     }
 
@@ -1142,40 +1147,7 @@ public class UpdateDataService {
                                     mapList.getJSONObject(keyId).getDouble("value"));
                         }
 
-                        Pattern pattern = Pattern.compile("<(.*?)>");
-                        Matcher matcher = pattern.matcher(skillDescJson.getString("description"));
-
-                        //使用正则表达式替换参数
-                        Pattern p = Pattern.compile("(\\{-?([a-zA-Z/.\\]\\[0-9_@]+):?([0-9.]*)(%?)\\})");
-                        //代码可以运行不要乱改.jpg
-                        //这个正则已经不断进化成我看不懂的形式了
-                        Matcher m = p.matcher(matcher.replaceAll(""));
-                        StringBuffer stringBuffer = new StringBuffer();
-
-                        while (m.find()) {
-                            String key = m.group(2).toLowerCase();
-                            String percent = m.group(4);
-
-                            Double val = parameters.get(key);
-                            String value;
-
-                            if (val != null) {
-                                if (!percent.equals("")) {
-                                    val = val * 100;
-                                }
-                                value = FormatStringUtil.FormatDouble2String(val) + percent;
-                            } else {
-                                try {
-                                    value = "" + skillDescJson.getInt(key);
-                                } catch (Exception e) {
-                                    value = key;
-                                }
-
-                            }
-                            m.appendReplacement(stringBuffer, value);
-                        }
-
-                        skillDesc.setDescription(m.appendTail(stringBuffer).toString().replace("--", "-"));
+                        skillDesc.setDescription(getValueByKeysFormatString(skillDescJson.getString("description"), parameters));
 
                         skillDesc.setSpType(skillDescJson.getJSONObject("spData").getInt("spType"));
                         skillDesc.setMaxCharge(skillDescJson.getJSONObject("spData").getInt("maxChargeTime"));
@@ -1387,6 +1359,9 @@ public class UpdateDataService {
     }
 
     public String getValueByKeysFormatString(String s, Map<String, Double> parameters){
+        //使用正则表达式替换参数
+        //代码可以运行不要乱改.jpg
+        //这个正则已经不断进化成我看不懂的形式了
         Pattern pattern = Pattern.compile("<(.*?)>");
         Matcher matcher = pattern.matcher(s);
         Pattern p = Pattern.compile("(\\{-?([a-zA-Z/.\\]\\[0-9_@]+):?([0-9.]*)(%?)\\})");

@@ -13,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
-import top.angelinaBot.util.MiraiFrameUtil;
 import top.angelinaBot.util.SendMessageUtil;
 import top.strelitzia.dao.AdminUserMapper;
 import top.strelitzia.dao.BiliMapper;
@@ -54,11 +53,10 @@ public class BiliListeningService {
 
     private boolean doingBiliUpdate = false;
 
-    public boolean getDynamicList() throws InterruptedException {
+    public void getDynamicList() throws InterruptedException {
         if (!doingBiliUpdate) {
             doingBiliUpdate = true;
             List<BiliCount> biliCountList = biliMapper.getBiliCountList();
-            boolean b = false;
             for (BiliCount bili : biliCountList) {
                 try {
                     String biliSpace = "https://space.bilibili.com/" + bili.getUid() + "/dynamic";
@@ -91,7 +89,6 @@ public class BiliListeningService {
                                     newDetail.getTitle() + "\n" +
                                     newDetail.getText() + "\n" + biliSpace;
                             log.info("{}有新动态", name);
-                            b = true;
                             List<Long> groups = userFoundMapper.selectCakeGroups(bili.getUid());
                             String pic = newDetail.getPicUrl();
                             ReplayInfo replayInfo = new ReplayInfo();
@@ -99,12 +96,9 @@ public class BiliListeningService {
                             if (pic != null) {
                                 replayInfo.setReplayImg(pic);
                             }
-                            for (Long groupId : groups) {
-                                replayInfo.setGroupId(groupId);
-                                replayInfo.setLoginQQ(MiraiFrameUtil.messageIdMap.get(groupId));
-                                sendMessageUtil.sendGroupMsg(replayInfo);
-                                Thread.sleep(new Random().nextInt(100) + 100);
-                            }
+
+                            replayInfo.setGroupId(groups);
+                            sendMessageUtil.sendGroupMsg(replayInfo);
                         }
                     }
                 } catch (Exception e) {
@@ -113,11 +107,9 @@ public class BiliListeningService {
                 Thread.sleep(new Random().nextInt(5) * 1000);
             }
             doingBiliUpdate = false;
-            return b;
         } else {
             log.warn("无法重读读取B站更新");
         }
-        return doingBiliUpdate;
     }
 
     public DynamicDetail getDynamicDetail(Long DynamicId) {
