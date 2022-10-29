@@ -97,6 +97,12 @@ public class GobangService {
                 groupList.remove(messageInfo.getGroupId());
                 return replayInfo;
             }
+            
+            if (player2.getQq().equlse(messageInfo.getQq())) {
+                replayInfo.setReplayMessage("自娱自乐是吧？");
+                groupList.remove(messageInfo.getGroupId());
+                return replayInfo;
+            }
             if ((player2.getText().equals("取消") || player2.getText().equals("取消匹配")) &&
                     player2.getQq().equals(messageInfo.getQq())){
                 replayInfo.setReplayMessage(messageInfo.getName() + " 取消匹配\n[五子棋]已重置");
