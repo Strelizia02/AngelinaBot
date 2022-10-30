@@ -91,4 +91,8 @@ public interface OperatorInfoMapper {
     List<String> selectOperatorVoiceByNameAndVoice(@Param("type") String type, @Param("name") String name, @Param("voiceName") String voiceName);
 
     List<OperatorName> getAllOperatorIdAndNameAndCV(@Param("area") String area);
+
+    List<String> getOperatorNameByRarity(Integer info);
+
+    List<String> getOperatorNameByClass(Integer info);
 }

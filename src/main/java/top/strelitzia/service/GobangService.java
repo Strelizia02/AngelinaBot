@@ -98,8 +98,8 @@ public class GobangService {
                 return replayInfo;
             }
             
-            if (player2.getQq().equlse(messageInfo.getQq())) {
-                replayInfo.setReplayMessage("自娱自乐是吧？");
+            if (player2.getQq().equals(messageInfo.getQq())) {
+                replayInfo.setReplayMessage("自娱自乐是吧？达咩！");
                 groupList.remove(messageInfo.getGroupId());
                 return replayInfo;
             }

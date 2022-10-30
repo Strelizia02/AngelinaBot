@@ -10,9 +10,7 @@ import top.strelitzia.arknightsDao.OperatorInfoMapper;
 import top.strelitzia.model.OperatorBasicInfo;
 import top.strelitzia.model.TalentInfo;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author strelitzia
@@ -27,6 +25,36 @@ public class OperatorInfoService {
     @Autowired
     private NickNameMapper nickNameMapper;
 
+
+    final Map<String, Integer> rarity = new HashMap<>();
+
+    final Map<String, Integer> opClass = new HashMap<>();
+
+    {
+        rarity.put("六星", 6);
+        rarity.put("五星", 5);
+        rarity.put("四星", 4);
+        rarity.put("三星", 4);
+        rarity.put("二星", 2);
+        rarity.put("一星", 1);
+
+        rarity.put("6", 6);
+        rarity.put("5", 5);
+        rarity.put("4", 4);
+        rarity.put("3", 4);
+        rarity.put("2", 2);
+        rarity.put("1", 1);
+
+        opClass.put("先锋", 1);
+        opClass.put("近卫", 2);
+        opClass.put("重装", 3);
+        opClass.put("狙击", 4);
+        opClass.put("术士", 5);
+        opClass.put("术师", 5);
+        opClass.put("辅助", 6);
+        opClass.put("医疗", 7);
+        opClass.put("特种", 8);
+    }
 
     @AngelinaGroup(keyWords = {"干员搜索", "搜索干员"}, description = "根据条件搜索干员")
     public ReplayInfo getOperatorByInfos(MessageInfo messageInfo) {
@@ -44,15 +72,20 @@ public class OperatorInfoService {
             if (realName != null && !realName.equals(""))
                 info = realName;
 
-            List<String> operatorNameByInfo = operatorInfoMapper.getOperatorNameByInfo(info);
-            operators.retainAll(operatorNameByInfo);
+            if (rarity.containsKey(info)) {
+                operators.retainAll(operatorInfoMapper.getOperatorNameByRarity(rarity.get(info)));
+            } else if (opClass.containsKey(info)) {
+                operators.retainAll(operatorInfoMapper.getOperatorNameByClass(opClass.get(info)));
+            } else {
+                operators.retainAll(operatorInfoMapper.getOperatorNameByInfo(info));
+            }
             s.append(info).append(" ");
         }
         s.append("条件的干员为：\n");
         for (String name : operators) {
             s.append(name).append("\n");
         }
-        if (infos.contains("叶莲娜")||infos.contains("霜星")) {
+        if (infos.contains("叶莲娜") || infos.contains("霜星")) {
             s.append("霜星").append("\n");
         }
         replayInfo.setReplayMessage(s.toString());

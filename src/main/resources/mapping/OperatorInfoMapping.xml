@@ -63,6 +63,24 @@
         OR operator_name like '%'||#{info}||'%'
     </select>
 
+    <select id="getOperatorNameByClass" parameterType="java.lang.Integer" resultType="java.lang.String">
+        SELECT
+            operator_name
+        FROM
+            t_operator
+        WHERE
+            operator_class = #{info}
+    </select>
+
+    <select id="getOperatorNameByRarity" parameterType="java.lang.Integer" resultType="java.lang.String">
+        SELECT
+            operator_name
+        FROM
+            t_operator
+        WHERE
+            operator_rarity = #{info}
+    </select>
+
     <select id="getOperatorByBirthday" parameterType="java.lang.String" resultType="java.lang.String">
         SELECT
             operator_name
