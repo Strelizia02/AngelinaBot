@@ -22,6 +22,7 @@ import top.strelitzia.util.AdminUtil;
 import top.strelitzia.util.FormatStringUtil;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.net.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -1375,9 +1376,10 @@ public class UpdateDataService {
             Double val = parameters.get(buffKey);
             String value;
             if (!percent.equals("")) {
-                val = val * 100;
+                value = BigDecimal.valueOf(val).multiply(new BigDecimal(100)).toString() + "%";
+            } else {
+                value = FormatStringUtil.FormatDouble2String(val) + percent;
             }
-            value = FormatStringUtil.FormatDouble2String(val) + percent;
             m.appendReplacement(stringBuffer, value);
         }
         return m.appendTail(stringBuffer).toString().replace("--", "-");

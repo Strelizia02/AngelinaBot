@@ -93,6 +93,9 @@ public class FormatStringUtil {
     }
 
     public static String FormatDouble2String(Double val) {
+        if(val == null) {
+            return null;
+        }
         if (val - val.intValue() < 0.01) {
             return String.format("%.0f", val);
         } else {
