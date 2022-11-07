@@ -58,9 +58,17 @@ public class PetPetService {
     public ReplayInfo memberJoin(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         replayInfo.setReplayMessage("欢迎" + messageInfo.getName()
+<<<<<<< HEAD
+                                    + "入群，请通过【龟龟菜单】了解洁哥的功能。"
+                                    + "\n龟龟原项目源码：https://github.com/Strelizia02/AngelinaBot"
+                                    + "\n可通过精华消息了解群u抽象程度");
+	File jpg = new File("runFile/welcome/welcome.jpg");
+	replayInfo.setReplayImg(jpg);
+=======
                                     + "入群，请通过【洁哥菜单】了解洁哥的功能。"
                                     + "\n洁哥源码：https://github.com/Strelizia02/AngelinaBot"
                                     + "\n详细菜单请阅：https://github.com/Strelizia02/AngelinaBot/wiki");
+>>>>>>> f6a14080e08f5de33528051eb01d31d602d4deed
         return replayInfo;
     }
 

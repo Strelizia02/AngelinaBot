@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.DailyRemindMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.DailyRemindCount">
+        <result column="groupId" property="groupId" jdbcType="BIGINT"/>
+        <result column="remindContent" property="remindContent" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getDailyRemindByGroupId" resultType="java.lang.String">
+        SELECT remindContent from a_reminder where groupId = #{groupId}
+    </select>
+
+    <insert id="insertDailyRemind">
+        insert into a_reminder (groupId, remindContent)
+        values(#{groupId}, #{remindContent})
+    </insert>
+
+    <delete id="deleteDailyRemind">
+        DELETE from a_reminder where remindContent = #{remindContent} and groupId = #{groupId}
+    </delete>
+</mapper>
