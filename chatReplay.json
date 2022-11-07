@@ -2,10 +2,11 @@
   {
     "keyWords": [
       "早安",
-      "早上好"
+      "早上好",
+      "早"
     ],
     "replay": [
-      "早安{userName}！嗯是的，我要去送些文件什么的。虽然凯尔希医生说过我的能力在战场上很有用，但比起战斗，我更喜欢送信呢！",
+      "唔，我今天的工作是什么来着？是不是要抓一些细长的生物？",
       "{userName}，早上好",
       "早安，{userName}"
     ]
@@ -38,10 +39,10 @@
       "呜哇~不要这样啦",
       "呜哇~",
       "好，好吧，不要让别人看见哦~",
-      "{userName}想不想试试漂浮在空中的感觉？",
+      "不行！不要敲我的背包！啊，对不起，我不是冲你生气，不小心一点的话，手会受伤的。",
       "轻轻地......嘿~",
-      "{userName}，这样我会害羞的~",
-      "{userName}有没有感觉身体变轻呢？",
+      "{userName}是我的哥哥？还是姐姐？没关系，哪种都行！……就算你赶我走，我也是不会离开的！反正我也走不了多远嘛。",
+      "{userName}博士，我不在乎什么新职位哦，我只要每天都有博士陪伴着我就好了，你能答应我吗？",
       "嗯哼哼~"
     ]
   },
@@ -68,7 +69,7 @@
       "github"
     ],
     "replay": [
-		"框架地址：https://github.com/Strelizia02/AngelinaFrame/\n教学视频：https://www.bilibili.com/video/BV1hw411f7a4/\n洁哥官网：https://www.angelina-bot.top/\n喜欢安洁莉娜的博士麻烦在github点一个star，或者给视频点赞，感谢！"
+		"龟龟框架地址：https://github.com/Strelizia02/AngelinaFrame/\n教学视频：https://www.bilibili.com/video/BV1hw411f7a4/\n龟龟原项目官网：https://www.angelina-bot.top/\n喜欢龟龟的博士在github给原作者点一个star，或者给视频点赞，感谢！"
 	]
   },
   {
@@ -76,7 +77,7 @@
       "你好"
     ],
     "replay": [
-      "{userName},你好{img@runFile/avatar/char_291_aglina.png}{audio@voice/char_291_aglina/安洁莉娜_问候.wav}"
+      "{userName},你好{img@runFile/avatar/char_150_snakek.png}{audio@runFile/voice/char_150_snakek/蛇屠箱_问候.wav}"
     ]
   }
 ]
