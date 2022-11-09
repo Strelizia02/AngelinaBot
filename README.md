@@ -42,7 +42,7 @@
 
 - BUG反馈、问题求助：提issue或在QQ群【洁哥妙妙屋(691029037)】中私聊群主。
 
-- 请在提问前详阅[提问的艺术](https://github.com/betaseeker/How-To-Ask-Questions)
+- 请在提问前详阅[提问的艺术](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way)
 
 # 鸣谢
 

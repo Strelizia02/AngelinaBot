@@ -53,12 +53,13 @@ public class VoiceService {
         if (args.size() > 1) {
             String name = args.get(1);
             String realName = nickNameMapper.selectNameByNickName(name);
-            if (realName != null && !realName.equals(""))
+            if (realName != null && !realName.equals("")) {
                 name = realName;
-
+                }
+            String voiceName = null;
+            String type = null;
             if (args.size() > 2) {
-                String voiceName = null;
-                String type = null;
+
                 for (int i = 2; i < args.size(); i++) {
                     if (map.containsKey(args.get(i))) {
                         type = map.get(args.get(i));
@@ -67,20 +68,13 @@ public class VoiceService {
                         voiceName = args.get(i);
                     }
                 }
-
-                List<String> voices = operatorInfoMapper.selectOperatorVoiceByNameAndVoice(type, name, voiceName);
-
-                if (voices.size() > 0) {
-                    replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
-                }
-                return replayInfo;
-            } else {
-                List<String> voices = operatorInfoMapper.selectOperatorVoiceByName(name);
-                if (voices.size() > 0) {
-                    replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
-                }
-                return replayInfo;
+            } 
+            
+            List<String> voices = operatorInfoMapper.selectOperatorVoiceByNameAndVoice(type, name, voiceName);
+            if (voices.size() > 0) {
+                replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
             }
+            return replayInfo;
         } else {
             replayInfo.setReplayMessage("请输入干员名");
         }
