@@ -31,10 +31,10 @@ public class DailyRemindJob{
     @Scheduled(cron = "${scheduled.remindquJob}")
     @Async
     public void remindquJob(){
-        ReplayInfo replayInfo = new ReplayInfo();
         for (Long groupId: MiraiFrameUtil.messageIdMap.keySet()) {
             List<String> remindList=dailyRemindMapper.getDailyRemindByGroupId(groupId);
             if (remindList.size()>0){
+                ReplayInfo replayInfo = new ReplayInfo();
                 TextLine textLine = new TextLine();
                 textLine.addCenterStringLine("今日提醒");
                 for (String remindContent:remindList){
