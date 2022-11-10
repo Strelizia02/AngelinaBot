@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.strelitzia.dao.GroupWelcomeMapper">
+    <resultMap id="BaseResultMap" type="top.strelitzia.model.GroupWelcomeInfo">
+        <result column="groupId" property="groupId" jdbcType="BIGINT"/>
+        <result column="welcomeMessage" property="welcomeMessage" jdbcType="VARCHAR"/>
+        <result column="pictureNum" property="pictureNum" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <select id="getWelcomeMessage" resultType="java.lang.String">
+        SELECT welcomeMessage from a_welcome where groupId = #{groupId}
+    </select>
+
+    <select id="getPictureNum" resultType="java.lang.Integer">
+        SELECT pictureNum from a_welcome where groupId = #{groupId}
+    </select>
+
+    <insert id="insertWelcomeMessage">
+        INSERT INTO a_welcome (groupId,welcomeMessage) VALUES (#{groupId},#{welcomeMessage})
+            ON CONFLICT(groupId) DO UPDATE SET welcomeMessage=#{welcomeMessage}
+    </insert>
+
+    <insert id="insertPictureNum">
+        INSERT INTO a_welcome (groupId,pictureNum) VALUES (#{groupId},#{pictureNum})
+            ON CONFLICT(groupId) DO UPDATE SET pictureNum=#{pictureNum}
+    </insert>
+
+    <delete id="deleteWelcomeMessage">
+        DELETE from a_welcome where groupId = #{groupId}
+    </delete>
+</mapper>

@@ -6,11 +6,12 @@ import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.model.TextLine;
-import top.angelinaBot.util.SendMessageUtil;
 import top.strelitzia.dao.DailyRemindMapper;
 
-import java.util.*;
-import java.util.regex.*;
+import java.util.List;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class DrawService{
@@ -69,9 +70,12 @@ public class DrawService{
     public ReplayInfo setDailyRemind(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
-            String remindContent = messageInfo.getArgs().get(1);
+            StringBuilder remindContent = new StringBuilder();
             Long groupId = messageInfo.getGroupId();
-            dailyRemindMapper.insertDailyRemind(groupId, remindContent);
+            for (int i= 1; i < messageInfo.getArgs().size(); i++) {
+                remindContent.append(" ").append(messageInfo.getArgs().get(i));
+                dailyRemindMapper.insertDailyRemind(groupId, remindContent.toString());
+            }
             replayInfo.setReplayMessage("设置成功");
             return replayInfo;
         }

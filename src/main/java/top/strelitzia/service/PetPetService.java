@@ -7,6 +7,7 @@ import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.EventEnum;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
+import top.strelitzia.dao.GroupWelcomeMapper;
 import top.strelitzia.util.PetPetUtil;
 
 import javax.imageio.ImageIO;
@@ -14,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -21,6 +23,9 @@ public class PetPetService {
 
     @Autowired
     private PetPetUtil petPetUtil;
+
+    @Autowired
+    private GroupWelcomeMapper groupWelcomeMapper;
 
     @AngelinaEvent(event = EventEnum.NudgeEvent, description = "发送头像的摸头动图")
     @AngelinaGroup(keyWords = {"摸头", "摸我", "摸摸"}, description = "发送头像的摸头动图")
@@ -57,12 +62,24 @@ public class PetPetService {
     @AngelinaEvent(event = EventEnum.MemberJoinEvent, description = "入群欢迎")
     public ReplayInfo memberJoin(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        replayInfo.setReplayMessage("欢迎" + messageInfo.getName()
-                                    + "入群，请通过【龟龟菜单】了解洁哥的功能。"
-                                    + "\n龟龟原项目源码：https://github.com/Strelizia02/AngelinaBot"
-                                    + "\n可通过精华消息了解群u抽象程度");
-	File jpg = new File("runFile/welcome/welcome.jpg");
-	replayInfo.setReplayImg(jpg);
+        Long groupId =messageInfo.getGroupId();
+	if (groupWelcomeMapper.getWelcomeMessage(groupId)!=null){
+		replayInfo.setReplayMessage("欢迎" + messageInfo.getName()
+                    + "入群，请通过【龟龟菜单】了解洁哥的功能。"
+                    + "\n龟龟原项目源码：https://github.com/Strelizia02/AngelinaBot\n"
+                    + groupWelcomeMapper.getWelcomeMessage(messageInfo.getGroupId()));
+	}
+	else {
+		replayInfo.setReplayMessage("欢迎" + messageInfo.getName()
+                    + "入群，请通过【龟龟菜单】了解洁哥的功能。"
+                    + "\n龟龟原项目源码：https://github.com/Strelizia02/AngelinaBot");
+	}
+	if (groupWelcomeMapper.getPictureNum(groupId)!=null&&groupWelcomeMapper.getPictureNum(groupId)!=0){
+		for (int i=1;i<=groupWelcomeMapper.getPictureNum((groupId));i++){
+			File file =new File("runFile/welcome/" + groupId.toString() +"_"+String.valueOf (i));
+			replayInfo.setReplayImg(file);
+		}
+	}
         return replayInfo;
     }
 

@@ -13,7 +13,11 @@ public class BeastService {
     public ReplayInfo ToBeast(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
-            replayInfo.setReplayMessage("" + bd[3] + bd[1] + bd[0] + HexToBeast(ToHex(messageInfo.getArgs().get(1))) + bd[2]);
+            StringBuilder message = new StringBuilder();
+            for (int i= 1; i < messageInfo.getArgs().size(); i++) {
+                message.append(" ").append(messageInfo.getArgs().get(i));
+            }
+            replayInfo.setReplayMessage("" + bd[3] + bd[1] + bd[0] + HexToBeast(ToHex(message.toString())) + bd[2]);
         } else {
             replayInfo.setReplayMessage("请输入需要加密的内容");
         }
