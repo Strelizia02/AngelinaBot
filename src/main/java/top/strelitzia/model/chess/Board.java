@@ -100,7 +100,7 @@ public class Board {
             for (int j = 0; j <= 9; j++) {
                 for (int i = 8; i >= 0; i--) {
                     if (board[i][j] != null) {
-                        graphics.drawImage(ImageIO.read(new File(getChessPng(board[i][j]))), 460 - 55 * i, 515 - 55 * j,null);
+                        graphics.drawImage(ImageIO.read(new File(getChessPng(board[i][j]))), 15 + 55 * i, 515 - 55 * j,null);
                     }
                 }
             }
@@ -109,7 +109,7 @@ public class Board {
             for (int j = 0; j <= 9; j++) {
                 for (int i = 8; i >= 0; i--) {
                     if (board[i][j] != null) {
-                        graphics.drawImage(ImageIO.read(new File(getChessPng(board[i][j]))), 15 + 55 * i, 15 + 55 * j,null);
+                        graphics.drawImage(ImageIO.read(new File(getChessPng(board[i][j]))), 460 - 55 * i, 15 + 55 * j,null);
                     }
                 }
             }

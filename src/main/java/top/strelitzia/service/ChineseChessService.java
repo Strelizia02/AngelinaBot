@@ -62,11 +62,11 @@ public class ChineseChessService {
         Long p2 = recall.getQq();
         String p2Name = recall.getName();
 
-        if (p1.equals(p2)) {
-            replayInfo.setReplayMessage("你不能跟自己下棋");
-            map.remove(messageInfo.getGroupId());
-            return replayInfo;
-        }
+//        if (p1.equals(p2)) {
+//            replayInfo.setReplayMessage("你不能跟自己下棋");
+//            map.remove(messageInfo.getGroupId());
+//            return replayInfo;
+//        }
 
         Board board = new Board(p1, p2);
         map.put(messageInfo.getGroupId(), board);
