@@ -62,11 +62,11 @@ public class ChineseChessService {
         Long p2 = recall.getQq();
         String p2Name = recall.getName();
 
-//        if (p1.equals(p2)) {
-//            replayInfo.setReplayMessage("你不能跟自己下棋");
-//            map.remove(messageInfo.getGroupId());
-//            return replayInfo;
-//        }
+        if (p1.equals(p2)) {
+            replayInfo.setReplayMessage("你不能跟自己下棋");
+            map.remove(messageInfo.getGroupId());
+            return replayInfo;
+        }
 
         Board board = new Board(p1, p2);
         map.put(messageInfo.getGroupId(), board);
@@ -105,7 +105,7 @@ public class ChineseChessService {
                 sendMessageUtil.sendGroupMsg(replayInfo);
             } else if (chessRecall.getText().equals("认输")) {
                 String winner;
-                if (waiter.equals(p1)) {
+                if (chessRecall.getQq().equals(p1)) {
                     winner = p2Name;
                 } else {
                     winner = p1Name;
@@ -114,6 +114,9 @@ public class ChineseChessService {
                 map.remove(messageInfo.getGroupId());
                 return replayInfo;
             } else if (chessRecall.getText().equals("求和")) {
+                replayInfo.setReplayMessage("对方请求和棋，是否同意？");
+                replayInfo.getReplayImg().clear();
+                sendMessageUtil.sendGroupMsg(replayInfo);
                 AngelinaListener peaceListener = new AngelinaListener() {
                     @Override
                     public boolean callback(MessageInfo message) {
