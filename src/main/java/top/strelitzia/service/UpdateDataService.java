@@ -1378,7 +1378,7 @@ public class UpdateDataService {
             if (!percent.equals("")) {
                 value = BigDecimal.valueOf(val).multiply(new BigDecimal(100)).toString() + "%";
             } else {
-                value = FormatStringUtil.FormatDouble2String(val) + percent;
+                value = FormatStringUtil.FormatDouble2String(val);
             }
             m.appendReplacement(stringBuffer, value);
         }
