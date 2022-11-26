@@ -10,6 +10,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import top.angelinaBot.annotation.AngelinaFriend;
 import top.angelinaBot.annotation.AngelinaGroup;
@@ -622,18 +623,22 @@ public class UpdateDataService {
         //地图列表
         String mapListUrl = "https://penguin-stats.cn/PenguinStats/api/v2/stages?server=CN";
 
-        MapJson[] maps = restTemplate
-                .getForObject(mapListUrl, MapJson[].class);
-        int newMap = 0;
-        for (MapJson map : maps) {
-            List<String> mapIds = materialMadeMapper.selectAllMapId();
-            if (!mapIds.contains(map.getStageId())) {
-                updateMapper.updateStageData(map);
-                newMap++;
+        try {
+            MapJson[] maps = restTemplate
+                    .getForObject(mapListUrl, MapJson[].class);
+            int newMap = 0;
+            for (MapJson map : maps) {
+                List<String> mapIds = materialMadeMapper.selectAllMapId();
+                if (!mapIds.contains(map.getStageId())) {
+                    updateMapper.updateStageData(map);
+                    newMap++;
+                }
             }
+            log.info("新增地图{}个", newMap);
+        } catch (ResourceAccessException e) {
+            e.printStackTrace();
+            log.error("拉取地图信息超时");
         }
-
-        log.info("新增地图{}个", newMap);
 
         //章节列表
         String zoneListUrl = "https://penguin-stats.cn/PenguinStats/api/v2/zones";
@@ -885,77 +890,73 @@ public class UpdateDataService {
     public void updateOperatorVoice(DownloadOneFileInfo downloadInfo) {
         log.info("开始更新干员语音");
 
-        //原配
-        downloadVoiceByType("voice", downloadInfo);
-        //中配
-        downloadVoiceByType("voice_cn", downloadInfo);
-        //方言
-        downloadVoiceByType("voice_custom", downloadInfo);
-        //英语
-        downloadVoiceByType("voice_en", downloadInfo);
-        //傻逼棒子话
-        downloadVoiceByType("voice_kr", downloadInfo);
+        JSONObject charWords = new JSONObject(getJsonStringFromFile("charword_table.json")).getJSONObject("charWords");
+
+        for (String key: charWords.keySet()) {
+            JSONObject charWord = charWords.getJSONObject(key);
+            OperatorBasicInfo charCV = operatorInfoMapper.getOperatorCVByCharId(charWord.getString("charId"));
+            if (charCV.getCvNameOfCNMandarin() != null) {
+                //中配
+                downloadOneVoice(downloadInfo, "voice_cn", charCV.getCharId(), charCV.getOperatorName(), charWord.getString("voiceId"), charWord.getString("voiceTitle"));
+            }
+            if (charCV.getCvNameOfCNTopolect() != null) {
+                //方言
+                downloadOneVoice(downloadInfo, "voice_custom", charCV.getCharId(), charCV.getOperatorName(), charWord.getString("voiceId"), charWord.getString("voiceTitle"));
+            }
+            if (charCV.getCvNameOfEN() != null) {
+                //英语
+                downloadOneVoice(downloadInfo, "voice_en", charCV.getCharId(), charCV.getOperatorName(), charWord.getString("voiceId"), charWord.getString("voiceTitle"));
+            }
+            if (charCV.getCvNameOfKR() != null) {
+                //傻逼棒子话
+                downloadOneVoice(downloadInfo, "voice_kr", charCV.getCharId(), charCV.getOperatorName(), charWord.getString("voiceId"), charWord.getString("voiceTitle"));
+            }
+            if (charCV.getCvNameOfJP() != null) {
+                //原配
+                downloadOneVoice(downloadInfo, "voice", charCV.getCharId(), charCV.getOperatorName(), charWord.getString("voiceId"), charWord.getString("voiceTitle"));
+            }
+        }
 
         log.info("更新干员语音完成--");
     }
 
-    private void downloadVoiceByType(String type, DownloadOneFileInfo downloadInfo) {
-        String area;
+    public boolean downloadOneVoice(DownloadOneFileInfo downloadInfo, String type, String charId, String operatorName, String voiceId, String voiceName) {
+        String voiceCharId = charId;
+        if (type.equals("voice_custom")) {
+            voiceCharId = charId + "_cn_topolect";
+        }
+        File file = new File("runFile/" + type + "/" + voiceCharId);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        String filePath = "runFile/" + type + "/" + voiceCharId + "/" + operatorName + "_" + voiceName + ".wav";
 
-        switch (type) {
-            case "voice_cn":
-                area = "CN_mandarin";
-                break;
-            case "voice_custom":
-                area = "CN_topolect";
-                break;
-            case "voice_en":
-                area = "EN";
-                break;
-            case "voice_kr":
-                area = "KR";
-                break;
-            default:
-                area = "JP";
-                break;
+        if (operatorInfoMapper.selectOperatorVoiceByCharIdAndName(type, charId, voiceName) == 0) {
+            operatorInfoMapper.insertOperatorVoice(charId, type, voiceName, filePath);
         }
 
-        List<OperatorName> allOperatorId = operatorInfoMapper.getAllOperatorIdAndNameAndCV(area);
-        String url = "https://static.prts.wiki/" + type + "/";
-        for (OperatorName name : allOperatorId) {
-            String voiceCharId = name.getCharId();
-            if (type.equals("voice_custom")) {
-                voiceCharId = name.getCharId() + "_cn_topolect";
+        File voiceFile = new File(filePath);
+        if (!voiceFile.exists()) {
+            String url = "https://static.prts.wiki/" + type + "/" + voiceCharId + "/" + voiceId + ".wav?filename=" + voiceName;
+            try {
+                downloadInfo.setSecond(300);
+                downloadInfo.setFileName(filePath);
+                downloadInfo.setUrl(url);
+                downloadOneFile(downloadInfo);
+                downloadInfo.setFileName(null);
+                downloadInfo.setUrl(null);
+                //写入数据库
+                Thread.sleep(new Random().nextInt(5) * 1000);
+            } catch (IOException e) {
+                log.error("下载{}类型{}语音失败", type, charId + "/" + voiceName);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return false;
             }
-            File file = new File("runFile/" + type + "/" + voiceCharId);
-            if (!file.exists()) {
-                file.mkdirs();
-            }
-            for (String voiceName : VoiceService.voiceList) {
-                //判断是否存在该语音
-                if (operatorInfoMapper.selectOperatorVoiceByCharIdAndName(type, name.getCharId(), voiceName) == 0) {
-                    if (!"近卫阿米娅".equals(name.getOperatorName())) {
-                        String path = voiceCharId + "/" + name.getOperatorName() + "_" + voiceName + ".wav";
-                        try {
-                            downloadInfo.setSecond(300);
-                            String filePath = "runFile/" + type + "/" + path;
-                            downloadInfo.setFileName(filePath);
-                            downloadInfo.setUrl(url + path);
-                            downloadOneFile(downloadInfo);
-                            downloadInfo.setFileName(null);
-                            downloadInfo.setUrl(null);
-                            //写入数据库
-                            operatorInfoMapper.insertOperatorVoice(name.getCharId(), type, voiceName, filePath);
-                            Thread.sleep(new Random().nextInt(5) * 1000);
-                        } catch (IOException e) {
-                            log.error("下载{}类型{}语音失败", type, name.getCharId() + "/" + voiceName);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
+        } else {
+            log.info("{}干员{}语音已存在",voiceCharId, operatorName);
         }
+        return true;
     }
 
     /**

@@ -1,5 +1,6 @@
 package top.strelitzia.service;
 
+import net.mamoe.mirai.contact.MemberPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
@@ -9,8 +10,10 @@ import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.model.TextLine;
 import top.angelinaBot.util.SendMessageUtil;
+import top.strelitzia.dao.AdminUserMapper;
 import top.strelitzia.model.chess.Board;
 import top.strelitzia.model.chess.Info;
+import top.strelitzia.util.AdminUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -131,7 +134,7 @@ public class ChineseChessService {
                 AngelinaListener peaceListener = new AngelinaListener() {
                     @Override
                     public boolean callback(MessageInfo message) {
-                        return messageInfo.getGroupId().equals(message.getGroupId()) && message.getQq.equals(other) && message.getText().equals("同意") || message.getText().equals("求和") || message.getText().equals("拒绝") || message.getText().equals("不同意");
+                        return messageInfo.getGroupId().equals(message.getGroupId()) && message.getQq().equals(other) && message.getText().equals("同意") || message.getText().equals("求和") || message.getText().equals("拒绝") || message.getText().equals("不同意");
                     }
                 };
 
@@ -226,7 +229,7 @@ public class ChineseChessService {
     }
 
     @AngelinaGroup(keyWords = {"结束象棋"})
-    public ReplayInfo ChessRules(MessageInfo messageInfo) {
+    public ReplayInfo ChessOver(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         boolean sqlAdmin = AdminUtil.getSqlAdmin(messageInfo.getQq(), adminUserMapper.selectAllAdmin());
         if (messageInfo.getUserAdmin() == MemberPermission.MEMBER && !sqlAdmin) {
