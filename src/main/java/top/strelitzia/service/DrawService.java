@@ -7,6 +7,9 @@ import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.model.TextLine;
 import top.strelitzia.dao.DailyRemindMapper;
+import top.strelitzia.model.BiliCount;
+import top.strelitzia.model.DailyRemindInfo;
+import top.strelitzia.model.DailyRemindInfo;
 
 import java.util.List;
 import java.util.Random;
@@ -70,12 +73,32 @@ public class DrawService{
     public ReplayInfo setDailyRemind(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
-            StringBuilder remindContent = new StringBuilder();
-            Long groupId = messageInfo.getGroupId();
-            for (int i= 1; i < messageInfo.getArgs().size(); i++) {
-                remindContent.append(" ").append(messageInfo.getArgs().get(i));
-                dailyRemindMapper.insertDailyRemind(groupId, remindContent.toString());
+            DailyRemindInfo dailyRemindInfo=new DailyRemindInfo();
+	    dailyRemindInfo.setGroupId(messageInfo.getGroupId());
+            dailyRemindInfo.setRemindContent(messageInfo.getArgs().get(1));
+            dailyRemindInfo.setUserId(messageInfo.getQq());
+            dailyRemindInfo.setDayLeft(-1);
+            Long groupId =messageInfo.getGroupId();
+            if (messageInfo.getArgs().size()>2){
+                boolean result = messageInfo.getArgs().get(2).matches("[0-9]+");
+                if (!result){
+                    StringBuilder s = new StringBuilder();
+                    char[] arr=messageInfo.getArgs().get(2).toCharArray();
+                    for(char c :arr){
+                        if (c>=48&&c<=57){
+                            s.append(c - '0');
+                        }
+                    }
+                    if (s.toString().equals("")){
+                        replayInfo.setReplayMessage("对不起啊博士，没能理解您的意思，请务必告诉我数字呢");
+                        return replayInfo;
+                    }
+                    dailyRemindInfo.setDayLeft(Integer.parseInt(s.toString()));
+                }else {
+                    dailyRemindInfo.setDayLeft(Integer.parseInt(messageInfo.getArgs().get(2)));
+                }
             }
+            dailyRemindMapper.insertDailyRemind(dailyRemindInfo);
             replayInfo.setReplayMessage("设置成功");
             return replayInfo;
         }
@@ -88,7 +111,8 @@ public class DrawService{
         if (messageInfo.getArgs().size() > 1) {
             String remindContent = messageInfo.getArgs().get(1);
             Long groupId = messageInfo.getGroupId();
-            dailyRemindMapper.deleteDailyRemind(groupId, remindContent);
+            Long userId=messageInfo.getQq();
+            dailyRemindMapper.deleteDailyRemind(groupId, remindContent,userId);
             replayInfo.setReplayMessage("取消成功（注意：我不会检查你的输入是否正确）");
             return  replayInfo;
         }
@@ -97,13 +121,19 @@ public class DrawService{
     }
     @AngelinaGroup(keyWords = {"提醒列表"}, description = "查看本群的所有提醒")
     public ReplayInfo getDailyRemindList(MessageInfo messageInfo) {
-        List<String> remindList = dailyRemindMapper.getDailyRemindByGroupId(messageInfo.getGroupId());
+        List<DailyRemindInfo> remindList = dailyRemindMapper.getDailyRemindByGroupId(messageInfo.getGroupId());
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         TextLine textLine = new TextLine();
         if (remindList.size() > 0) {
             textLine.addCenterStringLine("提醒列表");
-            for (String remindContent : remindList) {
-                textLine.addCenterStringLine(remindContent);
+            for (DailyRemindInfo dailyRemindInfo : remindList) {
+		if (dailyRemindInfo.getDayLeft()!=-1) {
+                        textLine.addCenterStringLine(dailyRemindInfo.getRemindContent());
+                        textLine.addCenterStringLine("剩余" + dailyRemindInfo.getDayLeft() + "天" + "@" + dailyRemindInfo.getUserId());
+                    }
+                    else{
+                        textLine.addCenterStringLine(dailyRemindInfo.getRemindContent()+"@"+dailyRemindInfo.getUserId());
+                    }
             }
             replayInfo.setReplayImg(textLine.drawImage());
         }else {

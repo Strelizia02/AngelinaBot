@@ -10,6 +10,7 @@ import top.angelinaBot.model.TextLine;
 import top.angelinaBot.util.MiraiFrameUtil;
 import top.angelinaBot.util.SendMessageUtil;
 import top.strelitzia.dao.DailyRemindMapper;
+import top.strelitzia.model.DailyRemindInfo;
 
 import java.util.List;
 
@@ -32,14 +33,25 @@ public class DailyRemindJob{
     @Async
     public void remindquJob(){
         for (Long groupId: MiraiFrameUtil.messageIdMap.keySet()) {
-            List<String> remindList=dailyRemindMapper.getDailyRemindByGroupId(groupId);
+            List<DailyRemindInfo> remindList=dailyRemindMapper.getDailyRemindByGroupId(groupId);
             if (remindList.size()>0){
                 ReplayInfo replayInfo = new ReplayInfo();
                 TextLine textLine = new TextLine();
                 textLine.addCenterStringLine("今日提醒");
-                for (String remindContent:remindList){
-                    textLine.addCenterStringLine(remindContent);
-                }
+                for (DailyRemindInfo dailyRemindInfo:remindList){
+                    if (dailyRemindInfo.getDayLeft()==0){
+                        dailyRemindMapper.deleteDailyRemind(dailyRemindInfo.getGroupId(),dailyRemindInfo.getRemindContent(),dailyRemindInfo.getUserId());
+                    }
+		    if (dailyRemindInfo.getDayLeft()!=-1) {
+                        textLine.addCenterStringLine(dailyRemindInfo.getRemindContent());
+                        textLine.addCenterStringLine("剩余" + dailyRemindInfo.getDayLeft() + "天" + "@" + dailyRemindInfo.getUserId());
+                    }
+                    else{
+                        textLine.addCenterStringLine(dailyRemindInfo.getRemindContent()+"@"+dailyRemindInfo.getUserId());
+                    }
+		    dailyRemindInfo.setDayLeft(dailyRemindInfo.getDayLeft()-1);
+                    dailyRemindMapper.updateDayLeft(dailyRemindInfo);
+		}
                 replayInfo.setReplayImg(textLine.drawImage());
                 replayInfo.setGroupId(groupId);
                 sendMessageUtil.sendGroupMsg(replayInfo);
