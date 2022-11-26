@@ -23,6 +23,9 @@ public class ChineseChessService {
 
     @Autowired
     SendMessageUtil sendMessageUtil;
+    
+    @Autowired
+    AdminUserMapper adminUserMapper;
 
     private final Map<Long, Board> map = new HashMap<>();
 
@@ -44,7 +47,7 @@ public class ChineseChessService {
         AngelinaListener angelinaListener = new AngelinaListener() {
             @Override
             public boolean callback(MessageInfo message) {
-                return messageInfo.getGroupId().equals(message.getGroupId()) && ("加入象棋".equals(message.getText()) ||"加入".equals(message.getText()));
+                return messageInfo.getGroupId().equals(message.getGroupId()) && ("加入象棋".equals(message.getText()) || "加入".equals(message.getText()));
             }
         };
 
@@ -136,6 +139,7 @@ public class ChineseChessService {
                 MessageInfo peaceRecall = AngelinaEventSource.waiter(peaceListener).getMessageInfo();
                 if (peaceRecall.getText().equals("同意") || peaceRecall.getText().equals("求和")) {
                     replayInfo.setReplayMessage("棋局结束,双方同意和棋");
+                    map.remove(messageInfo.getGroupId());
                     return replayInfo;
                 }
             } else {
@@ -158,7 +162,9 @@ public class ChineseChessService {
                 } else {
                     replayInfo.setReplayMessage(info.toString());
                 }
-                sendMessageUtil.sendGroupMsg(replayInfo);
+
+                map.remove(messageInfo.getGroupId());
+                return replayInfo;
             }
         }
     }
@@ -219,5 +225,17 @@ public class ChineseChessService {
         return replayInfo;
     }
 
-
+    @AngelinaGroup(keyWords = {"结束象棋"})
+    public ReplayInfo ChessRules(MessageInfo messageInfo) {
+        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        boolean sqlAdmin = AdminUtil.getSqlAdmin(messageInfo.getQq(), adminUserMapper.selectAllAdmin());
+        if (messageInfo.getUserAdmin() == MemberPermission.MEMBER && !sqlAdmin) {
+            replayInfo.setReplayMessage("仅有本群群主和管理员有权限结束棋局");
+        } else {
+            map.remove(messageInfo.getGroupId());
+            AngelinaEventSource.remove(messageInfo.getGroupId());
+            replayInfo.setReplayMessage("本群象棋已结束");
+        }
+        return replayInfo;
+    }
 }
