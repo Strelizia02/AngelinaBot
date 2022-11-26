@@ -44,7 +44,7 @@ public class ChineseChessService {
         AngelinaListener angelinaListener = new AngelinaListener() {
             @Override
             public boolean callback(MessageInfo message) {
-                return "加入象棋".equals(message.getText()) ||"加入".equals(message.getText());
+                return messageInfo.getGroupId().equals(message.getGroupId()) && ("加入象棋".equals(message.getText()) ||"加入".equals(message.getText()));
             }
         };
 
@@ -77,10 +77,13 @@ public class ChineseChessService {
 
         while (true) {
             Long waiter;
+            Long other;
             if (board.isRedNext()) {
                 waiter = p1;
+                other = p2;
             } else {
                 waiter = p2;
+                other = p1;
             }
 
             AngelinaListener chessListener = new AngelinaListener() {
@@ -88,7 +91,7 @@ public class ChineseChessService {
                 public boolean callback(MessageInfo message) {
                     Pattern pattern = Pattern.compile("[车車馬马相象仕士将帅砲炮兵卒前中后一二三四五六七八九][车車馬马相象仕士将帅砲炮兵卒前中后一二三四五六七八九][进退平][一二三四五六七八九]");
                     Matcher matcher = pattern.matcher(message.getText());
-                    return message.getQq().equals(waiter) && matcher.matches() || message.getText().equals("悔棋") || message.getText().equals("认输") || message.getText().equals("求和");
+                    return messageInfo.getGroupId().equals(message.getGroupId()) && message.getQq().equals(waiter) && (matcher.matches() || message.getText().equals("悔棋") || message.getText().equals("认输") || message.getText().equals("求和"));
                 }
             };
 
@@ -102,6 +105,10 @@ public class ChineseChessService {
             } else if (chessRecall.getText().equals("悔棋")) {
                 Info info = board.backOff(board.getBoard(), waiter);
                 replayInfo.setReplayMessage(info.toString());
+                replayInfo.getReplayImg().clear();
+                if (info.b) {
+                    replayInfo.setReplayImg(board.toImg());
+                }
                 sendMessageUtil.sendGroupMsg(replayInfo);
             } else if (chessRecall.getText().equals("认输")) {
                 String winner;
@@ -117,10 +124,11 @@ public class ChineseChessService {
                 replayInfo.setReplayMessage("对方请求和棋，是否同意？");
                 replayInfo.getReplayImg().clear();
                 sendMessageUtil.sendGroupMsg(replayInfo);
+                
                 AngelinaListener peaceListener = new AngelinaListener() {
                     @Override
                     public boolean callback(MessageInfo message) {
-                        return message.getText().equals("同意") || message.getText().equals("求和") || message.getText().equals("拒绝") || message.getText().equals("不同意");
+                        return messageInfo.getGroupId().equals(message.getGroupId()) && message.getQq.equals(other) && message.getText().equals("同意") || message.getText().equals("求和") || message.getText().equals("拒绝") || message.getText().equals("不同意");
                     }
                 };
 
