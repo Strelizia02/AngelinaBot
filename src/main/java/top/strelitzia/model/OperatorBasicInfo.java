@@ -7,6 +7,9 @@ package top.strelitzia.model;
  **/
 public class OperatorBasicInfo {
     private Integer operatorId;
+
+    private String operatorName;
+
     private Integer operatorRarity;
     private Integer operatorClass;
     private String charId;
@@ -213,6 +216,14 @@ public class OperatorBasicInfo {
 
     public void setPromotionInfo(String promotionInfo) {
         this.promotionInfo = promotionInfo;
+    }
+
+    public String getOperatorName() {
+        return operatorName;
+    }
+
+    public void setOperatorName(String operatorName) {
+        this.operatorName = operatorName;
     }
 
     @Override

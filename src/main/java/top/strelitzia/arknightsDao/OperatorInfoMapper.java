@@ -95,4 +95,6 @@ public interface OperatorInfoMapper {
     List<String> getOperatorNameByRarity(Integer info);
 
     List<String> getOperatorNameByClass(Integer info);
+
+    OperatorBasicInfo getOperatorCVByCharId(@Param("charId") String charId);
 }
