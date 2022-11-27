@@ -146,8 +146,10 @@ public class ChineseChessService {
                     return replayInfo;
                 }
             } else {
+                //普通走子方法
                 Info info = board.move(chessRecall.getText(), waiter);
                 if (info.b) {
+                    //走子成功
                     replayInfo.getReplayImg().clear();
                     replayInfo.setReplayImg(board.toImg());
 
@@ -158,14 +160,17 @@ public class ChineseChessService {
                         winner = p1Name;
                     }
                     if (!board.chessStack.isEmpty() && board.chessStack.peek().getEat() != null && board.chessStack.peek().getEat().getName() == '帅') {
+                        //看看有无被吃的帅
                         replayInfo.setReplayMessage("棋局结束," + winner + "获胜");
                     } else {
                         replayInfo.setReplayMessage(null);
+                        sendMessageUtil.sendGroupMsg(replayInfo);
+                        continue;
                     }
                 } else {
+                    //走子失败
                     replayInfo.setReplayMessage(info.toString());
                 }
-
                 map.remove(messageInfo.getGroupId());
                 return replayInfo;
             }
