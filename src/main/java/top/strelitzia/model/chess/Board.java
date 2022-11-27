@@ -185,16 +185,25 @@ public class Board {
 
     //悔棋方法
     public Info backOff(Chess[][] board, Long user) {
-        Move pop = chessStack.pop();
-        if (!pop.player.equals(user)) {
-            return new Info(false, "没轮到你");
+        if (chessStack.isEmpty()) {
+            return new Info(false, "还没下子呢");
         }
+        Move pop = chessStack.pop();
+        if (pop.player.equals(user)) {
+            return new Info(false, "不该你悔棋");
+        }
+        pop.move.x = pop.startX;
+        pop.move.y = pop.startY;
         board[pop.startX][pop.startY] = pop.move;
-        pop.eat.x = pop.startX;
-        pop.eat.y = pop.startY;
+
+        if (pop.eat != null) {
+            pop.eat.x = pop.endX;
+            pop.eat.y = pop.endY;
+        }
 
         board[pop.endX][pop.endY] = pop.eat;
         chessManual.pop();
+        next = !next;
         return new Info(true, "悔棋成功");
     }
 
