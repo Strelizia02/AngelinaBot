@@ -257,12 +257,12 @@ public class Board {
         if (order1 == '前' || order1 == '后' || order1 == '中' || ((order1 == '二' || order1 == '三' || order1 == '四') && order2 == '兵')) {
             //当命令为【前X】、【中X】、【后X】或【二兵】、【三兵】、【四兵】
             List<List<Chess>> boardList = new ArrayList<>();
-            for (int i = 0; i < board.length; i++) {
+            for (Chess[] chess : board) {
                 //遍历所有列，查看列里面的同路棋子有多少
                 List<Chess> chessList = new ArrayList<>();
-                for (int j = 0; j < board[0].length; j++) {
-                    if (board[j][i] != null && board[j][i].name == order2 && isRed == board[j][i].isRed) {
-                        chessList.add(board[j][i]);
+                for (int y = 0; y < board[0].length; y++) {
+                    if (chess[y] != null && chess[y].name == order2 && isRed == chess[y].isRed) {
+                        chessList.add(chess[y]);
                     }
                 }
                 //同一路有两个及以上棋子才行
