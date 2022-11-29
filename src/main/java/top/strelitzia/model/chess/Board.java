@@ -93,9 +93,11 @@ public class Board {
     }
 
     public BufferedImage toImg() throws IOException {
+        //先画棋盘背景
         BufferedImage bf = new BufferedImage(530, 580, BufferedImage.TYPE_INT_BGR);
         Graphics graphics = bf.getGraphics();
         graphics.drawImage(ImageIO.read(new File("runFile/chess/board.png")), 0, 0, null);
+        //红色方下棋就正序画棋子，黑色方就逆序画，保证自己的棋子永远在下方。
         if (next) {
             for (int j = 0; j <= 9; j++) {
                 for (int i = 8; i >= 0; i--) {
@@ -118,6 +120,7 @@ public class Board {
     }
 
     public String getChessPng(Chess chess) {
+        //读取棋子图标
         StringBuilder sb = new StringBuilder("runFile/chess/");
         if (chess.isRed) {
             sb.append("r_");
@@ -129,11 +132,14 @@ public class Board {
         return sb.toString();
     }
 
+    /**
+     * 整体的移动方法，每次走棋都调用该函数，把四子棋谱传进来
+     *
+    */
     public Info move(String order, Long user) {
+        //class Move结构化记录移动棋子方法
         Move move = new Move();
         move.player = user;
-
-        //移动棋子方法
         boolean isRed;
 
         //先判断是红棋还是黑棋
@@ -149,8 +155,30 @@ public class Board {
             return new Info(false, "还没轮到你");
         }
 
+        //先把不标准的棋子名替换成标准版
+        char order1 = order.charAt(0);
+        char order2 = order.charAt(1);
+        Map<Character, Character> map = new HashMap<Character, Character>(){
+            private static final long serialVersionUID = 3867946728445415848L;
+            {
+            put('車', '车');
+            put('馬', '马');
+            put('相', '象');
+            put('仕', '士');
+            put('跑', '炮');
+            put('砲', '炮');
+            put('将', '帅');
+            put('卒', '兵');
+        }};
+        if (map.containsKey(order1)) {
+            order1 = map.get(order1);
+        }
+        
+        if (map.containsKey(order2)) {
+            order1 = map.get(order2);
+        }
         //获取选择的那枚棋
-        Info info = getChess(board, isRed, order.charAt(0), order.charAt(1));
+        Info info = getChess(board, isRed, order1, order2);
         if (!info.b) {
             //如果选不到，就寄
             return info;
@@ -159,6 +187,7 @@ public class Board {
         Chess chess = move.move = info.chess;
 
         Info chessInfo;
+        //此时调用所有棋子的父类Chess的各种移动方法(进退平)
         switch (order.charAt(2)) {
             case '进':
                 chessInfo = chess.forward(board, isRed, order.charAt(3), move);
@@ -174,8 +203,11 @@ public class Board {
                 break;
         }
 
+        //返回值为true，则为走子成功
         if (chessInfo.b) {
+            //记录下次该谁下棋
             next = !isRed;
+            //记录棋谱
             chessManual.add(order);
             chessStack.add(move);
         }
@@ -211,7 +243,6 @@ public class Board {
     public Info getChess(Chess[][] board, boolean isRed, char order1, char order2) {
         List<Character> characters = new ArrayList<Character>(){
             private static final long serialVersionUID = 5837432892626182324L;
-
             {
                 add('一');
                 add('二');
@@ -223,15 +254,15 @@ public class Board {
                 add('八');
                 add('九');
             }};
-        if (order1 == '前' || order1 == '后' || order1 == '中' || ((order1 == '二' || order1 == '三' || order1 == '四') && order2 == '卒')) {
-            //当命令为【前X】、【中X】、【后X】或【二卒】、【三卒】、【四卒】
+        if (order1 == '前' || order1 == '后' || order1 == '中' || ((order1 == '二' || order1 == '三' || order1 == '四') && order2 == '兵')) {
+            //当命令为【前X】、【中X】、【后X】或【二兵】、【三兵】、【四兵】
             List<List<Chess>> boardList = new ArrayList<>();
-            for (int i = 0; i < board.length; i++) {
+            for (Chess[] chess : board) {
                 //遍历所有列，查看列里面的同路棋子有多少
                 List<Chess> chessList = new ArrayList<>();
-                for (int j = 0; j < board[0].length; j++) {
-                    if (board[j][i] != null && board[j][i].name == order2 && isRed == board[j][i].isRed) {
-                        chessList.add(board[j][i]);
+                for (int y = 0; y < board[0].length; y++) {
+                    if (chess[y] != null && chess[y].name == order2 && isRed == chess[y].isRed) {
+                        chessList.add(chess[y]);
                     }
                 }
                 //同一路有两个及以上棋子才行
