@@ -25,7 +25,7 @@
         update a_reminder
         set
             dayLeft = #{dayLeft}
-        where groupId = #{groupId} and remindContent = #{remindContent} and dayLeft = #{dayLeft} and userId = #{userId}
+        where groupId = #{groupId} and remindContent = #{remindContent} and userId = #{userId}
     </update>
 
     <delete id="deleteDailyRemind">

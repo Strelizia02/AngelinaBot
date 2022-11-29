@@ -48,7 +48,11 @@ public class ChineseChessService {
         map.put(messageInfo.getGroupId(), null);
 
         AngelinaListener angelinaListener = new AngelinaListener() {
-            @Override
+     	    @Override
+            public Integer getSecond() {
+                return 180;
+	    }
+    	    @Override
             public boolean callback(MessageInfo message) {
                 return messageInfo.getGroupId().equals(message.getGroupId()) && ("加入象棋".equals(message.getText()) || "加入".equals(message.getText()));
             }
