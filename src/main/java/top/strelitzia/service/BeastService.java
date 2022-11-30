@@ -7,13 +7,23 @@ import top.angelinaBot.model.ReplayInfo;
 
 @Service
 public class BeastService {
+    @Value("#{'${userConfig.botNames}'.split(' ')}")
+    public String[] botNames;
+    
     private final char[] bd = {'嗷', '呜', '啊', '~'};
 
     @AngelinaGroup(keyWords = {"兽语加密"}, description = "输入字符加密成兽语")
     public ReplayInfo ToBeast(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
-            replayInfo.setReplayMessage("" + bd[3] + bd[1] + bd[0] + HexToBeast(ToHex(messageInfo.getArgs().get(1))) + bd[2]);
+            String text = messageInfo.getText();
+            for (String name: botNames){
+                if (text.startsWith(name)){
+                    text = text.replace(name, "");
+                    break;
+                }
+            }
+            replayInfo.setReplayMessage("" + bd[3] + bd[1] + bd[0] + HexToBeast(ToHex(text)) + bd[2]);
         } else {
             replayInfo.setReplayMessage("请输入需要加密的内容");
         }
