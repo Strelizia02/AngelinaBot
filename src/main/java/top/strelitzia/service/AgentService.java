@@ -203,21 +203,38 @@ public class AgentService {
         if (messageInfo.getUserAdmin().equals(MemberPermission.MEMBER) && !sqlAdmin) {
             replayInfo.setReplayMessage("只有本群群主或管理员才可以调整抽卡次数");
         } else {
+            int found = 20;
             if (messageInfo.getArgs().size() > 1) {
-                int found = Integer.parseInt(messageInfo.getArgs().get(1));
-                if (found > 300 || found < 0) {
-                    replayInfo.setReplayMessage("请控制范围0-300");
-                } else {
-                    GroupAdminInfo groupAdminInfo = new GroupAdminInfo();
-                    groupAdminInfo.setGroupId(messageInfo.getGroupId());
-                    groupAdminInfo.setFound(found);
-                    groupAdminInfoMapper.updateGroupAdmin(groupAdminInfo);
-                    replayInfo.setReplayMessage("调整成功");
-                }
+                found = Integer.parseInt(messageInfo.getArgs().get(1));
             } else {
                 replayInfo.setReplayMessage("请输入想要的抽卡数，范围0-300");
+                sendMessageUtil.sendGroupMsg(replayInfo);
+                AngelinaListener angelinaListener = new AngelinaListener() {
+                        @Override
+                        public boolean callback(MessageInfo message) {
+                                return message.getGroupId().equals(messageInfo.getGroupId()) &&
+                                        message.getText().matches("[0-9]+");
+                        }
+                    };
+                angelinaListener.setGroupId(messageInfo.getGroupId());
+                MessageInfo recall = AngelinaEventSource.waiter(angelinaListener).getMessageInfo();
+                if (recall == null) {
+                        groupList.remove(messageInfo.getGroupId());
+                        replayInfo.setReplayMessage("抽卡次数调整已超时终止。");
+                        return replayInfo;
+                }
+                String num = Integer.parseInt(recall.getText());
             }
-
+                
+            if (found > 300 || found < 0) {
+                found = replayInfo.setReplayMessage("请控制范围0-300");
+            } else {
+                GroupAdminInfo groupAdminInfo = new GroupAdminInfo();
+                groupAdminInfo.setGroupId(messageInfo.getGroupId());
+                groupAdminInfo.setFound(found);
+                groupAdminInfoMapper.updateGroupAdmin(groupAdminInfo);
+                replayInfo.setReplayMessage("调整成功");
+            }
         }
         return replayInfo;
     }
