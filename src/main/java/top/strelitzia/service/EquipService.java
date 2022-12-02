@@ -3,9 +3,12 @@ package top.strelitzia.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
+import top.angelinaBot.container.AngelinaEventSource;
+import top.angelinaBot.container.AngelinaListener;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.model.TextLine;
+import top.angelinaBot.util.SendMessageUtil;
 import top.strelitzia.arknightsDao.EquipMapper;
 import top.strelitzia.arknightsDao.MaterialMadeMapper;
 import top.strelitzia.dao.NickNameMapper;
@@ -36,6 +39,9 @@ public class EquipService {
     @Autowired
     private NickNameMapper nickNameMapper;
 
+    @Autowired
+    private SendMessageUtil sendMessageUtil;
+
     @AngelinaGroup(keyWords = {"模组查询", "查询模组", "模组"}, description = "查询模组信息")
     public ReplayInfo getOperatorEquip(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
@@ -44,7 +50,7 @@ public class EquipService {
             name = messageInfo.getArgs().get(1);
         } else {
             replayInfo.setReplayMessage("请输入需要查询的干员名称");
-            sendMsgUtil.senGroupMsg(replayInfo);
+            sendMessageUtil.sendGroupMsg(replayInfo);
             replayInfo.setReplayMessage(null);
             AngelinaListener angelinaListener = new AngelinaListener() {
                 @Override
@@ -54,6 +60,7 @@ public class EquipService {
                     if (realName != null && !realName.equals("")) {
                         name = realName;
                     }
+                    List<String> allOperator = operatorInfoMapper.getAllOperator();
                     return message.getGroupId().equals(messageInfo.getGroupId()) && allOperator.contains(name);
                 }
             };
