@@ -86,7 +86,7 @@ public class MineSweepingService {
                 AngelinaListener mineListener = new AngelinaListener() {
                     @Override
                     public boolean callback(MessageInfo message) {
-                        Pattern pattern = Pattern.compile("[0-9*].[0-9*]");
+                        Pattern pattern = Pattern.compile("(标记)?[0-9*].[0-9*]");
                         Matcher matcher = pattern.matcher(message.getText());
                         return message.getGroupId().equals(messageInfo.getGroupId()) && (!finalIsOnePlayer || message.getQq().equals(qq)) &&
                                 matcher.matches();
@@ -99,25 +99,36 @@ public class MineSweepingService {
                     groupList.remove(messageInfo.getGroupId());
                     return replayInfo;
                 }
-                String[] split = mine.getText().split("\\.");
-                int x = Integer.parseInt(split[0]);
-                int y = Integer.parseInt(split[1]);
 
-                Info choose = mineSweeping.choose(x, y);
-
-                if (choose.b) {
+                if (mine.getText().contains("标记")) {
+                    String[] split = mine.getText().replace("标记", "").split("\\.");
+                    int x = Integer.parseInt(split[0]);
+                    int y = Integer.parseInt(split[1]);
+                    mineSweeping.flag(x, y);
                     replayInfo.setReplayImg(mineSweeping.toImg());
-                    replayInfo.setReplayMessage(choose.toString());
+                    sendMessageUtil.sendGroupMsg(replayInfo);
+                    replayInfo.setReplayMessage(null);
+                    replayInfo.getReplayImg().clear();
                 } else {
-                    replayInfo.setReplayImg(mineSweeping.toImgOver());
-                    replayInfo.setReplayMessage(choose.toString());
-                    groupList.remove(messageInfo.getGroupId());
-                    goOn = false;
-                }
-                sendMessageUtil.sendGroupMsg(replayInfo);
-                replayInfo.setReplayMessage(null);
-                replayInfo.getReplayImg().clear();
+                    String[] split = mine.getText().split("\\.");
+                    int x = Integer.parseInt(split[0]);
+                    int y = Integer.parseInt(split[1]);
 
+                    Info choose = mineSweeping.choose(x, y);
+
+                    if (choose.b) {
+                        replayInfo.setReplayImg(mineSweeping.toImg());
+                        replayInfo.setReplayMessage(choose.toString());
+                    } else {
+                        replayInfo.setReplayImg(mineSweeping.toImgOver());
+                        replayInfo.setReplayMessage(choose.toString());
+                        groupList.remove(messageInfo.getGroupId());
+                        goOn = false;
+                    }
+                    sendMessageUtil.sendGroupMsg(replayInfo);
+                    replayInfo.setReplayMessage(null);
+                    replayInfo.getReplayImg().clear();
+                }
             }
         }
         return replayInfo;
