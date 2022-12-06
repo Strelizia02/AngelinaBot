@@ -895,6 +895,9 @@ public class UpdateDataService {
         for (String key: charWords.keySet()) {
             JSONObject charWord = charWords.getJSONObject(key);
             OperatorBasicInfo charCV = operatorInfoMapper.getOperatorCVByCharId(charWord.getString("charId"));
+            if (charCV == null) {
+                continue;
+            }
             if (charCV.getCvNameOfCNMandarin() != null) {
                 //中配
                 downloadOneVoice(downloadInfo, "voice_cn", charCV.getCharId(), charCV.getOperatorName(), charWord.getString("voiceId"), charWord.getString("voiceTitle"));
