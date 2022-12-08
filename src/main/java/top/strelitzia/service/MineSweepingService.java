@@ -149,4 +149,159 @@ public class MineSweepingService {
         replayInfo.setReplayMessage("本群猜干员已结束");
         return replayInfo;
     }
+    
+    @AngelinaGroup(keyWords = {"组队扫雷", "扫雷小队"})
+    public ReplayInfo stopMineSweeping(MessageInfo messageInfo) {
+        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        if (groupList.contains(messageInfo.getGroupId())) {
+            replayInfo.setReplayMessage("本群正在进行扫雷，请查看消息记录");
+            return replayInfo;
+        } else {
+            groupList.add(messageInfo.getGroupId());
+            Queue<Long> playerQueue = new LinkedList<>();
+            Queue<String> playerNameQueue = new LinkedList<>();
+            playerQueue.offer(messageInfo.getQq());
+            playerNameQueue.offer(messageInfo.getName());
+
+            replayInfo.setReplayMessage("请在15秒内加入扫雷小队");
+            sendMessageUtil.sendGroupMsg(replayInfo);
+            replayInfo.setReplayMessage(null);
+            
+            int num = 5;
+            if (messageInfo.getArgs().size() > 1) {
+                try {
+                    num = Integet.parseInt(messageInfo.getArgs().get(1));
+                } catch (NumberFormatException e) {
+                    log.error(e);
+                }
+                if (2 < num || num > 10) {
+                    replayInfo.setReplayMessage("仅支持2-10个人");
+                    return replayInfo;
+                }
+            }
+
+            for (int i = 0; i < num; i++) {
+                AngelinaListener angelinaListener = new AngelinaListener() {
+                    @Override
+                    public boolean callback(MessageInfo message) {
+                        return message.getGroupId().equals(messageInfo.getGroupId()) && message.getText().equals("加入");
+                    }
+                };
+                angelinaListener.setGroupId(messageInfo.getGroupId());
+                angelinaListener.setSecond(15);
+
+                MessageInfo recall = AngelinaEventSource.waiter(angelinaListener).getMessageInfo();
+
+                if (recall == null && playerQueue.size() <= 1) {
+                    groupList.remove(messageInfo.getGroupId());
+                    replayInfo.setReplayMessage("无人加入，扫雷小队已终止");
+                    return replayInfo;
+                } else if (recall == null) {
+                    replayInfo.setReplayMessage("等待超时，即将开始游戏");
+                    sendMessageUtil.sendGroupMsg(replayInfo);
+                    replayInfo.setReplayMessage(null);
+                    break;
+                } else {
+                    playerQueue.offer(recall.getQq());
+                    playerNameQueue.offer(recall.getName());
+                    replayInfo.setReplayMessage("加入成功，当前人数" + playerQueue.size() + "/5");
+                    sendMessageUtil.sendGroupMsg(replayInfo);
+                    replayInfo.setReplayMessage(null);
+                }
+            }
+
+            MineSweeping mineSweeping = new MineSweeping();
+
+            replayInfo.setReplayMessage("请" + playerNameQueue.peek() + "开始扫雷");
+            replayInfo.setReplayImg(mineSweeping.toImg());
+            sendMessageUtil.sendGroupMsg(replayInfo);
+            replayInfo.setReplayMessage(null);
+            replayInfo.getReplayImg().clear();
+
+            while (playerQueue.size() != 1) {
+                AngelinaListener mineListener = new AngelinaListener() {
+                    @Override
+                    public boolean callback(MessageInfo message) {
+                        Pattern pattern = Pattern.compile("[0-9*].[0-9*]");
+                        Matcher matcher = pattern.matcher(message.getText());
+                        return message.getGroupId().equals(messageInfo.getGroupId()) && playerQueue.peek().equals(message.getQq()) &&
+                                matcher.matches();
+                    }
+                };
+                mineListener.setGroupId(messageInfo.getGroupId());
+                MessageInfo mine = AngelinaEventSource.waiter(mineListener).getMessageInfo();
+
+                if (mine == null) {
+                    playerQueue.poll();
+                    playerNameQueue.poll();
+
+                    replayInfo.setReplayMessage("您已超时");
+                    replayInfo.setReplayImg(mineSweeping.toImg());
+                    replayInfo.setMuted((new Random().nextInt(5) + 1) * 60);
+                    replayInfo.setQq(mine.getQq());
+                    sendMessageUtil.sendGroupMsg(replayInfo);
+                    replayInfo.setReplayMessage(null);
+                    replayInfo.getReplayImg().clear();
+                    replayInfo.setMuted(null);
+                } else {
+                    String[] split = mine.getText().split("\\.");
+                    int x = Integer.parseInt(split[0]);
+                    int y = Integer.parseInt(split[1]);
+
+                    Info choose = mineSweeping.choose(x, y);
+
+                    if (choose.b) {
+                        playerQueue.offer(playerQueue.poll());
+                        playerNameQueue.offer(playerNameQueue.poll());
+
+                        replayInfo.setReplayMessage("请" + playerNameQueue.peek() + "开始扫雷");
+                        replayInfo.setReplayImg(mineSweeping.toImg());
+                        replayInfo.setReplayMessage(choose.toString());
+                        sendMessageUtil.sendGroupMsg(replayInfo);
+                        replayInfo.setReplayMessage(null);
+                        replayInfo.getReplayImg().clear();
+
+                    } else if (choose.message.equals("victory")) {
+                        break;
+                    } else if (choose.message.equals("is already open")) {
+                        replayInfo.setReplayMessage(playerNameQueue.peek() + "不能选择已翻开的各自，请重新扫雷");
+                        sendMessageUtil.sendGroupMsg(replayInfo);
+                        replayInfo.setReplayMessage(null);
+                    } else {
+                        Long qq = playerQueue.poll();
+                        String dead = playerNameQueue.poll();
+
+                        replayInfo.setReplayMessage(dead + "已阵亡，请" + playerNameQueue.peek() + "开始扫雷");
+                        replayInfo.setReplayImg(mineSweeping.toImg());
+                        replayInfo.setReplayMessage(choose.toString());
+
+                        replayInfo.setMuted((new Random().nextInt(5) + 1) * 60);
+                        replayInfo.setQq(qq);
+                        sendMessageUtil.sendGroupMsg(replayInfo);
+                        replayInfo.setMuted(null);
+                        replayInfo.setReplayMessage(null);
+                        replayInfo.getReplayImg().clear();
+                    }
+                }
+            }
+
+            playerQueue.poll();
+            String victory = playerNameQueue.poll();
+
+            replayInfo.setReplayMessage("胜利者是" + victory);
+
+            replayInfo.setReplayImg(mineSweeping.toImgOver());
+            sendMessageUtil.sendGroupMsg(replayInfo);
+            replayInfo.setReplayMessage(null);
+            replayInfo.getReplayImg().clear();
+
+            for (Long qq : playerQueue) {
+                replayInfo.setMuted((new Random().nextInt(5) + 1) * 60);
+                replayInfo.setQq(qq);
+                sendMessageUtil.sendGroupMsg(replayInfo);
+                replayInfo.setMuted(null);
+            }
+            return null;
+        }
+    }
 }
