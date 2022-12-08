@@ -204,7 +204,13 @@ public class MineSweepingService {
                 } else {
                     playerQueue.offer(recall.getQq());
                     playerNameQueue.offer(recall.getName());
-                    replayInfo.setReplayMessage("加入成功，当前人数" + playerQueue.size() + "/5");
+                    StringBuilder sb = new StringBuilder("加入成功，当前小队成员：");
+                    int i = 0;
+                    for (String name: playerNameQueue) {
+                        i++;
+                        sb.append("\n【").append(i).append("】").append(name);
+                    }
+                    replayInfo.setReplayMessage(sb.toString());
                     sendMessageUtil.sendGroupMsg(replayInfo);
                     replayInfo.setReplayMessage(null);
                 }
