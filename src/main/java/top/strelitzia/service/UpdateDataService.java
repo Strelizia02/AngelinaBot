@@ -14,12 +14,13 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import top.angelinaBot.annotation.AngelinaFriend;
 import top.angelinaBot.annotation.AngelinaGroup;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
+import top.angelinaBot.model.PermissionEnum;
 import top.angelinaBot.model.ReplayInfo;
 import top.strelitzia.arknightsDao.*;
 import top.strelitzia.dao.AdminUserMapper;
 import top.strelitzia.model.*;
-import top.strelitzia.util.AdminUtil;
 import top.strelitzia.util.FormatStringUtil;
 
 import java.io.*;
@@ -78,114 +79,97 @@ public class UpdateDataService {
     /** 先判断版本是否相同→如果版本不同，开始更新→置位1→下载数据文件→置位0→下载完成→置位2→写入数据→置位0→写入完成 */
     private static int updateStatus = 0;
 
-    @AngelinaGroup(keyWords = {"更新"}, description = "尝试更新数据")
+    @AngelinaGroup(keyWords = {"更新"}, description = "尝试更新数据", funcClass = FunctionType.FunctionAdmin, permission = PermissionEnum.Administrator)
     @AngelinaFriend(keyWords = {"更新"}, description = "尝试更新数据")
     public ReplayInfo downloadDataFile(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         List<AdminUserInfo> admins = adminUserMapper.selectAllAdmin();
-        if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
-            replayInfo.setReplayMessage("您无更新权限");
-        } else {
-            if (updateStatus == 0) {
-                DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
+        if (updateStatus == 0) {
+            DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
 
-                if (messageInfo.getArgs().size() > 2) {
-                    downloadInfo.setHostname(messageInfo.getArgs().get(1));
-                    downloadInfo.setPort(Integer.parseInt(messageInfo.getArgs().get(2)));
-                    downloadInfo.setUseHost(true);
-                } else {
-                    downloadInfo.setUseHost(false);
-                }
-                downloadInfo.setForce(false);
-                downloadDataFile(downloadInfo);
-                replayInfo.setReplayMessage("更新结束，请从后台日志查看更新情况");
-            } else if (updateStatus == 1) {
-                replayInfo.setReplayMessage("正在下载数据文件中，请稍后再试");
+            if (messageInfo.getArgs().size() > 2) {
+                downloadInfo.setHostname(messageInfo.getArgs().get(1));
+                downloadInfo.setPort(Integer.parseInt(messageInfo.getArgs().get(2)));
+                downloadInfo.setUseHost(true);
             } else {
-                replayInfo.setReplayMessage("正在写入数据库中，请稍后再试");
+                downloadInfo.setUseHost(false);
             }
+            downloadInfo.setForce(false);
+            downloadDataFile(downloadInfo);
+            replayInfo.setReplayMessage("更新结束，请从后台日志查看更新情况");
+        } else if (updateStatus == 1) {
+            replayInfo.setReplayMessage("正在下载数据文件中，请稍后再试");
+        } else {
+            replayInfo.setReplayMessage("正在写入数据库中，请稍后再试");
         }
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"全量更新"}, description = "强制全量更新数据")
+    @AngelinaGroup(keyWords = {"全量更新"}, description = "强制全量更新数据", funcClass = FunctionType.FunctionAdmin, permission = PermissionEnum.Administrator)
     @AngelinaFriend(keyWords = {"全量更新"}, description = "强制全量更新数据")
     public ReplayInfo downloadDataFileForce(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         List<AdminUserInfo> admins = adminUserMapper.selectAllAdmin();
-        if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
-            replayInfo.setReplayMessage("您无更新权限");
-        } else {
-            if (updateStatus == 0) {
-                DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
-                rebuildDatabase();
-                if (messageInfo.getArgs().size() > 2) {
-                    downloadInfo.setHostname(messageInfo.getArgs().get(1));
-                    downloadInfo.setPort(Integer.parseInt(messageInfo.getArgs().get(2)));
-                    downloadInfo.setUseHost(true);
-                } else {
-                    downloadInfo.setUseHost(false);
-                }
-                downloadInfo.setForce(true);
-                boolean finish = downloadDataFile(downloadInfo);
-                if (finish) {
-                    replayInfo.setReplayMessage("更新完成");
-                } else {
-                    replayInfo.setReplayMessage("更新失败，请从后台日志查看更新情况");
-                }
-            } else if (updateStatus == 1) {
-                replayInfo.setReplayMessage("正在下载数据文件中，请重启Bot后再试");
+        if (updateStatus == 0) {
+            DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
+            rebuildDatabase();
+            if (messageInfo.getArgs().size() > 2) {
+                downloadInfo.setHostname(messageInfo.getArgs().get(1));
+                downloadInfo.setPort(Integer.parseInt(messageInfo.getArgs().get(2)));
+                downloadInfo.setUseHost(true);
             } else {
-                replayInfo.setReplayMessage("正在写入数据库中，请重启Bot后再试");
+                downloadInfo.setUseHost(false);
             }
+            downloadInfo.setForce(true);
+            boolean finish = downloadDataFile(downloadInfo);
+            if (finish) {
+                replayInfo.setReplayMessage("更新完成");
+            } else {
+                replayInfo.setReplayMessage("更新失败，请从后台日志查看更新情况");
+            }
+        } else if (updateStatus == 1) {
+            replayInfo.setReplayMessage("正在下载数据文件中，请重启Bot后再试");
+        } else {
+            replayInfo.setReplayMessage("正在写入数据库中，请重启Bot后再试");
         }
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"更新素材", "更新图片", "更新图标"}, description = "更新素材数据")
+    @AngelinaGroup(keyWords = {"更新素材", "更新图片", "更新图标"}, description = "更新素材数据", funcClass = FunctionType.FunctionAdmin, permission = PermissionEnum.Administrator)
     @AngelinaFriend(keyWords = {"更新素材", "更新图片", "更新图标"}, description = "更新素材数据")
     public ReplayInfo updateImgFile(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         List<AdminUserInfo> admins = adminUserMapper.selectAllAdmin();
-        if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
-            replayInfo.setReplayMessage("您无更新权限");
-        } else {
-            DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
-            if(messageInfo.getArgs().size()>2){
-                downloadInfo.setHostname(messageInfo.getArgs().get(1));
-                downloadInfo.setPort(Integer.parseInt(messageInfo.getArgs().get(2)));
-                downloadInfo.setUseHost(true);
-            }else {
-                downloadInfo.setUseHost(false);
-            }
-            //            updateSkin();
-            updateItemIcon(downloadInfo);
-            updateOperatorPng(downloadInfo);
-            updateOperatorSkillPng(downloadInfo);
-            replayInfo.setReplayMessage("正在更新素材");
+        DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
+        if(messageInfo.getArgs().size()>2){
+            downloadInfo.setHostname(messageInfo.getArgs().get(1));
+            downloadInfo.setPort(Integer.parseInt(messageInfo.getArgs().get(2)));
+            downloadInfo.setUseHost(true);
+        }else {
+            downloadInfo.setUseHost(false);
         }
+        //            updateSkin();
+        updateItemIcon(downloadInfo);
+        updateOperatorPng(downloadInfo);
+        updateOperatorSkillPng(downloadInfo);
+        replayInfo.setReplayMessage("正在更新素材");
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"更新语音"}, description = "更新语音数据")
+    @AngelinaGroup(keyWords = {"更新语音"}, description = "更新语音数据", funcClass = FunctionType.FunctionAdmin, permission = PermissionEnum.Administrator)
     @AngelinaFriend(keyWords = {"更新语音"}, description = "更新语音数据")
     public ReplayInfo updateVoiceFile(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        List<AdminUserInfo> admins = adminUserMapper.selectAllAdmin();
-        if (!AdminUtil.getSqlAdmin(messageInfo.getQq(), admins)) {
-            replayInfo.setReplayMessage("您无更新权限");
-        } else {
-            DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
-            if(messageInfo.getArgs().size()>2){
-                downloadInfo.setHostname(messageInfo.getArgs().get(1));
-                downloadInfo.setPort(Integer.parseInt(messageInfo.getArgs().get(2)));
-                downloadInfo.setUseHost(true);
-            }else {
-                downloadInfo.setUseHost(false);
-            }
-            updateOperatorVoice(downloadInfo);
-            replayInfo.setReplayMessage("更新语音完成");
+        DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
+        if(messageInfo.getArgs().size()>2){
+            downloadInfo.setHostname(messageInfo.getArgs().get(1));
+            downloadInfo.setPort(Integer.parseInt(messageInfo.getArgs().get(2)));
+            downloadInfo.setUseHost(true);
+        }else {
+            downloadInfo.setUseHost(false);
         }
+        updateOperatorVoice(downloadInfo);
+        replayInfo.setReplayMessage("更新语音完成");
         return replayInfo;
     }
 

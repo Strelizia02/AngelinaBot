@@ -2,7 +2,7 @@ package top.strelitzia.model.minesweeping;
 
 
 public class Info {
-    String message;
+    public String message;
     public boolean b;
 
     public Info(boolean b, String message) {

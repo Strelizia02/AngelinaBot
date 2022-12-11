@@ -15,7 +15,7 @@ public class GroupAdminInfoService {
     @Autowired
     private GroupAdminInfoMapper groupAdminInfoMapper;
 
-    public Integer getGroupFoundAdmin(Long groupId) {
+    public Integer getGroupFoundAdmin(String groupId) {
         GroupAdminInfo groupAdminNum = groupAdminInfoMapper.getGroupAdminNum(groupId);
         if (groupAdminNum == null) {
             groupAdminInfoMapper.insertGroupId(groupId);

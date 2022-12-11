@@ -1,26 +1,21 @@
 package top.strelitzia.service;
 
 import lombok.extern.slf4j.Slf4j;
-import net.mamoe.mirai.contact.MemberPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.container.AngelinaEventSource;
 import top.angelinaBot.container.AngelinaListener;
-import top.angelinaBot.model.MessageInfo;
-import top.angelinaBot.model.ReplayInfo;
-import top.angelinaBot.model.TextLine;
+import top.angelinaBot.model.*;
 import top.angelinaBot.util.SendMessageUtil;
 import top.strelitzia.arknightsDao.OperatorInfoMapper;
 import top.strelitzia.arknightsDao.SkillDescMapper;
 import top.strelitzia.dao.AdminUserMapper;
-import top.strelitzia.arknightsDao.OperatorInfoMapper;
 import top.strelitzia.dao.NickNameMapper;
 import top.strelitzia.model.GuessOperatorInfo;
 import top.strelitzia.model.HintsInfo;
 import top.strelitzia.model.HintsType;
 import top.strelitzia.model.OperatorBasicInfo;
-import top.strelitzia.util.AdminUtil;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -47,17 +42,13 @@ public class GuessOperator {
     NickNameMapper nickNameMapper;
 
 
-    private static final Set<Long> groupList = new HashSet<>();
+    private static final Set<String> groupList = new HashSet<>();
 
-    @AngelinaGroup(keyWords = {"猜干员"})
+    @AngelinaGroup(keyWords = {"猜干员"}, funcClass = FunctionType.Others, permission = PermissionEnum.GroupAdministrator)
     public ReplayInfo guessOperator(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        boolean sqlAdmin = AdminUtil.getSqlAdmin(messageInfo.getQq(), adminUserMapper.selectAllAdmin());
         if (groupList.contains(messageInfo.getGroupId())) {
             replayInfo.setReplayMessage("本群正在进行猜干员，请查看消息记录");
-            return replayInfo;
-        } else if (messageInfo.getUserAdmin() == MemberPermission.MEMBER && !sqlAdmin) {
-            replayInfo.setReplayMessage("仅有本群群主和管理员有权限开启猜干员");
             return replayInfo;
         } else {
             //添加群组防止重复猜
@@ -193,14 +184,14 @@ public class GuessOperator {
         }
     }
 
-    @AngelinaGroup(keyWords = {"重启猜干员"})
+    @AngelinaGroup(keyWords = {"重启猜干员"}, funcClass = FunctionType.Others, permission = PermissionEnum.GroupAdministrator)
     public ReplayInfo reGuessOperator(MessageInfo messageInfo) {
         groupList.remove(messageInfo.getGroupId());
         AngelinaEventSource.remove(messageInfo.getGroupId());
         return guessOperator(messageInfo);
     }
 
-    @AngelinaGroup(keyWords = {"结束猜干员", "终止猜干员", "中止猜干员"})
+    @AngelinaGroup(keyWords = {"结束猜干员", "终止猜干员", "中止猜干员"}, funcClass = FunctionType.Others, permission = PermissionEnum.GroupAdministrator)
     public ReplayInfo stopGuessOperator(MessageInfo messageInfo) {
         groupList.remove(messageInfo.getGroupId());
         AngelinaEventSource.remove(messageInfo.getGroupId());

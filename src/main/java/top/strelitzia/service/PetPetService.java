@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaEvent;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.EventEnum;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.strelitzia.util.PetPetUtil;
@@ -23,7 +24,7 @@ public class PetPetService {
     private PetPetUtil petPetUtil;
 
     @AngelinaEvent(event = EventEnum.NudgeEvent, description = "发送头像的摸头动图")
-    @AngelinaGroup(keyWords = {"摸头", "摸我", "摸摸"}, description = "发送头像的摸头动图")
+    @AngelinaGroup(keyWords = {"摸头", "摸我", "摸摸"}, description = "发送头像的摸头动图", funcClass = FunctionType.Others)
     public ReplayInfo PetPet(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         BufferedImage userImage = null;
@@ -47,7 +48,7 @@ public class PetPetService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"口我", "透透"}, description = "禁言功能")
+    @AngelinaGroup(keyWords = {"口我", "透透"}, description = "禁言功能", funcClass = FunctionType.Others)
     public ReplayInfo MuteSomeOne(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         replayInfo.setMuted((new Random().nextInt(5) + 1) * 60);

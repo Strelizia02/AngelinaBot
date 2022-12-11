@@ -3,6 +3,7 @@ package top.strelitzia.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 
@@ -13,7 +14,7 @@ public class BeastService {
     
     private final char[] bd = {'嗷', '呜', '啊', '~'};
 
-    @AngelinaGroup(keyWords = {"兽语加密"}, description = "输入字符加密成兽语")
+    @AngelinaGroup(keyWords = {"兽语加密"}, description = "输入字符加密成兽语", funcClass = FunctionType.Others)
     public ReplayInfo ToBeast(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -31,7 +32,7 @@ public class BeastService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"兽语解密"}, description = "输入兽语解密成字符")
+    @AngelinaGroup(keyWords = {"兽语解密"}, description = "输入兽语解密成字符", funcClass = FunctionType.Others)
     public ReplayInfo FromBeast(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {

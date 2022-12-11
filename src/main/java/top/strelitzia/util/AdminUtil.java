@@ -16,7 +16,7 @@ public class AdminUtil {
      * @param admins 权限列表
      * @return
      */
-    public static boolean getFoundAdmin(Long qq, List<AdminUserInfo> admins) {
+    public static boolean getFoundAdmin(String qq, List<AdminUserInfo> admins) {
         for (AdminUserInfo admin : admins) {
             if (admin.getQq().equals(qq) && admin.getFound() == 1) {
                 return true;
@@ -31,24 +31,9 @@ public class AdminUtil {
      * @param admins 权限列表
      * @return
      */
-    public static boolean getSixAdmin(Long qq, List<AdminUserInfo> admins) {
+    public static boolean getSixAdmin(String qq, List<AdminUserInfo> admins) {
         for (AdminUserInfo admin : admins) {
             if (admin.getQq().equals(qq) && admin.getSix() == 1) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * 返回用户有无sql权限
-     * @param qq     qqMD5加密字符串
-     * @param admins 权限列表
-     * @return
-     */
-    public static boolean getSqlAdmin(Long qq, List<AdminUserInfo> admins) {
-        for (AdminUserInfo admin : admins) {
-            if (admin.getQq().equals(qq) && admin.getSql() == 1) {
                 return true;
             }
         }

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.container.AngelinaEventSource;
 import top.angelinaBot.container.AngelinaListener;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.model.TextLine;
@@ -42,7 +43,7 @@ public class EquipService {
     @Autowired
     private SendMessageUtil sendMessageUtil;
 
-    @AngelinaGroup(keyWords = {"模组查询", "查询模组", "模组"}, description = "查询模组信息")
+    @AngelinaGroup(keyWords = {"模组查询", "查询模组", "模组"}, description = "查询模组信息", funcClass = FunctionType.ArknightsData)
     public ReplayInfo getOperatorEquip(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         String name;

@@ -1,7 +1,6 @@
 package top.strelitzia.service;
 
 import lombok.extern.slf4j.Slf4j;
-import net.mamoe.mirai.contact.MemberPermission;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,16 +10,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import top.angelinaBot.annotation.AngelinaGroup;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
+import top.angelinaBot.model.PermissionEnum;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.util.SendMessageUtil;
-import top.strelitzia.dao.AdminUserMapper;
 import top.strelitzia.dao.BiliMapper;
 import top.strelitzia.dao.GroupAdminInfoMapper;
 import top.strelitzia.dao.UserFoundMapper;
 import top.strelitzia.model.BiliCount;
 import top.strelitzia.model.DynamicDetail;
-import top.strelitzia.util.AdminUtil;
 
 import java.util.List;
 import java.util.Random;
@@ -47,9 +46,6 @@ public class BiliListeningService {
 
     @Autowired
     private SendMessageUtil sendMessageUtil;
-
-    @Autowired
-    private AdminUserMapper adminUserMapper;
 
     private boolean doingBiliUpdate = false;
 
@@ -89,7 +85,7 @@ public class BiliListeningService {
                                     newDetail.getTitle() + "\n" +
                                     newDetail.getText() + "\n" + biliSpace;
                             log.info("{}有新动态", name);
-                            List<Long> groups = userFoundMapper.selectCakeGroups(bili.getUid());
+                            List<String> groups = userFoundMapper.selectCakeGroups(bili.getUid());
                             String pic = newDetail.getPicUrl();
                             ReplayInfo replayInfo = new ReplayInfo();
                             replayInfo.setReplayMessage(result);
@@ -167,7 +163,7 @@ public class BiliListeningService {
         return dynamicDetail;
     }
 
-    @AngelinaGroup(keyWords = {"投稿", "视频", "查看投稿", "最新视频"}, description = "查询某个up最新的投稿视频")
+    @AngelinaGroup(keyWords = {"投稿", "视频", "查看投稿", "最新视频"}, description = "查询某个up最新的投稿视频", funcClass = FunctionType.BiliDynamic)
     public ReplayInfo getVideo(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -184,7 +180,7 @@ public class BiliListeningService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"动态", "B站动态", "查询动态", "查看动态"}, description = "查询某个up最新的动态")
+    @AngelinaGroup(keyWords = {"动态", "B站动态", "查询动态", "查看动态"}, description = "查询某个up最新的动态", funcClass = FunctionType.BiliDynamic)
     public ReplayInfo getDynamic(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -204,7 +200,7 @@ public class BiliListeningService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"关注列表"}, description = "查看本群关注的所有UID")
+    @AngelinaGroup(keyWords = {"关注列表"}, description = "查看本群关注的所有UID", funcClass = FunctionType.BiliDynamic)
     public ReplayInfo getBiliList(MessageInfo messageInfo) {
         List<BiliCount> bilis = biliMapper.getBiliCountListByGroupId(messageInfo.getGroupId());
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
@@ -220,37 +216,32 @@ public class BiliListeningService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"关注"}, description = "关注某个Uid")
+    @AngelinaGroup(keyWords = {"关注"}, description = "关注某个Uid", funcClass = FunctionType.BiliDynamic)
     public ReplayInfo setGroupBiliRel(MessageInfo messageInfo) {
-        Long groupId = messageInfo.getGroupId();
+        String groupId = messageInfo.getGroupId();
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
 
         if (messageInfo.getArgs().size() > 1) {
             String biliId = messageInfo.getArgs().get(1);
-            boolean sqlAdmin = AdminUtil.getSqlAdmin(messageInfo.getQq(), adminUserMapper.selectAllAdmin());
-            if (messageInfo.getUserAdmin().equals(MemberPermission.MEMBER) && !sqlAdmin) {
-                replayInfo.setReplayMessage("您不是本群管理员，无权进行本群的关注操作");
-            } else {
-                Integer integer = groupAdminInfoMapper.existGroupId(groupId);
-                if (integer == 0) {
-                    groupAdminInfoMapper.insertGroupId(groupId);
-                }
-                Long uid = Long.parseLong(biliId);
-                if (biliMapper.existBiliUid(uid) == 0) {
-                    biliMapper.insertBiliUid(uid);
-                }
+            Integer integer = groupAdminInfoMapper.existGroupId(groupId);
+            if (integer == 0) {
+                groupAdminInfoMapper.insertGroupId(groupId);
+            }
+            Long uid = Long.parseLong(biliId);
+            if (biliMapper.existBiliUid(uid) == 0) {
+                biliMapper.insertBiliUid(uid);
+            }
 
-                Integer relation = biliMapper.selectGroupBiliRel(groupId, uid);
-                if (relation == 0) {
-                    if (biliMapper.getBiliCountListByGroupId(groupId).size() > 5) {
-                        replayInfo.setReplayMessage("本群关注数已超过上限5个");
-                    } else {
-                        biliMapper.insertGroupBiliRel(groupId, uid);
-                        replayInfo.setReplayMessage("关注成功");
-                    }
+            Integer relation = biliMapper.selectGroupBiliRel(groupId, uid);
+            if (relation == 0) {
+                if (biliMapper.getBiliCountListByGroupId(groupId).size() > 5) {
+                    replayInfo.setReplayMessage("本群关注数已超过上限5个");
                 } else {
-                    replayInfo.setReplayMessage("本群已经关注了这个uid");
+                    biliMapper.insertGroupBiliRel(groupId, uid);
+                    replayInfo.setReplayMessage("关注成功");
                 }
+            } else {
+                replayInfo.setReplayMessage("本群已经关注了这个uid");
             }
         } else {
             replayInfo.setReplayMessage("请输入关注Uid");
@@ -258,21 +249,17 @@ public class BiliListeningService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"取消关注", "取关"}, description = "取消关注某个Uid")
+    @AngelinaGroup(keyWords = {"取消关注", "取关"}, description = "取消关注某个Uid", funcClass = FunctionType.BiliDynamic, permission = PermissionEnum.GroupAdministrator)
     public ReplayInfo removeGroupBiliRel(MessageInfo messageInfo) {
-        Long groupId = messageInfo.getGroupId();
+        String groupId = messageInfo.getGroupId();
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
 
         if (messageInfo.getArgs().size() > 1) {
             String biliId = messageInfo.getArgs().get(1);
-            boolean sqlAdmin = AdminUtil.getSqlAdmin(messageInfo.getQq(), adminUserMapper.selectAllAdmin());
-            if (messageInfo.getUserAdmin().equals(MemberPermission.MEMBER) && !sqlAdmin) {
-                replayInfo.setReplayMessage("您不是本群管理员，无权进行本群的关注操作");
-            } else {
-                Long uid = Long.parseLong(biliId);
-                biliMapper.deleteGroupBiliRel(groupId, uid);
-                replayInfo.setReplayMessage("取消关注成功");
-            }
+
+            Long uid = Long.parseLong(biliId);
+            biliMapper.deleteGroupBiliRel(groupId, uid);
+            replayInfo.setReplayMessage("取消关注成功");
         } else {
             replayInfo.setReplayMessage("请输入需要取关的Uid");
         }

@@ -3,15 +3,13 @@ package top.strelitzia.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
+import top.angelinaBot.model.PermissionEnum;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.util.MiraiFrameUtil;
 import top.angelinaBot.util.SendMessageUtil;
-import top.strelitzia.dao.AdminUserMapper;
 import top.strelitzia.dao.ExecuteSqlMapper;
-import top.strelitzia.dao.UserFoundMapper;
-import top.strelitzia.model.AdminUserInfo;
-import top.strelitzia.util.AdminUtil;
 
 import java.util.List;
 
@@ -26,26 +24,18 @@ public class ExecuteSqlService {
     private ExecuteSqlMapper executeSqlMapper;
 
     @Autowired
-    private AdminUserMapper adminUserMapper;
-
-    @Autowired
     private SendMessageUtil sendMessageUtil;
 
-    @AngelinaGroup(keyWords = {"sql", "SQL"})
+    @AngelinaGroup(keyWords = {"sql", "SQL"}, funcClass = FunctionType.FunctionAdmin, permission = PermissionEnum.Administrator)
     public ReplayInfo ExecuteSql(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
             List<String> text = messageInfo.getArgs();
-            List<AdminUserInfo> admins = adminUserMapper.selectAllAdmin();
-            boolean b = AdminUtil.getSqlAdmin(messageInfo.getQq(), admins);
-            String s = "您没有sql权限";
-            if (b) {
-                StringBuilder sql = new StringBuilder();
-                for (int i= 1; i < text.size(); i++) {
-                     sql.append(" ").append(text.get(i));
-                }
-                s = executeSqlMapper.executeSql(sql.toString()).toString();
+            StringBuilder sql = new StringBuilder();
+            for (int i= 1; i < text.size(); i++) {
+                 sql.append(" ").append(text.get(i));
             }
+            String s = executeSqlMapper.executeSql(sql.toString()).toString();
             replayInfo.setReplayMessage(s);
         } else {
             replayInfo.setReplayMessage("请输入sql语句");
@@ -53,30 +43,22 @@ public class ExecuteSqlService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"群发消息"})
+    @AngelinaGroup(keyWords = {"群发消息"}, funcClass = FunctionType.FunctionAdmin, permission = PermissionEnum.Administrator)
     public ReplayInfo sendGroupMessage(MessageInfo messageInfo) {
-        List<AdminUserInfo> admins = adminUserMapper.selectAllAdmin();
-        boolean b = AdminUtil.getSqlAdmin(messageInfo.getQq(), admins);
-        String s = "您没有群发消息权限";
-        if (b) {
-            ReplayInfo replayInfo = new ReplayInfo();
-            if (messageInfo.getArgs().size() > 1) {
-                StringBuilder sb = new StringBuilder();
-                for (int i = 1; i < messageInfo.getArgs().size(); i++) {
-                    sb.append(messageInfo.getArgs().get(i));
-                }
-                replayInfo.setReplayMessage(sb.toString());
+        ReplayInfo replayInfo = new ReplayInfo();
+        if (messageInfo.getArgs().size() > 1) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 1; i < messageInfo.getArgs().size(); i++) {
+                sb.append(messageInfo.getArgs().get(i));
             }
-            for (String url: messageInfo.getImgUrlList()) {
-                replayInfo.setReplayImg(url);
-            }
-
-            replayInfo.setGroupId(MiraiFrameUtil.messageIdMap.keySet());
-            sendMessageUtil.sendGroupMsg(replayInfo);
-            return null;
+            replayInfo.setReplayMessage(sb.toString());
         }
-        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        replayInfo.setReplayMessage(s);
-        return replayInfo;
+        for (String url: messageInfo.getImgUrlList()) {
+            replayInfo.setReplayImg(url);
+        }
+
+        replayInfo.setGroupId(MiraiFrameUtil.messageIdMap.keySet());
+        sendMessageUtil.sendGroupMsg(replayInfo);
+        return null;
     }
 }

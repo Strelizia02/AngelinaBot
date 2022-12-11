@@ -1,19 +1,14 @@
 package top.strelitzia.service;
 
-import net.mamoe.mirai.Bot;
-import net.mamoe.mirai.contact.MemberPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.container.AngelinaEventSource;
 import top.angelinaBot.container.AngelinaListener;
-import top.angelinaBot.model.MessageInfo;
-import top.angelinaBot.model.ReplayInfo;
-import top.angelinaBot.model.TextLine;
+import top.angelinaBot.model.*;
 import top.angelinaBot.util.SendMessageUtil;
 import top.strelitzia.dao.AdminUserMapper;
-import top.strelitzia.util.AdminUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -28,7 +23,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.List;
 
 /**
  * @author Cuthbert
@@ -37,7 +31,7 @@ import java.util.List;
 @Service
 public class GobangService {
 
-    private static final Set<Long> groupList = new HashSet<>();
+    private static final Set<String> groupList = new HashSet<>();
 
     @Autowired
     SendMessageUtil sendMessageUtil;
@@ -45,38 +39,26 @@ public class GobangService {
     @Autowired
     AdminUserMapper adminUserMapper;
 
-    @AngelinaGroup(keyWords = {"重置棋盘" , "重置五子棋"} )
+    @AngelinaGroup(keyWords = {"重置棋盘" , "重置五子棋"}, funcClass = FunctionType.Others, permission = PermissionEnum.GroupAdministrator, author = "Cuthbert-yong")
     public ReplayInfo resetGobang(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        boolean sqlAdmin = AdminUtil.getSqlAdmin(messageInfo.getQq(), adminUserMapper.selectAllAdmin());
-        if(messageInfo.getUserAdmin() == MemberPermission.MEMBER && !sqlAdmin ){
-            replayInfo.setReplayMessage("仅管理员有权重置棋盘。如果您为五子棋参赛者，请尝试直接发送“重置”。");
-        } else {
-            groupList.remove(messageInfo.getGroupId());
-            replayInfo.setReplayMessage("重置完成");
-        }
+        groupList.remove(messageInfo.getGroupId());
+        //TODO 删掉listener
+        replayInfo.setReplayMessage("重置完成");
         return replayInfo;
     }
 
 
-    @AngelinaGroup(keyWords = {"五子棋"})
+    @AngelinaGroup(keyWords = {"五子棋"}, funcClass = FunctionType.ArknightsData, author = "Cuthbert-yong")
     public ReplayInfo gobang(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        Long groupId = messageInfo.getGroupId();
+        String groupId = messageInfo.getGroupId();
         if (groupList.contains(groupId)) {
             replayInfo.setReplayMessage("本群正在进行五子棋，或五子棋匹配中" +
                     "\n加入请发送“加入五子棋”或“洁哥加入五子棋”" +
                     "\n请如果遇到问题可以发送“洁哥重置棋盘”");
             return replayInfo;
         } else {
-            long circleQq = 0L;
-            long squareQq = 0L;
-            int r = new Random().nextInt(2);
-            if (r == 0) {
-                circleQq = messageInfo.getQq();
-            } else {
-                squareQq = messageInfo.getQq();
-            }
             replayInfo.setReplayMessage(messageInfo.getName() + "加入成功！\n" + "[五子棋]正在等待二号玩家的加入......");
             sendMessageUtil.sendGroupMsg(replayInfo);
             replayInfo.setReplayMessage(null);
@@ -109,11 +91,24 @@ public class GobangService {
                 groupList.remove(messageInfo.getGroupId());
                 return replayInfo;
             }
-            if (r == 0){
+
+            String circleQq;
+            String squareQq;
+            String circleName;
+            String squareName;
+            int r = new Random().nextInt(2);
+            if (r == 0) {
+                circleQq = messageInfo.getQq();
+                circleName = messageInfo.getName();
                 squareQq = player2.getQq();
-            }else {
+                squareName = player2.getName();
+            } else {
+                squareQq = messageInfo.getQq();
+                squareName = messageInfo.getName();
                 circleQq = player2.getQq();
+                circleName = player2.getName();
             }
+
             replayInfo.setReplayMessage(player2.getName() + "加入成功！\n" + "[五子棋]即将开始");
             sendMessageUtil.sendGroupMsg(replayInfo);
             replayInfo.setReplayMessage(null);
@@ -124,16 +119,7 @@ public class GobangService {
             //生成一张棋盘并发送
             int[][] board = new int[15][15];
             BigDecimal lastPiece = null;
-            //圆圈名字
-            String circleName = Bot.getInstance(messageInfo.getLoginQq()).getGroup(groupId).get(circleQq).getNameCard();
-            if (circleName.isEmpty()) {
-                circleName = Bot.getInstance(messageInfo.getLoginQq()).getGroup(groupId).get(circleQq).getRemark();
-            }
-            //方块名字
-            String squareName = Bot.getInstance(messageInfo.getLoginQq()).getGroup(groupId).get(squareQq).getNameCard();
-            if (squareName.isEmpty()) {
-                squareName = Bot.getInstance(messageInfo.getLoginQq()).getGroup(groupId).get(squareQq).getRemark();
-            }
+
             replayInfo.setReplayImg(DrawBoard(board, circleTurn, circleName, squareName, lastPiece));
             sendMessageUtil.sendGroupMsg(replayInfo);
             replayInfo.getReplayImg().clear();
@@ -141,9 +127,6 @@ public class GobangService {
             //进入循环
             for(int i = 0 ;  i<256 ;i++) {
                 //listener等待指令
-                boolean sqlAdmin = AdminUtil.getSqlAdmin(messageInfo.getQq(), adminUserMapper.selectAllAdmin());
-                long finalCircleQq = circleQq;
-                long finalSquareQq = squareQq;
                 AngelinaListener angelinaListener = new AngelinaListener() {
                     @Override
                     public boolean callback(MessageInfo message) {
@@ -151,7 +134,7 @@ public class GobangService {
                             return true;
                             //接收本群参赛者发送的坐标，或重置指令
                         }else if (message.getGroupId().equals(messageInfo.getGroupId()) &&
-                                (message.getQq() == finalCircleQq || message.getQq() == finalSquareQq)) {
+                                (message.getQq().equals(circleQq) || message.getQq().equals(squareQq))) {
                             if (isNumber(message.getText())) {
                                 return true;
                             }else {
@@ -162,7 +145,7 @@ public class GobangService {
                         } else {
                             //接收群主和管理员以及sql发送的重置指令
                             return (message.getGroupId().equals(messageInfo.getGroupId()) &&
-                                    (message.getUserAdmin() != MemberPermission.MEMBER || sqlAdmin) &&
+                                    (message.getUserAdmin() != PermissionEnum.GroupUser) &&
                                     (message.getText().equals("重置") || message.getText().equals("重置棋盘")));
                         }
                     }
@@ -385,7 +368,7 @@ public class GobangService {
                     textLine.addString("对局结束，无人获胜");
                     textLine.nextLine();
                     textLine.addString("不得不佩服，");
-                    if (circleQq==squareQq) {
+                    if (circleQq.equals(squareQq)) {
                         textLine.addString("您很有耐心，");
                     }else {
                         textLine.addString("您二位很有耐心，");

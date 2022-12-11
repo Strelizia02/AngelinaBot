@@ -3,6 +3,7 @@ package top.strelitzia.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.model.TextLine;
@@ -31,7 +32,7 @@ public class SkillDescService {
     @Autowired
     private NickNameMapper nickNameMapper;
 
-    @AngelinaGroup(keyWords = {"技能详情", "技能描述", "技能"}, description = "查询技能详情")
+    @AngelinaGroup(keyWords = {"技能详情", "技能描述", "技能"}, description = "查询技能详情", funcClass = FunctionType.ArknightsData)
     public ReplayInfo getSkillDescByInfo(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {

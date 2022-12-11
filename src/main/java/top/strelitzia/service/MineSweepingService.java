@@ -6,15 +6,16 @@ import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.container.AngelinaEventSource;
 import top.angelinaBot.container.AngelinaListener;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
+import top.angelinaBot.model.PermissionEnum;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.util.SendMessageUtil;
 import top.strelitzia.model.minesweeping.Info;
 import top.strelitzia.model.minesweeping.MineSweeping;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,11 +24,11 @@ import java.util.regex.Pattern;
 public class MineSweepingService {
 
     @Autowired
-    SendMessageUtil sendMessageUtil;
+    private SendMessageUtil sendMessageUtil;
 
-    private static final Set<Long> groupList = new HashSet<>();
+    private static final Set<String> groupList = new HashSet<>();
 
-    @AngelinaGroup(keyWords = {"扫雷"})
+    @AngelinaGroup(keyWords = {"扫雷"}, funcClass = FunctionType.Others)
     public ReplayInfo mineSweeping(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
 
@@ -68,7 +69,7 @@ public class MineSweepingService {
             MessageInfo recall = AngelinaEventSource.waiter(angelinaListener).getMessageInfo();
 
             boolean isOnePlayer = true;
-            long qq = messageInfo.getQq();
+            String qq = messageInfo.getQq();
             if (recall == null) {
                 replayInfo.setReplayMessage("超时未选择，默认以个人模式开启，本群扫雷正式开始");
             } else if (recall.getText().equals("2") || recall.getText().equals("团体") || recall.getText().equals("团体模式")) {
@@ -134,14 +135,14 @@ public class MineSweepingService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"重启扫雷"})
+    @AngelinaGroup(keyWords = {"重启扫雷"}, funcClass = FunctionType.Others, permission = PermissionEnum.GroupAdministrator)
     public ReplayInfo reMineSweeping(MessageInfo messageInfo) throws IOException {
         groupList.remove(messageInfo.getGroupId());
         AngelinaEventSource.remove(messageInfo.getGroupId());
         return mineSweeping(messageInfo);
     }
 
-    @AngelinaGroup(keyWords = {"结束扫雷", "终止扫雷", "中止扫雷"})
+    @AngelinaGroup(keyWords = {"结束扫雷", "终止扫雷", "中止扫雷"}, funcClass = FunctionType.Others, permission = PermissionEnum.GroupAdministrator)
     public ReplayInfo stopMineSweeping(MessageInfo messageInfo) {
         groupList.remove(messageInfo.getGroupId());
         AngelinaEventSource.remove(messageInfo.getGroupId());
@@ -150,15 +151,15 @@ public class MineSweepingService {
         return replayInfo;
     }
     
-    @AngelinaGroup(keyWords = {"组队扫雷", "扫雷小队"})
-    public ReplayInfo stopMineSweeping(MessageInfo messageInfo) {
+    @AngelinaGroup(keyWords = {"组队扫雷", "扫雷小队"}, funcClass = FunctionType.Others)
+    public ReplayInfo groupMineSweeping(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (groupList.contains(messageInfo.getGroupId())) {
             replayInfo.setReplayMessage("本群正在进行扫雷，请查看消息记录");
             return replayInfo;
         } else {
             groupList.add(messageInfo.getGroupId());
-            Queue<Long> playerQueue = new LinkedList<>();
+            Queue<String> playerQueue = new LinkedList<>();
             Queue<String> playerNameQueue = new LinkedList<>();
             playerQueue.offer(messageInfo.getQq());
             playerNameQueue.offer(messageInfo.getName());
@@ -170,11 +171,11 @@ public class MineSweepingService {
             int num = 5;
             if (messageInfo.getArgs().size() > 1) {
                 try {
-                    num = Integet.parseInt(messageInfo.getArgs().get(1));
+                    num = Integer.parseInt(messageInfo.getArgs().get(1));
                 } catch (NumberFormatException e) {
-                    log.error(e);
+                    e.printStackTrace();
                 }
-                if (2 < num || num > 10) {
+                if (2 > num || num > 10) {
                     replayInfo.setReplayMessage("仅支持2-10个人");
                     return replayInfo;
                 }
@@ -205,10 +206,10 @@ public class MineSweepingService {
                     playerQueue.offer(recall.getQq());
                     playerNameQueue.offer(recall.getName());
                     StringBuilder sb = new StringBuilder("加入成功，当前小队成员：");
-                    int i = 0;
+                    int j = 0;
                     for (String name: playerNameQueue) {
-                        i++;
-                        sb.append("\n【").append(i).append("】").append(name);
+                        j++;
+                        sb.append("\n【").append(j).append("】").append(name);
                     }
                     replayInfo.setReplayMessage(sb.toString());
                     sendMessageUtil.sendGroupMsg(replayInfo);
@@ -238,13 +239,13 @@ public class MineSweepingService {
                 MessageInfo mine = AngelinaEventSource.waiter(mineListener).getMessageInfo();
 
                 if (mine == null) {
-                    playerQueue.poll();
-                    playerNameQueue.poll();
+                    String qq = playerQueue.poll();
+                    String name = playerNameQueue.poll();
 
-                    replayInfo.setReplayMessage("您已超时");
+                    replayInfo.setReplayMessage(name + "已超时");
                     replayInfo.setReplayImg(mineSweeping.toImg());
                     replayInfo.setMuted((new Random().nextInt(5) + 1) * 60);
-                    replayInfo.setQq(mine.getQq());
+                    replayInfo.setQq(qq);
                     sendMessageUtil.sendGroupMsg(replayInfo);
                     replayInfo.setReplayMessage(null);
                     replayInfo.getReplayImg().clear();
@@ -274,7 +275,7 @@ public class MineSweepingService {
                         sendMessageUtil.sendGroupMsg(replayInfo);
                         replayInfo.setReplayMessage(null);
                     } else {
-                        Long qq = playerQueue.poll();
+                        String qq = playerQueue.poll();
                         String dead = playerNameQueue.poll();
 
                         replayInfo.setReplayMessage(dead + "已阵亡，请" + playerNameQueue.peek() + "开始扫雷");
@@ -301,7 +302,7 @@ public class MineSweepingService {
             replayInfo.setReplayMessage(null);
             replayInfo.getReplayImg().clear();
 
-            for (Long qq : playerQueue) {
+            for (String qq : playerQueue) {
                 replayInfo.setMuted((new Random().nextInt(5) + 1) * 60);
                 replayInfo.setQq(qq);
                 sendMessageUtil.sendGroupMsg(replayInfo);

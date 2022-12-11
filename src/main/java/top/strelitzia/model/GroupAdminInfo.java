@@ -1,20 +1,18 @@
 package top.strelitzia.model;
 
-import java.io.Serializable;
-
 /**
  * @author strelitzia
  * @Date 2022/05/03 14:38
  **/
 public class GroupAdminInfo {
-    private Long groupId;
+    private String groupId;
     private Integer found;
 
-    public Long getGroupId() {
+    public String getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(Long groupId) {
+    public void setGroupId(String groupId) {
         this.groupId = groupId;
     }
 

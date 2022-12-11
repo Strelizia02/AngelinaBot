@@ -14,7 +14,7 @@ public class Move {
     Chess eat;
 
     //谁走的
-    Long player;
+    String player;
 
     @Override
     public String toString() {
@@ -77,11 +77,11 @@ public class Move {
         this.eat = eat;
     }
 
-    public Long getPlayer() {
+    public String getPlayer() {
         return player;
     }
 
-    public void setPlayer(Long player) {
+    public void setPlayer(String player) {
         this.player = player;
     }
 }

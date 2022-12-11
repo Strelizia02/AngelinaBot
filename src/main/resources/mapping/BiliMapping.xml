@@ -94,11 +94,11 @@
         delete from a_bili_dynamic where uid = #{uid}
     </delete>
 
-    <select id="selectGroupByUid" resultType="java.lang.Long">
+    <select id="selectGroupByUid" resultType="java.lang.String">
         select group_id from a_group_bili_rel where uid = #{uid}
     </select>
 
-    <select id="selectGroupByNotListenUid" resultType="java.lang.Long">
+    <select id="selectGroupByNotListenUid" resultType="java.lang.String">
         select group_id from a_group_admin where group_id not in(
         select group_id from a_group_bili_rel where uid = #{uid}) and group_id like '%'||#{group_id}||'%'
     </select>

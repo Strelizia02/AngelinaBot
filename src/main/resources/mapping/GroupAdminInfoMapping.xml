@@ -7,7 +7,7 @@
     </resultMap>
 
 
-    <select id="getGroupAdminNum" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <select id="getGroupAdminNum" parameterType="java.lang.String" resultMap="BaseResultMap">
         SELECT
             `found`
         FROM

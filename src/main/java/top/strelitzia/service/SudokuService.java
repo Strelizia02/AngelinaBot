@@ -1,12 +1,14 @@
 package top.strelitzia.service;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.container.AngelinaEventSource;
 import top.angelinaBot.container.AngelinaListener;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.model.TextLine;
@@ -17,31 +19,30 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
 
 @Service
+@Slf4j
 public class SudokuService {
 
-    private static final Set<Long> groupList = new HashSet<>();
+    private static final Set<String> groupList = new HashSet<>();
 
     @Autowired
     SendMessageUtil sendMessageUtil;
 
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SudokuService.class);
-
-    @AngelinaGroup(keyWords = {"数独"} )
+    @AngelinaGroup(keyWords = {"数独"}, funcClass = FunctionType.Others, author = "Cuthbert-yong")
     public ReplayInfo sudoku(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        Long groupId = messageInfo.getGroupId();
+        String groupId = messageInfo.getGroupId();
         if (groupList.contains(groupId)) {
             replayInfo.setReplayMessage("本群正在进行数独哦~可以试试发送“查看数独“");
             return replayInfo;
@@ -121,7 +122,7 @@ public class SudokuService {
                 }
                 answer = generateAnswer();
                 writeTxt(answer,path+"/answer.txt");
-                puzzle = generatePuzzle(answer, difficulty,50);
+                puzzle = generatePuzzle(answer, difficulty);
                 writeTxt(puzzle,path+"/puzzle.txt");
                 writeTxt(filled,path+"/filled.txt");
 
@@ -166,7 +167,7 @@ public class SudokuService {
             }
             answer = generateAnswer();
             writeTxt(answer,path+"/answer.txt");
-            puzzle = generatePuzzle(answer, difficulty,50);
+            puzzle = generatePuzzle(answer, difficulty);
             writeTxt(puzzle,path+"/puzzle.txt");
             writeTxt(filled,path+"/filled.txt");
         }
@@ -185,8 +186,8 @@ public class SudokuService {
 
 
         Map<String, Integer> score = new HashMap<>();
-        List<Long> overVote = new ArrayList<>();
-        List<Long> pauseVote = new ArrayList<>();
+        List<String> overVote = new ArrayList<>();
+        List<String> pauseVote = new ArrayList<>();
         int time = 0;
         //开始循环处理回答
         for (int i=0;i<81;i++){
@@ -373,9 +374,7 @@ public class SudokuService {
     //整理map，按value排序
     public LinkedHashMap<String,Integer> finalScore(Map<String,Integer> map){
         List<Map.Entry<String,Integer>> lstEntry = new ArrayList<>(map.entrySet());
-        Collections.sort(lstEntry,((o1, o2) -> {
-            return o2.getValue().compareTo(o1.getValue());
-        }));
+        lstEntry.sort(((o1, o2) -> o2.getValue().compareTo(o1.getValue())));
         /*lstEntry.forEach(o->{
             System.out.println(o.getKey()+":"+o.getValue());
         });*/
@@ -416,12 +415,12 @@ public class SudokuService {
 
     //从坐标中获取x
     public static Integer getX(BigDecimal xy){
-        return xy.setScale(0,BigDecimal.ROUND_DOWN).intValue();
+        return xy.setScale(0, RoundingMode.DOWN).intValue();
     }
 
     //从坐标中获取y
     public static Integer getY(BigDecimal xy){
-        BigDecimal x = xy.setScale(0,BigDecimal.ROUND_DOWN);
+        BigDecimal x = xy.setScale(0, RoundingMode.DOWN);
         BigDecimal y = xy.subtract(x);
         String inStr = String.valueOf(y);
         inStr = inStr.substring(2);
@@ -467,7 +466,7 @@ public class SudokuService {
                 FileInputStream fileInputStream = new FileInputStream(file);
                 InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 String text = null;
                 while((text = bufferedReader.readLine()) != null){
                     sb.append(text);
@@ -573,13 +572,13 @@ public class SudokuService {
         //循环添加数字
         g.setFont(new Font("AR PL UMing HK", Font.BOLD, 90));
         g.setColor(new Color(54, 95, 178));
-        for(int r=0;r<9;r++){
-            for (int c=0;c<9;c++){
+        for(int r = 0; r < 9; r++){
+            for (int c = 0; c < 9; c++){
                 if (filled[r][c] !=0) g.drawString(String.valueOf(filled[r][c]),25 + 64 + c*100,-15 + 350 + (r+1)*100);
             }
         }
         g.setColor(Color.BLACK);
-        for(int r=0;r<9;r++){
+        for(int r = 0; r < 9; r++){
             for (int c=0;c<9;c++){
                 if (puzzle[r][c] !=0) g.drawString(String.valueOf(puzzle[r][c]),25 + 64 + c*100,-15 + 350 + (r+1)*100);
             }
@@ -618,7 +617,7 @@ public class SudokuService {
 
         // swap groups
         Random rand=new Random();
-        int n[] = { 0, 3, 6 };
+        int[] n = { 0, 3, 6 };
         for(int i = 0; i < 2; i++) {
             k1 = n[rand.nextInt(n.length)];
 
@@ -634,7 +633,7 @@ public class SudokuService {
         return bd.getBoard();
     }
 
-    public int[][] generatePuzzle(int[][] answer,int difficulty, int patience){
+    public int[][] generatePuzzle(int[][] answer,int difficulty){
         SudokuGenerator s = new SudokuGenerator(9);
         return s.generatePuzzle(answer, difficulty,50);
     }
@@ -667,7 +666,7 @@ class SudokuGenerator extends SudokuSolver {
     private static final int HARD = 2;
     private static final int DEFAULT_PATIENCE = 50;
 
-    private List<Tuple<Integer, Integer>> positions = new ArrayList<Tuple<Integer, Integer>>();
+    private final List<Tuple<Integer, Integer>> positions = new ArrayList<>();
 
     public SudokuGenerator(int size) {
         super(size);
@@ -888,7 +887,7 @@ class SudokuSolver {
         StringBuilder out = new StringBuilder();
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                out.append(board[i][j] + ";");
+                out.append(board[i][j]).append(";");
             }
         }
         return out.toString();
@@ -987,7 +986,7 @@ class SudokuBoard {
         int s1, s2, max = 2, min = 0;
         Random r = new Random();
 
-        for(int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
             s1 = r.nextInt(max - min + 1) + min;
 
             // ensure different row/cols are selected to swap
