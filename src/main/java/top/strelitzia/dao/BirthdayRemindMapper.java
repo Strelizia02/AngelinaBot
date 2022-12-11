@@ -13,7 +13,7 @@ public interface BirthdayRemindMapper {
     List<String> selectNameByGroupId(String groupId);
 
     //根据干员名字查询订阅的群组ID
-    List<Long> selectGroupIdByName(String name);
+    List<String> selectGroupIdByName(String name);
 
     //删除指定的群组订阅的干员生日提醒
     Integer deleteBirthdayRemind(@Param("groupId") String groupId, @Param("name") String name);
