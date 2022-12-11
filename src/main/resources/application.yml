@@ -3,14 +3,26 @@ server:
 spring:
   main:
     allow-bean-definition-overriding: true
+# 多个选项用空格隔开
 userConfig:
-  # 多个选项用空格隔开
-  botNames: '洁哥 杰哥 安洁莉娜'
+  # 超级管理员，建议只给自己
+  administrators: '412459523'
+  # Bot名称，只响应以Bot名开头的消息
+  botNames: '测试'
+  # QQ账号密码列表
   qqList: ''
   pwList: ''
+
+  # 登录协议，可选项有：IPAD ANDROID_PAD ANDROID_PHONE MACOS，推荐IPAD或MACOS
+  typeList: 'IPAD'
+
+  # QQ频道机器人登录信息
+  token: ''
+  appId: ''
+  type: ''
 scheduled:
   # 每5分钟监听一次B站动态
-  biliJob: 0 */5 * * * ?
+  biliJob: 0 */1 * * * ?
   # 每天早8点播报干员庆生
   birthdayJob: 0 0 8 */1 * ?
   # 每10分钟检查一次数据更新
@@ -23,3 +35,4 @@ baiduConfig:
   APP_ID:
   API_KEY:
   SECRET_KEY:
+openai: ''
