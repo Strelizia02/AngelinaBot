@@ -37,6 +37,10 @@ public class OpenAIService {
     public ReplayInfo ToBeast(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         String input;
+        if (token.equals("")) {
+            replayInfo.setReplayMessage("当前无合适的openai账号，无法进行对话");
+            return replayInfo;
+        }
         if (messageInfo.getArgs().size() > 1) {
             input = messageInfo.getArgs().get(1);
         } else {
