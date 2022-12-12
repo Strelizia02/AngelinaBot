@@ -41,6 +41,10 @@ public class TagsFoundService {
     @AngelinaGroup(keyWords = {"公招截图", "公招", "公开招募"}, funcClass = FunctionType.ArknightsData, dHash = {"0001111110100110001111010010001100100011001001110010011100101101", "0001111101100111001101010110001101110011001001110010011100101111"}, description = "查询公招结果")
     public ReplayInfo FoundAgentByJson(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        if (APP_ID.equals("")) {
+            replayInfo.setReplayMessage("当前没有填写图像识别api");
+            return replayInfo;
+        }
         Map<List<String>, List<AgentTagsInfo>> listMap = FoundTagsByImg(messageInfo.getImgUrlList().get(0));
         BufferedImage bf = MapToBase64(listMap);
         if (bf != null) {
