@@ -40,6 +40,28 @@ public class PetPetService {
         }
         return null;
     }
+    
+    @AngelinaGroup(keyWords = {"摸他"}, description = "发送艾特人头像的摸头动图", funcClass = FunctionType.Others)
+    public ReplayInfo PetPet(MessageInfo messageInfo) {
+        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        BufferedImage userImage = null;
+        if (messageInfo.getAtQQList().size() == 0) {
+            replayInfo.setReplayMessage("请艾特想要摸的人");
+            return replayInfo;
+        }
+        
+        try {
+            userImage = ImageIO.read(new URL("http://q.qlogo.cn/headimg_dl?dst_uin=" + messageInfo.getAtQQList().get(0) + "&spec=100"));
+            String path = "runFile/petpet/frame.gif";
+            petPetUtil.getGif(path, userImage);
+            replayInfo.setReplayImg(new File(path));
+            return replayInfo;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     @AngelinaEvent(event = EventEnum.GroupRecall, description = "撤回事件回复")
     public ReplayInfo GroupRecall(MessageInfo messageInfo) {
