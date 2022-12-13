@@ -185,7 +185,7 @@ public class MineSweepingService {
                 AngelinaListener angelinaListener = new AngelinaListener() {
                     @Override
                     public boolean callback(MessageInfo message) {
-                        return message.getGroupId().equals(messageInfo.getGroupId()) && message.getText().equals("加入");
+                        return message.getGroupId().equals(messageInfo.getGroupId()) && !playerQueue。equals(message.getQq()) && message.getText().equals("加入");
                     }
                 };
                 angelinaListener.setGroupId(messageInfo.getGroupId());
