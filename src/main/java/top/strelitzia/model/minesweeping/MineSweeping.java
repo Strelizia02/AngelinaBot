@@ -183,7 +183,7 @@ public class MineSweeping {
     public Info choose(int x, int y) {
         //如果该元素已翻开
         if (board[x][y].isOpen) {
-            return new Info(false, "is already open");
+            return new Info(true, "is already open");
         }
 
         if (board[x][y].getNumber() == 9) {
