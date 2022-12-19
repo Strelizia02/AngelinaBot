@@ -19,12 +19,7 @@ public class BeastService {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
             String text = messageInfo.getText();
-            for (String name: botNames){
-                if (text.startsWith(name)){
-                    text = text.replace(name, "");
-                    break;
-                }
-            }
+            text = text.substring(messageInfo.getArgs().get(0).length());
             replayInfo.setReplayMessage("" + bd[3] + bd[1] + bd[0] + HexToBeast(ToHex(text)) + bd[2]);
         } else {
             replayInfo.setReplayMessage("请输入需要加密的内容");

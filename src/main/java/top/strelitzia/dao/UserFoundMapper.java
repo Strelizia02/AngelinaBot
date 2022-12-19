@@ -1,6 +1,8 @@
 package top.strelitzia.dao;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import top.angelinaBot.model.Count;
 import top.strelitzia.model.UserFoundInfo;
 
 import java.util.List;
@@ -33,4 +35,10 @@ public interface UserFoundMapper {
     List<String> selectCakeGroups(@Param("uid") Long uid);
 
     Integer deleteNotBili();
+
+    @Select("select count(qq) as count from a_user_found")
+    Long selectQqCount();
+
+    @Select("select count(group_id) as count from a_group_admin")
+    Long selectGroupCount();
 }
