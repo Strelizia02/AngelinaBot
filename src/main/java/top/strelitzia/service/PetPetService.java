@@ -42,9 +42,9 @@ public class PetPetService {
     }
     
     @AngelinaGroup(keyWords = {"摸他"}, description = "发送艾特人头像的摸头动图", funcClass = FunctionType.Others)
-    public ReplayInfo PetPet(MessageInfo messageInfo) {
+    public ReplayInfo PetPetOther(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        BufferedImage userImage = null;
+        BufferedImage userImage;
         if (messageInfo.getAtQQList().size() == 0) {
             replayInfo.setReplayMessage("请艾特想要摸的人");
             return replayInfo;

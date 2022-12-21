@@ -1,10 +1,19 @@
 server:
   port: 8086
+  tomcat:
+    #最大链接数
+    max-connections: 1500
+    #最大等待队列长度
+    accept-count: 1000
+    threads:
+      min-spare: 4
+      max: 10
 spring:
   main:
     allow-bean-definition-overriding: true
 # 多个选项用空格隔开
 userConfig:
+  agree: true
   # 超级管理员，建议只给自己
   administrators: '412459523'
   # Bot名称，只响应以Bot名开头的消息

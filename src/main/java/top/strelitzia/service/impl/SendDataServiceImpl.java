@@ -3,10 +3,11 @@ package top.strelitzia.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.model.Count;
+import top.angelinaBot.service.SendDataService;
 import top.strelitzia.dao.UserFoundMapper;
 
 @Service
-public class SendDataService implements top.angelinaBot.service.SendDataService {
+public class SendDataServiceImpl implements SendDataService {
 
     @Autowired
     private UserFoundMapper userFoundMapper;

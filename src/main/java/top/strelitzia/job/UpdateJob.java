@@ -22,12 +22,9 @@ public class UpdateJob {
 
 
     //每天凌晨四点重置抽卡次数
-    @Scheduled(cron = "${scheduled.updateJob}")
+//    @Scheduled(cron = "${scheduled.updateJob}")
     @Async
     public void cleanDayCountJob() {
-        DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
-        downloadInfo.setUseHost(false);
-        downloadInfo.setForce(false);
-        updateDataService.downloadDataFile(downloadInfo);
+
     }
 }

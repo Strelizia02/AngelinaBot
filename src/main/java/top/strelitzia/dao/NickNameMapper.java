@@ -21,5 +21,5 @@ public interface NickNameMapper {
 
     Integer deleteNickName(String nickName);
 
-    Integer insertNickName(NickName nickName);
+    Integer insertNickName(List<NickName> nickName);
 }

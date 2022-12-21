@@ -102,9 +102,9 @@
     </select>
 
     <insert id="insertAgentPool" parameterType="top.strelitzia.model.AgentInfo">
-        insert into a_agent
-        values
-            (#{name}, #{star}, #{pool}, #{limit});
+        <foreach collection="list" item="item">
+            insert into a_agent (name, pool, star, `limit`, version) values (#{item.name}, #{item.pool}, #{item.star}, #{item.limit}, #{item.version})
+        </foreach>
     </insert>
 
     <delete id="deleteAgentPool">

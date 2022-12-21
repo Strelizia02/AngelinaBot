@@ -1,6 +1,5 @@
 package top.strelitzia.model;
 
-import java.io.Serializable;
 
 /**
  * @author strelitzia
@@ -10,6 +9,8 @@ import java.io.Serializable;
 public class NickName {
     private String nickName;
     private String name;
+
+    private Integer version;
 
     public String getNickName() {
         return nickName;
@@ -25,5 +26,13 @@ public class NickName {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }
