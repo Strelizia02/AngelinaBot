@@ -36,10 +36,6 @@ public class OpenAIService {
     public ReplayInfo ToBeast(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         String input;
-        if (token.equals("")) {
-            replayInfo.setReplayMessage("当前无合适的openai账号，无法进行对话");
-            return replayInfo;
-        }
         if (messageInfo.getArgs().size() > 1) {
             input = messageInfo.getArgs().get(1);
         } else {
@@ -58,35 +54,58 @@ public class OpenAIService {
                 replayInfo.setReplayMessage("本次聊天超时终止。");
                 return replayInfo;
             }
-
             input = recall.getText();
         }
-
         if (input.length() > 50) {
             replayInfo.setReplayMessage("请输入小于50字");
             return replayInfo;
         }
+        
+        
+        if (token.equals("")) {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.set("Authorization", template.selectId());
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set("Authorization", "Bearer " + token);
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("model", "text-davinci-003");
+            requestBody.put("prompt", input);
+            requestBody.put("temperature", 0);
+            requestBody.put("max_tokens", 200);
 
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "text-davinci-003");
-        requestBody.put("prompt", input);
-        requestBody.put("temperature", 0);
-        requestBody.put("max_tokens", 200);
+            HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(requestBody, httpHeaders);
 
-        HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(requestBody, httpHeaders);
+            String body = restTemplate.postForEntity(centerUrl, httpEntity, String.class).getBody();
 
-        String body = restTemplate.postForEntity("https://api.openai.com/v1/completions", httpEntity, String.class).getBody();
+            if (body == null) {
+                replayInfo.setReplayMessage("接口请求失败");
+                return replayInfo;
+            }
+            String output = new JSONObject(body).getJSONArray("choices").getJSONObject(0).getString("text");
+            replayInfo.setReplayMessage(output);
+            return replayInfo;
+        } else {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.set("Authorization", "Bearer " + token);
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-        if (body == null) {
-            replayInfo.setReplayMessage("接口请求超时");
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("model", "text-davinci-003");
+            requestBody.put("prompt", input);
+            requestBody.put("temperature", 0);
+            requestBody.put("max_tokens", 200);
+
+            HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(requestBody, httpHeaders);
+
+            String body = restTemplate.postForEntity("https://api.openai.com/v1/completions", httpEntity, String.class).getBody();
+
+            if (body == null) {
+                replayInfo.setReplayMessage("接口请求超时");
+                return replayInfo;
+            }
+            String output = new JSONObject(body).getJSONArray("choices").getJSONObject(0).getString("text");
+            replayInfo.setReplayMessage(output);
             return replayInfo;
         }
-        String output = new JSONObject(body).getJSONArray("choices").getJSONObject(0).getString("text");
-        replayInfo.setReplayMessage(output);
-        return replayInfo;
     }
 }
