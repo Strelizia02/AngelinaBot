@@ -47,9 +47,22 @@ public class RabbitMqService {
             value = @Queue(),
             exchange = @Exchange(value = "PoolData",type = ExchangeTypes.FANOUT)
     ))
-    public void getPoolData(List<AgentInfo> agentInfos) {
+    public void getPoolData(String str) {
         //卡池数据更新入口
         log.info("开始更新抽卡卡池信息");
+        
+        List<AgentInfo> agentInfos = new ArrayList<>();
+        JSONArray arr = new JSONArray(str);
+        for (int i = 0; i < arr.length(); i++) {
+            AgentInfo a = new AgentInfo();
+            a.setPool(arr.getJSONObject(i).getString("pool"));
+            a.setName(arr.getJSONObject(i).getString("name"));
+            a.setLimit(arr.getJSONObject(i).getInt("limit"));
+            a.setStar(arr.getJSONObject(i).getInt("star"));
+            a.setVersion(arr.getJSONObject(i).getInt("version"));
+            agentInfos.add(a);
+        }
+        
         agentMapper.insertAgentPool(agentInfos);
     }
 
@@ -57,9 +70,19 @@ public class RabbitMqService {
             value = @Queue(),
             exchange = @Exchange(value = "NickName",type = ExchangeTypes.FANOUT)
     ))
-    public void getNickNameData(List<NickName> nickNames) {
+    public void getNickNameData(String str) {
         //外号数据更新入口
         log.info("开始更新外号数据");
+        
+        List<NickName> nickNames = new ArrayList<>();
+        JSONArray arr = new JSONArray(str);
+        for (int i = 0; i < arr.length(); i++) {
+            NickName n = new NickName();
+            a.setNickName(arr.getJSONObject(i).getString("nickName"));
+            a.setName(arr.getJSONObject(i).getString("name"));
+            a.setVersion(arr.getJSONObject(i).getInt("version"));
+            nickNames.add(n);
+        }
         nickNameMapper.insertNickName(nickNames);
     }
 }
