@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.container.AngelinaEventSource;
 import top.angelinaBot.container.AngelinaListener;
+import top.angelinaBot.dao.AdminMapper;
 import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
@@ -30,6 +31,9 @@ public class OpenAIService {
 
     @Value("${openai}")
     private String token;
+
+    @Autowired
+    private AdminMapper adminMapper;
 
 
     @AngelinaGroup(keyWords = {"聊天", "ai", "对话"}, description = "openAI对话", funcClass = FunctionType.Others, author = "OpenAI")
@@ -64,7 +68,7 @@ public class OpenAIService {
         
         if (token.equals("")) {
             HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.set("Authorization", template.selectId());
+            httpHeaders.set("Authorization", adminMapper.selectId());
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
             Map<String, Object> requestBody = new HashMap<>();
@@ -75,7 +79,7 @@ public class OpenAIService {
 
             HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(requestBody, httpHeaders);
 
-            String body = restTemplate.postForEntity(centerUrl, httpEntity, String.class).getBody();
+            String body = restTemplate.postForEntity("http://api.angelina-bot.top:8087/openai/getApiKey", httpEntity, String.class).getBody();
 
             if (body == null) {
                 replayInfo.setReplayMessage("接口请求失败");

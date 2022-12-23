@@ -104,6 +104,8 @@
     <insert id="insertAgentPool" parameterType="top.strelitzia.model.AgentInfo">
         <foreach collection="list" item="item">
             insert into a_agent (name, pool, star, `limit`, version) values (#{item.name}, #{item.pool}, #{item.star}, #{item.limit}, #{item.version})
+            ON CONFLICT(name, pool)
+            DO update set version=#{version}
         </foreach>
     </insert>
 
