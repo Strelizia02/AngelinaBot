@@ -10,6 +10,5 @@ public enum HintsType {
     Class,
     Birthday,
     Height,
-    Infection,
-    Voice
+    Infection
 }

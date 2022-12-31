@@ -44,6 +44,11 @@
         <result column="char_id" property="charId" jdbcType="VARCHAR"/>
     </resultMap>
 
+    <resultMap id="VoiceMap" type="top.strelitzia.model.VoiceInfo">
+        <result column="url" property="url" jdbcType="VARCHAR"/>
+        <result column="file" property="file" jdbcType="VARCHAR"/>
+    </resultMap>
+
 
     <select id="getOperatorNameByInfo" parameterType="java.lang.String" resultType="java.lang.String">
         SELECT
@@ -280,8 +285,8 @@
 
     <insert id="insertOperatorVoice">
         INSERT INTO t_operator_voice
-            (char_id, type, voice_name, file)
-        VALUES(#{charId}, #{type}, #{name}, #{file})
+            (char_id, type, voice_name, file, url)
+        VALUES(#{charId}, #{type}, #{name}, #{file}, #{url})
     </insert>
 
     <select id="selectOperatorVoiceByName" resultType="java.lang.String">
@@ -294,9 +299,9 @@
             operator_name = #{name}
     </select>
 
-    <select id="selectOperatorVoiceByNameAndVoice" resultType="java.lang.String">
+    <select id="selectOperatorVoiceByNameAndVoice" resultMap="VoiceMap">
         SELECT
-            file
+            file, url
         FROM
             t_operator_voice v
         LEFT JOIN t_operator o ON o.char_id = v.char_id
@@ -308,6 +313,13 @@
         <if test = "type != null">
             AND type = #{type}
         </if>
+    </select>
+
+    <select id="selectAllVoice" resultMap="VoiceMap">
+        SELECT
+            file, url
+        FROM
+            t_operator_voice
     </select>
 
     <select id="getAllOperatorIdAndNameAndCV" resultMap="NameResultMap">

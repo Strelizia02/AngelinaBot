@@ -3,7 +3,6 @@ package top.strelitzia.service;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.springframework.amqp.core.ExchangeTypes;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import top.strelitzia.dao.AgentMapper;
 import top.strelitzia.dao.NickNameMapper;
 import top.strelitzia.model.AgentInfo;
-import top.strelitzia.model.DownloadOneFileInfo;
 import top.strelitzia.model.NickName;
 
 import java.util.ArrayList;
@@ -40,10 +38,7 @@ public class RabbitMqService {
         //游戏数据的更新入口
         log.info("接收到游戏更新MQ");
         try {
-            DownloadOneFileInfo downloadInfo = new DownloadOneFileInfo();
-            downloadInfo.setUseHost(false);
-            downloadInfo.setForce(false);
-            updateDataService.downloadDataFile(downloadInfo);
+            updateDataService.downloadFile();
         } catch (Exception e) {
             e.printStackTrace();
         }

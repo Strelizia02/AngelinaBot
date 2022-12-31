@@ -331,17 +331,6 @@ public class GuessOperator {
             case Infection:
                 i.setText("该干员的感染情况为：" + operatorInfo.getInfection().replace("name", "xxx"));
                 break;
-            case Voice:
-                List<String> voices = operatorInfoMapper.selectOperatorVoiceByNameAndVoice("voice", name, null);
-                if (voices.size() > 0) {
-                    i.setText("请听该干员的语音：");
-                    i.setVoice(voices.get(new Random().nextInt(voices.size())));
-                    i.setSendVoice(true);
-                } else {
-                    i.setText("语音缺失");
-                    add = false;
-                }
-                break;
         }
         return add;
     }
