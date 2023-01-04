@@ -3,8 +3,9 @@
 <mapper namespace="top.strelitzia.dao.BiliMapper">
     <resultMap id="BaseResultMap" type="top.strelitzia.model.BiliCount">
         <result column="uid" property="uid" jdbcType="BIGINT"/>
-        <result column="top" property="top" jdbcType="BIGINT"/>
-        <result column="first" property="first" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="top" property="top" jdbcType="VARCHAR"/>
+        <result column="top_time" property="topTime" jdbcType="BIGINT"/>
     </resultMap>
 
     <select id="getBiliCountList" resultMap="BaseResultMap">
@@ -12,7 +13,7 @@
             uid,
             name,
             top,
-            first
+            top_time
         FROM
             a_bili_dynamic
     </select>
@@ -21,8 +22,7 @@
         SELECT
             uid,
             name,
-            top,
-            first
+            top
         FROM
             a_bili_dynamic
         WHERE name like '%'||#{name}||'%'
@@ -42,8 +42,7 @@
         SELECT
             uid,
             name,
-            top,
-            first
+            top
         FROM
             a_bili_dynamic
         where uid in (select uid from a_group_bili_rel where group_id = #{groupId})
@@ -53,8 +52,7 @@
         SELECT
             uid,
             name,
-            top,
-            first
+            top
         FROM
             a_bili_dynamic
         WHERE name LIKE '%'||#{name}||'%' OR uid = #{name}
@@ -72,9 +70,14 @@
     <update id="updateNewDynamic">
         UPDATE a_bili_dynamic
         SET
+            fifth = fourth,
+            fourth = third,
+            third = second,
+            second = first,
+            first = top,
             name = #{name},
-            top = #{top},
-            first = #{first}
+            top_time = #{topTime},
+            top = #{top}
         WHERE uid = #{uid}
     </update>
 
@@ -107,8 +110,7 @@
         SELECT
         uid,
         name,
-        top,
-        first
+        top
         FROM
         a_bili_dynamic
         where uid not in (select uid from a_group_bili_rel where group_id = #{groupId})
