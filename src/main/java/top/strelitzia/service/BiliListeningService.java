@@ -14,13 +14,14 @@ import org.springframework.web.client.RestTemplate;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
-import top.angelinaBot.util.AdminUtil;
 import top.angelinaBot.util.MiraiFrameUtil;
 import top.angelinaBot.util.SendMessageUtil;
+import top.strelitzia.dao.AdminUserMapper;
 import top.strelitzia.dao.BiliMapper;
 import top.strelitzia.dao.GroupAdminInfoMapper;
 import top.strelitzia.model.BiliCount;
 import top.strelitzia.model.DynamicDetail;
+import top.strelitzia.util.AdminUtil;
 
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +39,9 @@ public class BiliListeningService {
     private RestTemplate restTemplate;
 
     @Autowired
+    private AdminUserMapper adminUserMapper;
+
+    @Autowired
     private GroupAdminInfoMapper groupAdminInfoMapper;
 
     @Autowired
@@ -45,6 +49,8 @@ public class BiliListeningService {
 
     @Autowired
     private SendMessageUtil sendMessageUtil;
+
+
 
     @Autowired
     private MiraiFrameUtil miraiFrameUtil;
@@ -55,7 +61,7 @@ public class BiliListeningService {
         if (!doingBiliUpdate) {
             doingBiliUpdate = true;
             List<BiliCount> biliCountList = biliMapper.getBiliCountList();
-            Map<Long,Long> map = miraiFrameUtil.BotGroupMap();
+            Map<Long,Long> map = MiraiFrameUtil.messageIdMap;
             for (BiliCount bili : biliCountList) {
                 String biliSpace = "https://space.bilibili.com/" + bili.getUid() + "/dynamic";
                 String dynamicList = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid=";
@@ -235,8 +241,8 @@ public class BiliListeningService {
 
         if (messageInfo.getArgs().size() > 1) {
             String biliId = messageInfo.getArgs().get(1);
-            boolean Admin = AdminUtil.getAdmin(messageInfo.getQq());
-            if (messageInfo.getUserAdmin().equals(MemberPermission.MEMBER) && !Admin) {
+            boolean sqlAdmin = AdminUtil.getSqlAdmin(messageInfo.getQq(), adminUserMapper.selectAllAdmin());
+            if (messageInfo.getUserAdmin().equals(MemberPermission.MEMBER) && !sqlAdmin) {
                 replayInfo.setReplayMessage("您不是本群管理员，无权进行本群的关注操作");
             } else {
                 Integer integer = groupAdminInfoMapper.existGroupId(groupId);
@@ -272,8 +278,8 @@ public class BiliListeningService {
 
         if (messageInfo.getArgs().size() > 1) {
             String biliId = messageInfo.getArgs().get(1);
-            boolean Admin = AdminUtil.getAdmin(messageInfo.getQq());
-            if (messageInfo.getUserAdmin().equals(MemberPermission.MEMBER) && !Admin) {
+            boolean sqlAdmin = AdminUtil.getSqlAdmin(messageInfo.getQq(), adminUserMapper.selectAllAdmin());
+            if (messageInfo.getUserAdmin().equals(MemberPermission.MEMBER) && !sqlAdmin) {
                 replayInfo.setReplayMessage("您不是本群管理员，无权进行本群的关注操作");
             } else {
                 Long uid = Long.parseLong(biliId);
