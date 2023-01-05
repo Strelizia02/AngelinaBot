@@ -7,8 +7,8 @@ package top.strelitzia.model;
 public class BiliCount {
     private Long uid;
     private String name;
-    private Long top;
-    private Long first;
+    private String top;
+    private Integer topTime;
 
     public Long getUid() {
         return uid;
@@ -26,19 +26,19 @@ public class BiliCount {
         this.name = name;
     }
 
-    public Long getTop() {
+    public String getTop() {
         return top;
     }
 
-    public void setTop(Long top) {
+    public void setTop(String top) {
         this.top = top;
     }
 
-    public Long getFirst() {
-        return first;
+    public Integer getTopTime() {
+        return topTime;
     }
 
-    public void setFirst(Long first) {
-        this.first = first;
+    public void setTopTime(Integer topTime) {
+        this.topTime = topTime;
     }
 }

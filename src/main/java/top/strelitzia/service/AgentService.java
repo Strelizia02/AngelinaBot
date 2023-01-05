@@ -5,8 +5,11 @@ import net.mamoe.mirai.contact.MemberPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
+import top.angelinaBot.container.AngelinaEventSource;
+import top.angelinaBot.container.AngelinaListener;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
+import top.angelinaBot.util.SendMessageUtil;
 import top.strelitzia.arknightsDao.OperatorInfoMapper;
 import top.strelitzia.dao.*;
 import top.strelitzia.model.AdminUserInfo;
@@ -22,8 +25,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 
@@ -52,6 +55,10 @@ public class AgentService {
 
     @Autowired
     private OperatorInfoMapper operatorInfoMapper;
+
+    @Autowired
+    private SendMessageUtil sendMessageUtil;
+
 
 
     @AngelinaGroup(keyWords = {"单抽", "抽卡"}, description = "文字单次模拟抽卡")
@@ -196,14 +203,22 @@ public class AgentService {
         return replayInfo;
     }
 
+    private static final Set<Long> groupList = new HashSet<>();
+
     @AngelinaGroup(keyWords = "抽卡次数", description = "调整抽卡次数，请")
     public ReplayInfo updateGroupFoundCount(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        if (groupList.contains(messageInfo.getGroupId())){
+            replayInfo.setReplayMessage("本群内已存在调整行为");
+            return replayInfo;
+        }else {
+            groupList.add(messageInfo.getGroupId());
+        }
         boolean sqlAdmin = AdminUtil.getSqlAdmin(messageInfo.getQq(), adminUserMapper.selectAllAdmin());
         if (messageInfo.getUserAdmin().equals(MemberPermission.MEMBER) && !sqlAdmin) {
             replayInfo.setReplayMessage("只有本群群主或管理员才可以调整抽卡次数");
         } else {
-            int found = 20;
+            int found;
             if (messageInfo.getArgs().size() > 1) {
                 found = Integer.parseInt(messageInfo.getArgs().get(1));
             } else {
@@ -222,12 +237,13 @@ public class AgentService {
                         groupList.remove(messageInfo.getGroupId());
                         replayInfo.setReplayMessage("抽卡次数调整已超时终止。");
                         return replayInfo;
+                }else {
+                    found = Integer.parseInt(recall.getText());
+                    groupList.remove(messageInfo.getGroupId());
                 }
-                String num = Integer.parseInt(recall.getText());
             }
-                
             if (found > 300 || found < 0) {
-                found = replayInfo.setReplayMessage("请控制范围0-300");
+                replayInfo.setReplayMessage("请控制范围0-300");
             } else {
                 GroupAdminInfo groupAdminInfo = new GroupAdminInfo();
                 groupAdminInfo.setGroupId(messageInfo.getGroupId());
