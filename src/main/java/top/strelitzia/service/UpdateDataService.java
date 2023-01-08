@@ -91,7 +91,6 @@ public class UpdateDataService {
     @AngelinaFriend(keyWords = {"更新"}, description = "尝试更新数据")
     public ReplayInfo downloadDataFile(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        List<AdminUserInfo> admins = adminUserMapper.selectAllAdmin();
         if (updateStatus == 0) {
             downloadFile();
             replayInfo.setReplayMessage("更新结束，请从后台日志查看更新情况");
@@ -107,7 +106,6 @@ public class UpdateDataService {
     @AngelinaFriend(keyWords = {"全量更新"}, description = "强制全量更新数据")
     public ReplayInfo downloadDataFileForce(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        List<AdminUserInfo> admins = adminUserMapper.selectAllAdmin();
         if (updateStatus == 0) {
             rebuildDatabase();
             boolean finish = downloadFile();
@@ -137,9 +135,10 @@ public class UpdateDataService {
 
     @AngelinaGroup(keyWords = {"更新语音"}, description = "更新语音数据", funcClass = FunctionType.FunctionAdmin, permission = PermissionEnum.Administrator)
     @AngelinaFriend(keyWords = {"更新语音"}, description = "更新语音数据")
-    public ReplayInfo updateVoiceFile(MessageInfo messageInfo) {
+    public ReplayInfo updateVoiceFile(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         updateOperatorVoice();
+        downloadVoice();
         replayInfo.setReplayMessage("更新语音完成");
         return replayInfo;
     }
@@ -150,7 +149,10 @@ public class UpdateDataService {
     }
 
     public boolean downloadFile(boolean isForce) {
-        String koKoDaYoKeyUrl = url + "gamedata/excel/data_version.txt";
+        String centerUrl = "http://api.angelina-bot.top:8087/file/download";
+        String id = adminMapper.selectId();
+
+        String koKoDaYoKeyUrl = centerUrl + "?botId=" + id + "&fileName=data_version.txt";
         String charKey = getJsonStringFromUrl(koKoDaYoKeyUrl);
         File dataVersionFile = new File("runFile/download/data_version.txt");
         //确保状态是未正在下载
@@ -176,8 +178,6 @@ public class UpdateDataService {
                 rebuildDir();
                 try {
                     log.info("开始下载数据文件");
-                    String centerUrl = "http://api.angelina-bot.top:8087/file/download";
-                    String id = adminMapper.selectId();
                     for (String fileName: files) {
                         downloadOneFile(centerUrl + "?botId=" + id + "&fileName=" + fileName, "runFile/download/" + fileName, 600);
                     }
