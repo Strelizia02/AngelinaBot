@@ -202,7 +202,7 @@ public class AgentService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = "抽卡次数", description = "调整抽卡次数，请", funcClass = FunctionType.MockSearch)
+    @AngelinaGroup(keyWords = "抽卡次数", description = "调整抽卡次数", funcClass = FunctionType.FunctionAdmin)
     public ReplayInfo updateGroupFoundCount(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         int found;
