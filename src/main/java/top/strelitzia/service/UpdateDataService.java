@@ -432,7 +432,7 @@ public class UpdateDataService {
         OperatorBasicInfo operatorBasicInfo = new OperatorBasicInfo();
         operatorBasicInfo.setOperatorId(operatorId);
         operatorBasicInfo.setCharId(charId);
-        operatorBasicInfo.setDrawName(infoJsonObj.getString("drawName"));
+        operatorBasicInfo.setDrawName(takeDrawName(charId));
         JSONArray storyTextAudio = infoJsonObj.getJSONArray("storyTextAudio");
         for (int i = 0; i < storyTextAudio.length(); i++) {
             JSONObject story = storyTextAudio.getJSONObject(i);
@@ -501,6 +501,29 @@ public class UpdateDataService {
     }
 
     /**
+     * 独立提取未精英化干员画师
+     * @param charId 干员Id
+     * @return 画师名字
+     */
+    private String takeDrawName(String charId){
+        JSONObject skinJson = new JSONObject(getJsonStringFromFile("skin_table.json")).getJSONObject("charSkins");
+        JSONObject operatorInfo;
+        if (charId.equals("char_1001_amiya2")){
+            operatorInfo= skinJson.getJSONObject(charId+"#2");
+        }else {
+            operatorInfo = skinJson.getJSONObject(charId+"#1");
+        }
+        JSONObject displaySkin = operatorInfo.getJSONObject("displaySkin");
+        try {
+            JSONArray drawerList = displaySkin.getJSONArray("drawerList");
+            return (String) drawerList.get(0);
+        }catch (JSONException e){
+            log.info("charId为{}的干员未录入画师姓名，已跳过数据收录",charId);
+            return null;
+        }
+    }
+
+    /**
      *  插入干员配音信息
      *
      * @param operatorId 数据库中的干员Id
@@ -513,11 +536,11 @@ public class UpdateDataService {
         for (String area : dict.keySet()){
             JSONObject voiceLangType = dict.getJSONObject(area);
             switch (area) {
-                case "CN_MANDARIN" : operatorBasicInfo.setCvNameOfCNMandarin(voiceLangType.getString("cvName").trim());break;
-                case "CN_TOPOLECT" : operatorBasicInfo.setCvNameOfCNTopolect(voiceLangType.getString("cvName").trim());break;
-                case "JP" : operatorBasicInfo.setCvNameOfJP(voiceLangType.getString("cvName").trim());break;
-                case "KR" : operatorBasicInfo.setCvNameOfKR(voiceLangType.getString("cvName").trim());break;
-                case "EN" : operatorBasicInfo.setCvNameOfEN(voiceLangType.getString("cvName").trim());break;
+                case "CN_MANDARIN" : operatorBasicInfo.setCvNameOfCNMandarin((String) voiceLangType.getJSONArray("cvName").get(0));break;
+                case "CN_TOPOLECT" : operatorBasicInfo.setCvNameOfCNTopolect((String) voiceLangType.getJSONArray("cvName").get(0));break;
+                case "JP" : operatorBasicInfo.setCvNameOfJP((String) voiceLangType.getJSONArray("cvName").get(0));break;
+                case "KR" : operatorBasicInfo.setCvNameOfKR((String) voiceLangType.getJSONArray("cvName").get(0));break;
+                case "EN" : operatorBasicInfo.setCvNameOfEN((String) voiceLangType.getJSONArray("cvName").get(0));break;
             }
         }
         updateMapper.updateCVNameByOperatorId(operatorBasicInfo);
