@@ -519,7 +519,7 @@ public class UpdateDataService {
             return (String) drawerList.get(0);
         }catch (JSONException e){
             log.info("charId为{}的干员未录入画师姓名，已跳过数据收录",charId);
-            return null;
+            return "";
         }
     }
 
