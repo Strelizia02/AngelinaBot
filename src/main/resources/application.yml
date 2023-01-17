@@ -1,37 +1,44 @@
 server:
+  # 项目使用端口，不建议修改
   port: 8086
   tomcat:
-    #最大链接数
+    # 最大链接数，不建议修改
     max-connections: 1500
-    #最大等待队列长度
+    # 最大等待队列长度，不建议修改
     accept-count: 1000
     threads:
+      # tomcat核心线程数，不建议修改
       min-spare: 4
+      # tomcat线程池size，不建议修改
       max: 10
 spring:
   main:
+    # 是否允许Bean注入，不建议修改
     allow-bean-definition-overriding: true
 # 多个选项用空格隔开
 userConfig:
-  agree: true
   # 超级管理员，建议只给自己
   administrators: '412459523'
-  # Bot名称，只响应以Bot名开头的消息
-  botNames: '测试'
-  # QQ账号密码列表
-  qqList: ''
-  pwList: ''
+  # Bot名称，只响应以Bot名开头的消息，多个名称用空格分开
+  botNames: '测试 test'
+  # QQ账号，多个账号请用空格分开
+  qqList: '12345 67890'
+  # QQ密码，多个面请用空格分开，与qqList顺序保持一致
+  pwList: 'xxxxx xxxxx'
 
   # 登录协议，可选项有：IPAD ANDROID_PAD ANDROID_PHONE MACOS，推荐IPAD或MACOS
-  typeList: 'IPAD'
+  # 与qqList顺序保持一致
+  typeList: 'IPAD MACOS'
 
-  # QQ频道机器人登录信息
-  token: ''
+  # QQ频道机器人登录信息，若不需要频道机器人，可以不填
+  # BotAPPID 开发者ID
   appId: ''
-  type: ''
+  # 机器人令牌
+  token: ''
+  # 公域还是私域 public/private
 scheduled:
   # 每5分钟监听一次B站动态
-  biliJob: 0 */1 * * * ?
+  biliJob: 0 */5 * * * ?
   # 每天早8点播报干员庆生
   birthdayJob: 0 0 8 */1 * ?
   # 每10分钟检查一次数据更新
@@ -40,8 +47,10 @@ scheduled:
   exterminateJob: 0 0 17 ? * SUN
   # 每天4点抽卡次数清空
   cleanJob: 0 0 4 */1 * ?
+# 百度智能云，若不需要公招识图功能，可以不填
 baiduConfig:
   APP_ID:
   API_KEY:
   SECRET_KEY:
+# ChatGPT的token，若不需要ai聊天功能，可以不填
 openai: ''
