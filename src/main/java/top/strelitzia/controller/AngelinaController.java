@@ -48,11 +48,15 @@ public class AngelinaController {
         if (agentMapper.selectPoolIsExit(pool).size() == 0) {
             pool = "常规";
         }
-        UserFoundInfo userFoundInfo = userFoundMapper.selectUserFoundByQQ(qq);
-        Integer limit = groupAdminInfoService.getGroupFoundAdmin(group);
+
+        String qqStr = qq + "";
+        String groupStr = group + "";
+
+        UserFoundInfo userFoundInfo = userFoundMapper.selectUserFoundByQQ(qqStr);
+        Integer limit = groupAdminInfoService.getGroupFoundAdmin(groupStr);
         if (userFoundInfo == null) {
             userFoundInfo = new UserFoundInfo();
-            userFoundInfo.setQq(qq);
+            userFoundInfo.setQq(qqStr);
             userFoundInfo.setFoundCount(0);
             userFoundInfo.setTodayCount(0);
         }
@@ -61,10 +65,10 @@ public class AngelinaController {
         //今日抽卡数
         Integer today = userFoundInfo.getTodayCount();
         List<AdminUserInfo> admins = adminUserMapper.selectAllAdmin();
-        boolean b = AdminUtil.getFoundAdmin(qq, admins);
+        boolean b = AdminUtil.getFoundAdmin(qqStr, admins);
 
         if (today < limit || b) {
-            String s = agentService.FoundAgentByNum(10, pool, qq, sum, name, group);
+            String s = agentService.FoundAgentByNum(10, pool, qqStr, sum, name, groupStr);
             s = s.replace(" ", "");
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ImageIO.write(agentService.drawPicByFound(s), "png", out);

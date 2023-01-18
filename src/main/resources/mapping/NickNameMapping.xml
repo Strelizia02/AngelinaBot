@@ -28,7 +28,10 @@
     </delete>
 
     <insert id="insertNickName" parameterType="top.strelitzia.model.NickName">
-        insert into a_nick_name
-            values(#{nickName}, #{name})
+        <foreach collection="list" item="item">
+            insert into a_nick_name (name, nick_name, version) values (#{item.name}, #{item.nickName}, #{item.version})
+            ON CONFLICT(nick_name)
+            DO update set version=#{item.version}
+        </foreach>
     </insert>
 </mapper>

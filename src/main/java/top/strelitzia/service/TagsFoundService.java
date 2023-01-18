@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.strelitzia.arknightsDao.AgentTagsMapper;
@@ -37,9 +38,13 @@ public class TagsFoundService {
     @Value("${baiduConfig.SECRET_KEY}")
     private String SECRET_KEY;
 
-    @AngelinaGroup(keyWords = {"公招截图", "公招", "公开招募"}, dHash = {"0001111110100110001111010010001100100011001001110010011100101101", "0001111101100111001101010110001101110011001001110010011100101111"}, description = "查询公招结果")
+    @AngelinaGroup(keyWords = {"公招截图", "公招", "公开招募"}, funcClass = FunctionType.ArknightsData, dHash = {"0001111110100110001111010010001100100011001001110010011100101101", "0001111101100111001101010110001101110011001001110010011100101111"}, description = "查询公招结果")
     public ReplayInfo FoundAgentByJson(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        if (APP_ID.equals("")) {
+            replayInfo.setReplayMessage("当前没有填写图像识别api");
+            return replayInfo;
+        }
         Map<List<String>, List<AgentTagsInfo>> listMap = FoundTagsByImg(messageInfo.getImgUrlList().get(0));
         BufferedImage bf = MapToBase64(listMap);
         if (bf != null) {
@@ -50,7 +55,7 @@ public class TagsFoundService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"公招文字", "公招tag", "公招词条"}, description = "通过文字方式访问公招结果，用逗号分割")
+    @AngelinaGroup(keyWords = {"公招文字", "公招tag", "公招词条"}, funcClass = FunctionType.ArknightsData, description = "通过文字方式访问公招结果，用逗号分割")
     public ReplayInfo FoundAgentByArray(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {

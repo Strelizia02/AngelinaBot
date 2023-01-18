@@ -3,6 +3,7 @@ package top.strelitzia.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.strelitzia.arknightsDao.OperatorInfoMapper;
@@ -23,7 +24,7 @@ public class RemindService {
     @Autowired
     private NickNameMapper nickNameMapper;
 
-    @AngelinaGroup(keyWords = {"生日提醒"}, description = "给当前群组增加一位指定干员的生日提醒")
+    @AngelinaGroup(keyWords = {"生日提醒"}, description = "给当前群组增加一位指定干员的生日提醒", funcClass = FunctionType.Others, author = "apotatopudding")
     public ReplayInfo subscribeBirthday(MessageInfo messageInfo){
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getUserAdmin().getLevel()<1){
@@ -54,7 +55,7 @@ public class RemindService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"不再提醒"},description = "删除当前群组对指定干员的生日提醒")
+    @AngelinaGroup(keyWords = {"不再提醒"},description = "删除当前群组对指定干员的生日提醒", funcClass = FunctionType.Others, author = "apotatopudding")
     public ReplayInfo deleteSubscription(MessageInfo messageInfo){
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getUserAdmin().getLevel()<1){
@@ -85,7 +86,7 @@ public class RemindService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"生日提醒列表"},description = "查看群组内已添加的生日列表")
+    @AngelinaGroup(keyWords = {"生日提醒列表"},description = "查看群组内已添加的生日列表", funcClass = FunctionType.Others, author = "apotatopudding")
     public ReplayInfo listOfBirthday(MessageInfo messageInfo){
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         List<String> nameByGroupId = birthdayRemindMapper.selectNameByGroupId(messageInfo.getGroupId());

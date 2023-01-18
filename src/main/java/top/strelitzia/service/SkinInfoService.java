@@ -2,7 +2,6 @@ package top.strelitzia.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.strelitzia.dao.NickNameMapper;
@@ -26,7 +25,7 @@ public class SkinInfoService {
     private NickNameMapper nickNameMapper;
 
 
-//    @AngelinaGroup(keyWords = {"时装", "时装查询", "皮肤", "皮肤查询"}, description = "查询干员的时装信息")
+//    @AngelinaGroup(keyWords = {"时装", "时装查询", "皮肤", "皮肤查询"}, description = "查询干员的时装信息", funcClass = FunctionType.ArknightsData)
     public ReplayInfo getOperatorSkinByInfo(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {

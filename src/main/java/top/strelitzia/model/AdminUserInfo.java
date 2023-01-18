@@ -7,22 +7,20 @@ package top.strelitzia.model;
  **/
 public class AdminUserInfo {
     //管理员qq
-    private Long qq;
+    private String qq;
     //管理员昵称，用于肉眼识别
     private String name;
     //无限抽卡权限
     private Integer found;
     //爆率拉满权限
     private Integer six;
-    //SQL查询权限
-    private Integer sql;
 
 
-    public Long getQq() {
+    public String getQq() {
         return qq;
     }
 
-    public void setQq(Long qq) {
+    public void setQq(String qq) {
         this.qq = qq;
     }
 
@@ -48,13 +46,5 @@ public class AdminUserInfo {
 
     public void setSix(Integer six) {
         this.six = six;
-    }
-
-    public Integer getSql() {
-        return sql;
-    }
-
-    public void setSql(Integer sql) {
-        this.sql = sql;
     }
 }

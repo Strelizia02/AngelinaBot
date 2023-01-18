@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaEvent;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.model.EventEnum;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.strelitzia.util.PetPetUtil;
@@ -23,12 +24,34 @@ public class PetPetService {
     private PetPetUtil petPetUtil;
 
     @AngelinaEvent(event = EventEnum.NudgeEvent, description = "发送头像的摸头动图")
-    @AngelinaGroup(keyWords = {"摸头", "摸我", "摸摸"}, description = "发送头像的摸头动图")
+    @AngelinaGroup(keyWords = {"摸头", "摸我", "摸摸"}, description = "发送头像的摸头动图", funcClass = FunctionType.Others)
     public ReplayInfo PetPet(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         BufferedImage userImage = null;
         try {
             userImage = ImageIO.read(new URL("http://q.qlogo.cn/headimg_dl?dst_uin=" + messageInfo.getQq() + "&spec=100"));
+            String path = "runFile/petpet/frame.gif";
+            petPetUtil.getGif(path, userImage);
+            replayInfo.setReplayImg(new File(path));
+            return replayInfo;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    @AngelinaGroup(keyWords = {"摸他"}, description = "发送艾特人头像的摸头动图", funcClass = FunctionType.Others)
+    public ReplayInfo PetPetOther(MessageInfo messageInfo) {
+        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        BufferedImage userImage;
+        if (messageInfo.getAtQQList().size() == 0) {
+            replayInfo.setReplayMessage("请艾特想要摸的人");
+            return replayInfo;
+        }
+        
+        try {
+            userImage = ImageIO.read(new URL("http://q.qlogo.cn/headimg_dl?dst_uin=" + messageInfo.getAtQQList().get(0) + "&spec=100"));
             String path = "runFile/petpet/frame.gif";
             petPetUtil.getGif(path, userImage);
             replayInfo.setReplayImg(new File(path));
@@ -47,7 +70,7 @@ public class PetPetService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"口我", "透透"}, description = "禁言功能")
+    @AngelinaGroup(keyWords = {"口我", "透透"}, description = "禁言功能", funcClass = FunctionType.Others)
     public ReplayInfo MuteSomeOne(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         replayInfo.setMuted((new Random().nextInt(5) + 1) * 60);

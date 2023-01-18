@@ -61,7 +61,7 @@
         UPDATE a_user_found SET today_count = 0, today_six = 0;
     </update>
 
-    <select id="selectCakeGroups" resultType="java.lang.Long">
+    <select id="selectCakeGroups" resultType="java.lang.String">
         SELECT group_id from a_group_bili_rel where uid = #{uid}
     </select>
 

@@ -7,11 +7,11 @@
         VALUES (#{groupId},#{name})
     </insert>
 
-    <select id="selectNameByGroupId" parameterType="java.lang.Long" resultType="java.lang.String">
+    <select id="selectNameByGroupId" parameterType="java.lang.String" resultType="java.lang.String">
         SELECT operator_name FROM a_birthday_remind WHERE group_id = #{groupId}
     </select>
 
-    <select id="selectGroupIdByName" parameterType="java.lang.String" resultType="java.lang.Long">
+    <select id="selectGroupIdByName" parameterType="java.lang.String" resultType="java.lang.String">
         SELECT group_id FROM a_birthday_remind WHERE operator_name = #{name}
     </select>
 

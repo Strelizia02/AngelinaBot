@@ -3,6 +3,7 @@ package top.strelitzia.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.strelitzia.arknightsDao.EnemyMapper;
@@ -22,7 +23,7 @@ public class EnemyService {
     @Autowired
     private EnemyMapper enemyMapper;
 
-    @AngelinaGroup(keyWords = {"敌人查询", "查询敌人", "敌人面板"}, description = "查询敌人面板")
+//    @AngelinaGroup(keyWords = {"敌人查询", "查询敌人", "敌人面板"}, description = "查询敌人面板", funcClass = FunctionType.ArknightsData)
     public ReplayInfo getEnemyInfoByName(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -47,7 +48,7 @@ public class EnemyService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"敌人名字", "敌人全名"}, description = "查询敌人的全名")
+//    @AngelinaGroup(keyWords = {"敌人名字", "敌人全名"}, description = "查询敌人的全名", funcClass = FunctionType.ArknightsData)
     public ReplayInfo getEnemyListByName(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {

@@ -1,6 +1,6 @@
 package top.strelitzia.util;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  * @author strelitzia
@@ -15,7 +15,7 @@ public class FoundAgentUtil {
      * @param num
      * @return
      */
-    public static int FoundOneByMath(Long qq, int num) {
+    public static int FoundOneByMath(String qq, int num) {
 
         double sixStar;
         //五星概率8%
@@ -33,7 +33,7 @@ public class FoundAgentUtil {
 
         int starNum;
         //使用系统时间和qq号求和作为种子，尽可能刨除时间序列导致的连续重复结果
-        Random random = new Random(System.nanoTime() + System.currentTimeMillis() / qq);
+        SecureRandom random = new SecureRandom();
         double set = random.nextDouble();
         if (set > 1 - sixStar / 100) {
             starNum = 6;

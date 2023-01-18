@@ -6,15 +6,14 @@
         <result column="name" property="name" jdbcType="VARCHAR"/>
         <result column="found" property="found" jdbcType="INTEGER"/>
         <result column="six" property="six" jdbcType="INTEGER"/>
-        <result column="sql" property="sql" jdbcType="INTEGER"/>
     </resultMap>
 
     <select id="selectAllAdmin" resultMap="BaseResultMap">
-        SELECT qq, name, found, six, `sql` from a_admin_user
+        SELECT qq, name, found, six from a_admin_user
     </select>
 
     <select id="selectAllAdminByPage" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        SELECT qq, name, found, six, `sql` from a_admin_user limit 10 offset #{current}
+        SELECT qq, name, found, six from a_admin_user limit 10 offset #{current}
     </select>
 
     <select id="selectAllAdminCount" resultType="java.lang.Integer">

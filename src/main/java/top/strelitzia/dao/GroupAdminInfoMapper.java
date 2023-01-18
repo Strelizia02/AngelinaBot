@@ -11,18 +11,18 @@ import java.util.List;
  **/
 public interface GroupAdminInfoMapper {
 
-    GroupAdminInfo getGroupAdminNum(Long groupId);
+    GroupAdminInfo getGroupAdminNum(String groupId);
 
     List<GroupAdminInfo> getAllGroupAdmin(Integer current);
 
     Integer getAllGroupAdminCount();
 
-    Integer insertGroupId(Long groupId);
+    Integer insertGroupId(String groupId);
 
-    Integer updatePictureAdmin(@Param("groupId") Long groupId, @Param("picture") Integer picture);
+    Integer updatePictureAdmin(@Param("groupId") String groupId, @Param("picture") Integer picture);
 
     Integer updateGroupAdmin(GroupAdminInfo groupAdminInfo);
 
-    Integer existGroupId(@Param("groupId")Long groupId);
+    Integer existGroupId(@Param("groupId")String groupId);
 
 }

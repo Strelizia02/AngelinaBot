@@ -1,19 +1,15 @@
 package top.strelitzia.service;
 
-import net.mamoe.mirai.contact.MemberPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
 import top.angelinaBot.container.AngelinaEventSource;
 import top.angelinaBot.container.AngelinaListener;
-import top.angelinaBot.model.MessageInfo;
-import top.angelinaBot.model.ReplayInfo;
-import top.angelinaBot.model.TextLine;
+import top.angelinaBot.model.*;
 import top.angelinaBot.util.SendMessageUtil;
 import top.strelitzia.dao.AdminUserMapper;
 import top.strelitzia.model.chess.Board;
 import top.strelitzia.model.chess.Info;
-import top.strelitzia.util.AdminUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -30,9 +26,9 @@ public class ChineseChessService {
     @Autowired
     AdminUserMapper adminUserMapper;
 
-    private final Map<Long, Board> map = new HashMap<>();
+    private final Map<String, Board> map = new HashMap<>();
 
-    @AngelinaGroup(keyWords = {"象棋", "下象棋"})
+    @AngelinaGroup(keyWords = {"象棋", "下象棋"}, funcClass = FunctionType.Others)
     public ReplayInfo chineseChess(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
 
@@ -63,9 +59,9 @@ public class ChineseChessService {
             return replayInfo;
         }
 
-        Long p1 = messageInfo.getQq();
+        String p1 = messageInfo.getQq();
         String p1Name = messageInfo.getName();
-        Long p2 = recall.getQq();
+        String p2 = recall.getQq();
         String p2Name = recall.getName();
 
         if (p1.equals(p2)) {
@@ -82,8 +78,8 @@ public class ChineseChessService {
         sendMessageUtil.sendGroupMsg(replayInfo);
 
         while (true) {
-            Long waiter;
-            Long other;
+            String waiter;
+            String other;
             if (board.isRedNext()) {
                 waiter = p1;
                 other = p2;
@@ -179,7 +175,7 @@ public class ChineseChessService {
         }
     }
 
-    @AngelinaGroup(keyWords = {"象棋规则", "四子棋谱", "象棋玩法"})
+    @AngelinaGroup(keyWords = {"象棋规则", "四子棋谱", "象棋玩法"}, funcClass = FunctionType.Others)
     public ReplayInfo ChessRules(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         TextLine textLine = new TextLine();
@@ -235,17 +231,12 @@ public class ChineseChessService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"结束象棋"})
+    @AngelinaGroup(keyWords = {"结束象棋"}, funcClass = FunctionType.Others, permission = PermissionEnum.GroupAdministrator)
     public ReplayInfo ChessOver(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        boolean sqlAdmin = AdminUtil.getSqlAdmin(messageInfo.getQq(), adminUserMapper.selectAllAdmin());
-        if (messageInfo.getUserAdmin() == MemberPermission.MEMBER && !sqlAdmin) {
-            replayInfo.setReplayMessage("仅有本群群主和管理员有权限结束棋局");
-        } else {
-            map.remove(messageInfo.getGroupId());
-            AngelinaEventSource.remove(messageInfo.getGroupId());
-            replayInfo.setReplayMessage("本群象棋已结束");
-        }
+        map.remove(messageInfo.getGroupId());
+        AngelinaEventSource.remove(messageInfo.getGroupId());
+        replayInfo.setReplayMessage("本群象棋已结束");
         return replayInfo;
     }
 }

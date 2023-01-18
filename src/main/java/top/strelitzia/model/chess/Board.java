@@ -5,9 +5,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * 棋盘类，是整个象棋的入口
@@ -18,9 +17,9 @@ public class Board {
      */
     private final Chess[][] board = new Chess[9][10];
 
-    private Long p1;
+    private String p1;
 
-    private  Long p2;
+    private String p2;
 
     //本次该红走棋
     public boolean next = true;
@@ -31,7 +30,7 @@ public class Board {
     //文字棋谱，记录
     public final Stack<String> chessManual = new Stack<>();
 
-    public Board(Long p1, Long p2) {
+    public Board(String p1, String p2) {
         //初始化棋盘
         this.p1 = p1;
         this.p2 = p2;
@@ -136,7 +135,7 @@ public class Board {
      * 整体的移动方法，每次走棋都调用该函数，把四子棋谱传进来
      *
     */
-    public Info move(String order, Long user) {
+    public Info move(String order, String user) {
         //class Move结构化记录移动棋子方法
         Move move = new Move();
         move.player = user;
@@ -216,7 +215,7 @@ public class Board {
     }
 
     //悔棋方法
-    public Info backOff(Chess[][] board, Long user) {
+    public Info backOff(Chess[][] board, String user) {
         if (chessStack.isEmpty()) {
             return new Info(false, "还没下子呢");
         }
@@ -427,19 +426,19 @@ public class Board {
         return board;
     }
 
-    public Long getP1() {
+    public String getP1() {
         return p1;
     }
 
-    public void setP1(Long p1) {
+    public void setP1(String p1) {
         this.p1 = p1;
     }
 
-    public Long getP2() {
+    public String getP2() {
         return p2;
     }
 
-    public void setP2(Long p2) {
+    public void setP2(String p2) {
         this.p2 = p2;
     }
 

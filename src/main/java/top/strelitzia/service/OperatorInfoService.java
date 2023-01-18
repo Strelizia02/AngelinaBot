@@ -3,6 +3,7 @@ package top.strelitzia.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.strelitzia.dao.NickNameMapper;
@@ -56,7 +57,7 @@ public class OperatorInfoService {
         opClass.put("特种", 8);
     }
 
-    @AngelinaGroup(keyWords = {"干员搜索", "搜索干员"}, description = "根据条件搜索干员")
+    @AngelinaGroup(keyWords = {"干员搜索", "搜索干员"}, description = "根据条件搜索干员", funcClass = FunctionType.ArknightsData)
     public ReplayInfo getOperatorByInfos(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         List<String> infos = messageInfo.getArgs();
@@ -92,7 +93,7 @@ public class OperatorInfoService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"档案", "档案信息", "查询档案", "干员档案", "档案查询"}, description = "查询干员档案信息")
+    @AngelinaGroup(keyWords = {"档案", "档案信息", "查询档案", "干员档案", "档案查询"}, description = "查询干员档案信息", funcClass = FunctionType.ArknightsData)
     public ReplayInfo getOperatorInfo(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -165,7 +166,7 @@ public class OperatorInfoService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"声优", "声优查询", "查询声优"}, description = "根据条件查询声优信息")
+    @AngelinaGroup(keyWords = {"声优", "声优查询", "查询声优"}, description = "根据条件查询声优信息", funcClass = FunctionType.ArknightsData)
     public ReplayInfo getCVByName(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         List<String> allCV = new ArrayList<>();
@@ -201,7 +202,7 @@ public class OperatorInfoService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"画师查询", "查询画师"}, description = "根据条件查询画师信息")
+    @AngelinaGroup(keyWords = {"画师查询", "查询画师"}, description = "根据条件查询画师信息", funcClass = FunctionType.ArknightsData)
     public ReplayInfo getDrawByName(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         List<String> allDraw;
@@ -218,7 +219,7 @@ public class OperatorInfoService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"天赋", "天赋查询", "干员天赋"}, description = "查询干员的天赋信息")
+    @AngelinaGroup(keyWords = {"天赋", "天赋查询", "干员天赋"}, description = "查询干员的天赋信息", funcClass = FunctionType.ArknightsData)
     public ReplayInfo getTalentByName(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {

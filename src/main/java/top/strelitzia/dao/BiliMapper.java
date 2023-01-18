@@ -19,10 +19,10 @@ public interface BiliMapper {
     Integer getBiliCountListCount(@Param("name")String name);
 
     //获取某群的关注列表
-    List<BiliCount> getBiliCountListByGroupId(@Param("groupId") Long groupId);
+    List<BiliCount> getBiliCountListByGroupId(@Param("groupId") String groupId);
 
     //获取某群没有关注列表
-    List<BiliCount> getNotListenListByGroupId(@Param("groupId") Long groupId, @Param("name") String name);
+    List<BiliCount> getNotListenListByGroupId(@Param("groupId") String groupId, @Param("name") String name);
 
     //更新uid的动态列表
     Integer updateNewDynamic(BiliCount bili);
@@ -31,13 +31,13 @@ public interface BiliMapper {
     BiliCount getOneDynamicByName(String name);
 
     //某群关注某uid
-    Integer insertGroupBiliRel(@Param("groupId") Long groupId, @Param("uid") Long uid);
+    Integer insertGroupBiliRel(@Param("groupId") String groupId, @Param("uid") Long uid);
 
     //某群取关某uid
-    Integer deleteGroupBiliRel(@Param("groupId") Long groupId, @Param("uid") Long uid);
+    Integer deleteGroupBiliRel(@Param("groupId") String groupId, @Param("uid") Long uid);
 
     //查询是否已关注
-    Integer selectGroupBiliRel(@Param("groupId") Long groupId, @Param("uid") Long uid);
+    Integer selectGroupBiliRel(@Param("groupId") String groupId, @Param("uid") Long uid);
 
     //查询改uid是否已监听
     Integer existBiliUid(@Param("uid") Long uid);

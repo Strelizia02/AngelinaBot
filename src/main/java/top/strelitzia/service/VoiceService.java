@@ -3,11 +3,14 @@ package top.strelitzia.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.strelitzia.arknightsDao.OperatorInfoMapper;
 import top.strelitzia.dao.NickNameMapper;
+import top.strelitzia.model.VoiceInfo;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -23,10 +26,13 @@ public class VoiceService {
     @Autowired
     private NickNameMapper nickNameMapper;
 
+    @Autowired
+    private UpdateDataService updateDataService;
+
     public static String[] voiceList = new String[]{"任命助理", "交谈1", "交谈2", "交谈3", "晋升后交谈1", "晋升后交谈2", "信赖提升后交谈1", "信赖提升后交谈2", "信赖提升后交谈3", "闲置", "干员报到", "观看作战记录", "精英化晋升1", "精英化晋升2", "编入队伍", "任命队长", "行动出发", "行动开始", "选中干员1", "选中干员2", "部署1", "部署2", "作战中1", "作战中2", "作战中3", "作战中4", "3星结束行动", "非3星结束行动", "行动失败", "进驻设施", "戳一下", "信赖触摸", "标题", "问候"};
 
-    @AngelinaGroup(keyWords = {"语音"}, description = "查询干员的某条语音")
-    public ReplayInfo getOperatorVoice(MessageInfo messageInfo) {
+    @AngelinaGroup(keyWords = {"语音"}, description = "查询干员的某条语音", funcClass = FunctionType.ArknightsData)
+    public ReplayInfo getOperatorVoice(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         List<String> args = messageInfo.getArgs();
 
@@ -68,11 +74,13 @@ public class VoiceService {
                         voiceName = args.get(i);
                     }
                 }
-            } 
+            }
             
-            List<String> voices = operatorInfoMapper.selectOperatorVoiceByNameAndVoice(type, name, voiceName);
+            List<VoiceInfo> voices = operatorInfoMapper.selectOperatorVoiceByNameAndVoice(type, name, voiceName);
             if (voices.size() > 0) {
-                replayInfo.setMp3(voices.get(new Random().nextInt(voices.size())));
+                VoiceInfo voiceInfo = voices.get(new Random().nextInt(voices.size()));
+                updateDataService.downloadOneFile(voiceInfo.getUrl(), voiceInfo.getFile());
+                replayInfo.setMp3(voiceInfo.getFile());
             }
             return replayInfo;
         } else {

@@ -4,9 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
-import top.angelinaBot.model.MessageInfo;
-import top.angelinaBot.model.ReplayInfo;
-import top.angelinaBot.model.TextLine;
+import top.angelinaBot.model.*;
 import top.strelitzia.arknightsDao.*;
 import top.strelitzia.dao.*;
 import top.strelitzia.model.*;
@@ -44,7 +42,7 @@ public class MaterialService {
     @Autowired
     private EnemyMapper enemyMapper;
 
-    @AngelinaGroup(keyWords = {"专精材料", "技能专精", "专精"}, description = "技能专精材料")
+    @AngelinaGroup(keyWords = {"专精材料", "技能专精", "专精"}, description = "技能专精材料", funcClass = FunctionType.ArknightsData)
     public ReplayInfo ZhuanJingCaiLiao(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -125,7 +123,7 @@ public class MaterialService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"精一", "精二", "精一材料", "精二材料"}, description = "查询干员精英化材料")
+    @AngelinaGroup(keyWords = {"精一", "精二", "精一材料", "精二材料"}, description = "查询干员精英化材料", funcClass = FunctionType.ArknightsData)
     public ReplayInfo JingYingHuaCaiLiao(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -171,7 +169,7 @@ public class MaterialService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"合成", "材料合成", "合成路线"}, description = "查询材料的合成途径")
+    @AngelinaGroup(keyWords = {"合成", "材料合成", "合成路线"}, description = "查询材料的合成途径", funcClass = FunctionType.ArknightsData)
     public ReplayInfo HeChengLuXian(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -212,7 +210,7 @@ public class MaterialService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"材料获取", "获取途径", "材料掉落"}, description = "查询某材料的获取地图")
+    @AngelinaGroup(keyWords = {"材料获取", "获取途径", "材料掉落"}, description = "查询某材料的获取地图", funcClass = FunctionType.ArknightsData)
     public ReplayInfo HuoQuTuJing(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -280,7 +278,7 @@ public class MaterialService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"干员面板", "面板"}, description = "查询干员面板")
+    @AngelinaGroup(keyWords = {"干员面板", "面板"}, description = "查询干员面板", funcClass = FunctionType.ArknightsData)
     public ReplayInfo selectAgentData(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -314,7 +312,7 @@ public class MaterialService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"地图掉落", "掉落查询"}, description = "查询某地图掉落材料的概率")
+    @AngelinaGroup(keyWords = {"地图掉落", "掉落查询"}, description = "查询某地图掉落材料的概率", funcClass = FunctionType.ArknightsData)
     public ReplayInfo selectMaterByMap(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -349,7 +347,7 @@ public class MaterialService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"地图列表"}, description = "查询某章节的所有地图")
+    @AngelinaGroup(keyWords = {"地图列表"}, description = "查询某章节的所有地图", funcClass = FunctionType.ArknightsData)
     public ReplayInfo selectMapList(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() > 1) {
@@ -367,7 +365,7 @@ public class MaterialService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"章节列表"}, description = "查询所有章节")
+    @AngelinaGroup(keyWords = {"章节列表"}, description = "查询所有章节", funcClass = FunctionType.ArknightsData)
     public ReplayInfo selectZoneList(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         List<String> zones = materialMadeMapper.selectAllZone();

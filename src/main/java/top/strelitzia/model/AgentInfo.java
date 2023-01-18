@@ -20,6 +20,8 @@ public class AgentInfo implements Serializable {
      */
     private Integer limit;
 
+    private Integer version;
+
     public Integer getLimit() {
         return limit;
     }
@@ -50,5 +52,13 @@ public class AgentInfo implements Serializable {
 
     public void setPool(String pool) {
         this.pool = pool;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

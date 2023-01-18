@@ -3,9 +3,13 @@ package top.strelitzia.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
+import top.angelinaBot.container.AngelinaEventSource;
+import top.angelinaBot.container.AngelinaListener;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.model.TextLine;
+import top.angelinaBot.util.SendMessageUtil;
 import top.strelitzia.arknightsDao.EquipMapper;
 import top.strelitzia.arknightsDao.MaterialMadeMapper;
 import top.strelitzia.dao.NickNameMapper;
@@ -36,102 +40,125 @@ public class EquipService {
     @Autowired
     private NickNameMapper nickNameMapper;
 
-    @AngelinaGroup(keyWords = {"模组查询", "查询模组", "模组"}, description = "查询模组信息")
+    @Autowired
+    private SendMessageUtil sendMessageUtil;
+
+    @AngelinaGroup(keyWords = {"模组查询", "查询模组", "模组"}, description = "查询模组信息", funcClass = FunctionType.ArknightsData)
     public ReplayInfo getOperatorEquip(MessageInfo messageInfo) throws IOException {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        String name;
         if (messageInfo.getArgs().size() > 1) {
-            String name = messageInfo.getArgs().get(1);
-            String realName = nickNameMapper.selectNameByNickName(name);
-            if (realName != null && !realName.equals(""))
-                name = realName;
-
-            List<EquipInfo> equipInfos = equipMapper.selectEquipByName(name);
-            if (equipInfos.size() > 0) {
-                TextLine textLine = new TextLine(100);
-                String pathname1 = operatorInfoMapper.selectAvatarByName(name);
-                if (pathname1 != null) {
-                    textLine.addImage(ImageIO.read(new File(pathname1)));
-                }
-                textLine.addString(name + "的模组信息为：");
-
-                textLine.nextLine();
-                for (EquipInfo equipInfo: equipInfos) {
-                    String equipId = equipInfo.getEquipId();
-                    List<String> strings = equipMapper.selectEquipMissionById(equipId);
-                    textLine.nextLine();
-                    textLine.addString("模组名称：" + equipInfo.getEquipName());
-                    textLine.nextLine();
-                    textLine.addString("解锁条件：");
-                    textLine.nextLine();
-
-                    int j = 1;
-                    for (String mission : strings) {
-                        textLine.addString(j + ". " + mission);
-                        textLine.nextLine();
-                        j++;
-                    }
-
-                    int i = equipInfo.getEquipLevel();
-                    List<EquipBuff> equipBuffs = equipMapper.selectEquipBuffById(equipId, i);
-                    textLine.nextLine();
-                    textLine.addString("等级" + i + ":");
-                    textLine.nextLine();
-                    String[] desc = equipInfo.getDesc().split("\\|\\|\\|");
-                    textLine.addString("模组特性：");
-                    textLine.nextLine();
-                    textLine.addSpace(2);
-                    textLine.addString("新增天赋：");
-                    textLine.nextLine();
-                    textLine.addSpace(4);
-                    textLine.addString(desc[0]);
-                    textLine.nextLine();
-                    textLine.addSpace(2);
-                    textLine.addString("天赋变化：");
-                    textLine.nextLine();
-                    textLine.addSpace(4);
-                    textLine.addString(desc[1]);
-                    textLine.nextLine();
-                    textLine.addString("解锁等级： 精英化" + equipInfo.getPhase() + equipInfo.getLevel() + "级");
-                    textLine.nextLine();
-
-                    textLine.addString("面板变化：");
-                    textLine.nextLine();
-                    for (EquipBuff e : equipBuffs) {
-                        String value;
-                        if (e.getValue() >= 0) {
-                            value = "+" + e.getValue();
-                        } else {
-                            value = "-" + e.getValue();
-                        }
-                        textLine.addSpace(2);
-                        textLine.addString(returnBuffName(e.getBuffName()));
-                        textLine.addSpace();
-                        textLine.addString(value);
-                        textLine.nextLine();
-                    }
-                    textLine.addString("解锁材料：");
-                    textLine.nextLine();
-
-                    List<MaterialInfo> materialInfos = equipMapper.selectEquipCostById(equipId, i);
-                    for (MaterialInfo m : materialInfos) {
-                        String pathname = materialMadeMapper.selectMaterialPicByName(m.getMaterialName());
-                        if (pathname != null) {
-                            textLine.addImage(ImageIO.read(new File(pathname)));
-                        }
-                        textLine.addString(m.getMaterialName() + " * " + m.getMaterialNum() + "个");
-                        textLine.nextLine();
-                    }
-
-                }
-
-                replayInfo.setReplayImg(textLine.drawImage());
-                return replayInfo;
-            } else {
-                replayInfo.setReplayMessage("未找到干员对应模组信息");
-            }
+            name = messageInfo.getArgs().get(1);
         } else {
             replayInfo.setReplayMessage("请输入需要查询的干员名称");
+            sendMessageUtil.sendGroupMsg(replayInfo);
+            replayInfo.setReplayMessage(null);
+            AngelinaListener angelinaListener = new AngelinaListener() {
+                @Override
+                public boolean callback(MessageInfo message) {
+                    String name = message.getText();
+                    String realName = nickNameMapper.selectNameByNickName(name);
+                    if (realName != null && !realName.equals("")) {
+                        name = realName;
+                    }
+                    List<String> allOperator = operatorInfoMapper.getAllOperator();
+                    return message.getGroupId().equals(messageInfo.getGroupId()) && allOperator.contains(name);
+                }
+            };
+           
+            angelinaListener.setGroupId(messageInfo.getGroupId());
+            MessageInfo recall = AngelinaEventSource.waiter(angelinaListener).getMessageInfo();
+            name = recall.getText();
         }
+        
+        String realName = nickNameMapper.selectNameByNickName(name);
+        if (realName != null && !realName.equals(""))
+            name = realName;
+
+        List<EquipInfo> equipInfos = equipMapper.selectEquipByName(name);
+        if (equipInfos.size() > 0) {
+            TextLine textLine = new TextLine(100);
+            String pathname1 = operatorInfoMapper.selectAvatarByName(name);
+            if (pathname1 != null) {
+                textLine.addImage(ImageIO.read(new File(pathname1)));
+            }
+            textLine.addString(name + "的模组信息为：");
+
+            textLine.nextLine();
+            for (EquipInfo equipInfo: equipInfos) {
+                String equipId = equipInfo.getEquipId();
+                List<String> strings = equipMapper.selectEquipMissionById(equipId);
+                textLine.nextLine();
+                textLine.addString("模组名称：" + equipInfo.getEquipName());
+                textLine.nextLine();
+                textLine.addString("解锁条件：");
+                textLine.nextLine();
+
+                int j = 1;
+                for (String mission : strings) {
+                    textLine.addString(j + ". " + mission);
+                    textLine.nextLine();
+                    j++;
+                }
+
+                int i = equipInfo.getEquipLevel();
+                List<EquipBuff> equipBuffs = equipMapper.selectEquipBuffById(equipId, i);
+                textLine.nextLine();
+                textLine.addString("等级" + i + ":");
+                textLine.nextLine();
+                String[] desc = equipInfo.getDesc().split("\\|\\|\\|");
+                textLine.addString("模组特性：");
+                textLine.nextLine();
+                textLine.addSpace(2);
+                textLine.addString("新增天赋：");
+                textLine.nextLine();
+                textLine.addSpace(4);
+                textLine.addString(desc[0]);
+                textLine.nextLine();
+                textLine.addSpace(2);
+                textLine.addString("天赋变化：");
+                textLine.nextLine();
+                textLine.addSpace(4);
+                textLine.addString(desc[1]);
+                textLine.nextLine();
+                textLine.addString("解锁等级： 精英化" + equipInfo.getPhase() + equipInfo.getLevel() + "级");
+                textLine.nextLine();
+
+                textLine.addString("面板变化：");
+                textLine.nextLine();
+                for (EquipBuff e : equipBuffs) {
+                    String value;
+                    if (e.getValue() >= 0) {
+                        value = "+" + e.getValue();
+                    } else {
+                        value = "-" + e.getValue();
+                    }
+                    textLine.addSpace(2);
+                    textLine.addString(returnBuffName(e.getBuffName()));
+                    textLine.addSpace();
+                    textLine.addString(value);
+                    textLine.nextLine();
+                }
+                textLine.addString("解锁材料：");
+                textLine.nextLine();
+
+                List<MaterialInfo> materialInfos = equipMapper.selectEquipCostById(equipId, i);
+                for (MaterialInfo m : materialInfos) {
+                    String pathname = materialMadeMapper.selectMaterialPicByName(m.getMaterialName());
+                    if (pathname != null) {
+                        textLine.addImage(ImageIO.read(new File(pathname)));
+                    }
+                    textLine.addString(m.getMaterialName() + " * " + m.getMaterialNum() + "个");
+                    textLine.nextLine();
+                }
+
+            }
+            replayInfo.setReplayImg(textLine.drawImage());
+            return replayInfo;
+        } else {
+            replayInfo.setReplayMessage("未找到干员对应模组信息");
+        }
+        
         return replayInfo;
     }
 

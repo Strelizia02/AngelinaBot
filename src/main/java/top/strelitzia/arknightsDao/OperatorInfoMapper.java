@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Param;
 import top.strelitzia.model.OperatorBasicInfo;
 import top.strelitzia.model.OperatorName;
 import top.strelitzia.model.TalentInfo;
+import top.strelitzia.model.VoiceInfo;
 
 import java.util.List;
 
@@ -82,13 +83,15 @@ public interface OperatorInfoMapper {
     Integer selectOperatorVoiceByCharIdAndName(@Param("type") String type, @Param("charId") String charId, @Param("name") String name);
 
     //插入一条新的语音记录
-    Integer insertOperatorVoice(@Param("charId") String charId, @Param("type") String type, @Param("name") String name, @Param("file") String file);
+    Integer insertOperatorVoice(@Param("charId") String charId, @Param("type") String type, @Param("name") String name, @Param("file") String file, @Param("url") String url);
 
     //根据干员名查找语音记录
     List<String> selectOperatorVoiceByName( @Param("name") String name);
 
+    List<VoiceInfo> selectAllVoice();
+
     //根据干员名和语音名查找语音记录
-    List<String> selectOperatorVoiceByNameAndVoice(@Param("type") String type, @Param("name") String name, @Param("voiceName") String voiceName);
+    List<VoiceInfo> selectOperatorVoiceByNameAndVoice(@Param("type") String type, @Param("name") String name, @Param("voiceName") String voiceName);
 
     List<OperatorName> getAllOperatorIdAndNameAndCV(@Param("area") String area);
 

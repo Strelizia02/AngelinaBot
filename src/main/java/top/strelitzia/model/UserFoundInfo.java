@@ -6,18 +6,18 @@ package top.strelitzia.model;
  * 用户抽卡垫刀信息
  **/
 public class UserFoundInfo {
-    private Long qq;
+    private String qq;
     private Integer foundCount;
     private Integer todayCount;
     private Integer allCount;
     private Integer allSix;
     private Integer allFive;
 
-    public Long getQq() {
+    public String getQq() {
         return qq;
     }
 
-    public void setQq(Long qq) {
+    public void setQq(String qq) {
         this.qq = qq;
     }
 

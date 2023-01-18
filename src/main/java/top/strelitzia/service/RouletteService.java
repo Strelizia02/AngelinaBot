@@ -3,6 +3,7 @@ package top.strelitzia.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.angelinaBot.annotation.AngelinaGroup;
+import top.angelinaBot.model.FunctionType;
 import top.angelinaBot.model.MessageInfo;
 import top.angelinaBot.model.ReplayInfo;
 import top.angelinaBot.util.SendMessageUtil;
@@ -16,9 +17,9 @@ public class RouletteService {
     SendMessageUtil sendMessageUtil;
 
     //轮盘赌map
-    private static final Map<Long, List<Integer>> rouletteInfo = new HashMap<>();
+    private static final Map<String, List<Integer>> rouletteInfo = new HashMap<>();
 
-    @AngelinaGroup(keyWords = {"给轮盘上子弹","上膛","拔枪吧"}, description = "守护铳轮盘赌，看看谁是天命之子(多颗子弹直接在后面输入数字）")
+    @AngelinaGroup(keyWords = {"给轮盘上子弹","上膛","拔枪吧"}, description = "守护铳轮盘赌，看看谁是天命之子(多颗子弹直接在后面输入数字）", funcClass = FunctionType.Others, author = "apotatopudding")
     public ReplayInfo Roulette(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         int bulletNum ;
@@ -79,7 +80,7 @@ public class RouletteService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"开枪"}, description = "进入生死的轮回")
+    @AngelinaGroup(keyWords = {"开枪"}, description = "进入生死的轮回", funcClass = FunctionType.Others, author = "apotatopudding")
     public ReplayInfo openGun(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         List<Integer> rouletteNum = rouletteInfo.get(messageInfo.getGroupId());
@@ -111,7 +112,7 @@ public class RouletteService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"轮盘赌结束"}, description = "结束轮盘赌")
+    @AngelinaGroup(keyWords = {"轮盘赌结束"}, description = "结束轮盘赌", funcClass = FunctionType.Others, author = "apotatopudding")
     public ReplayInfo closeRouletteDuel(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         rouletteInfo.remove(messageInfo.getGroupId());
