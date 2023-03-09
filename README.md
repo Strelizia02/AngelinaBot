@@ -54,3 +54,6 @@
 感谢[百度智能云](https://cloud.baidu.com/)提供的图像识别技术。
 
 前端项目链接：[Angelina-bot](https://github.com/aStrangerPassingBy/Angelina-bot)
+
+赞助
+![1678371391423](https://user-images.githubusercontent.com/48582013/224052908-ecd32db4-03c3-4465-bfd0-2bcbacec0d64.jpg)
