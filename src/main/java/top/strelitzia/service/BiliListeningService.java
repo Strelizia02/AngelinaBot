@@ -50,62 +50,69 @@ public class BiliListeningService {
     private boolean doingBiliUpdate = false;
 
     public void getDynamicList() throws InterruptedException {
-        if (!doingBiliUpdate) {
-            doingBiliUpdate = true;
-            List<BiliCount> biliCountList = biliMapper.getBiliCountList();
-            for (BiliCount bili : biliCountList) {
-                try {
-                    String biliSpace = "https://space.bilibili.com/" + bili.getUid() + "/dynamic";
-                    String dynamicList = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid=";
-                    String dynamicListUrl = "&offset_dynamic_id=0&need_top=";
-                    String topDynamic = getStringByUrl(dynamicList + bili.getUid() + dynamicListUrl + 1);//1 -> 抓取置顶动态
-                    //解析动态列表json
-                    Long top = new JSONObject(topDynamic).getJSONObject("data").getJSONArray("cards").getJSONObject(0).getJSONObject("desc").getLong("dynamic_id");
-                    bili.setTop(top);
-                    //循环遍历每个被监听的账号
-                    String result;
-                    String url = dynamicList + bili.getUid() + dynamicListUrl + 0;//0 -> 不抓取置顶动态
-                    String s = getStringByUrl(url);
-                    JSONObject dynamicJson = new JSONObject(s);
-                    //解析动态列表json
-                    JSONArray dynamics = dynamicJson.getJSONObject("data").getJSONArray("cards");
-                    //获取当前的最新动态
-                    if (dynamics.length() > 0) {
-                        Long newId = dynamics.getJSONObject(0).getJSONObject("desc").getLong("dynamic_id");
-                        //对比第一条动态
-                        Long first = bili.getFirst();
-                        if (first == null || !first.equals(newId)) {
-                            bili.setFirst(newId);
-                            //获取最新动态详情
-                            DynamicDetail newDetail = getDynamicDetail(newId);
-                            String name = newDetail.getName();
-                            bili.setName(name);
-                            biliMapper.updateNewDynamic(bili);
-                            result = name + "更新了一条" + newDetail.getType() + "动态\n" +
-                                    newDetail.getTitle() + "\n" +
-                                    newDetail.getText() + "\n" + biliSpace;
-                            log.info("{}有新动态", name);
-                            List<String> groups = userFoundMapper.selectCakeGroups(bili.getUid());
-                            String pic = newDetail.getPicUrl();
-                            ReplayInfo replayInfo = new ReplayInfo();
-                            replayInfo.setReplayMessage(result);
-                            if (pic != null) {
-                                replayInfo.setReplayImg(pic);
-                            }
-
-                            replayInfo.setGroupId(groups);
-                            sendMessageUtil.sendGroupMsg(replayInfo);
-                        }
-                    }
-                } catch (Exception e) {
-                    log.error(e.getMessage());
-                }
-                Thread.sleep(new Random().nextInt(5) * 1000);
-            }
-            doingBiliUpdate = false;
-        } else {
-            log.warn("无法重读读取B站更新");
+        if (doingBiliUpdate) {
+            log.warn("无法重复读取B站更新");
+            return;
         }
+
+        doingBiliUpdate = true;
+        List<BiliCount> biliCountList = biliMapper.getBiliCountList();
+        for (BiliCount bili : biliCountList) {
+            try {
+                String biliSpace = "https://space.bilibili.com/" + bili.getUid() + "/dynamic";
+                String dynamicList = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid=";
+                String dynamicListUrl = "&offset_dynamic_id=0&need_top=";
+                String topDynamic = getStringByUrl(dynamicList + bili.getUid() + dynamicListUrl + 1);//1 -> 抓取置顶动态
+                //解析动态列表json
+                Long top = new JSONObject(topDynamic).getJSONObject("data").getJSONArray("cards").getJSONObject(0).getJSONObject("desc").getLong("dynamic_id");
+                bili.setTop(top);
+                //循环遍历每个被监听的账号
+                String result;
+                String url = dynamicList + bili.getUid() + dynamicListUrl + 0;//0 -> 不抓取置顶动态
+                String s = getStringByUrl(url);
+                JSONObject dynamicJson = new JSONObject(s);
+                //解析动态列表json
+                JSONArray dynamics = dynamicJson.getJSONObject("data").getJSONArray("cards");
+                //获取当前的最新动态
+                if (dynamics.length() <= 0) {
+                    log.error("{}账号无动态", bili.getUid());
+                    continue;
+                }
+
+                Long newId = dynamics.getJSONObject(0).getJSONObject("desc").getLong("dynamic_id");
+                //对比第一条动态
+                Long first = bili.getFirst();
+                if (first != null && first.equals(newId)) {
+                    log.error("{}账号动态未更新", bili.getUid());
+                    continue;
+                }
+
+                bili.setFirst(newId);
+                //获取最新动态详情
+                DynamicDetail newDetail = getDynamicDetail(newId);
+                String name = newDetail.getName();
+                bili.setName(name);
+                biliMapper.updateNewDynamic(bili);
+                result = name + "更新了一条" + newDetail.getType() + "动态\n" +
+                        newDetail.getTitle() + "\n" +
+                        newDetail.getText() + "\n" + biliSpace;
+                log.info("{}有新动态，正在推送至关注群中", name);
+                List<String> groups = userFoundMapper.selectCakeGroups(bili.getUid());
+                String pic = newDetail.getPicUrl();
+                ReplayInfo replayInfo = new ReplayInfo();
+                replayInfo.setReplayMessage(result);
+                if (pic != null) {
+                    replayInfo.setReplayImg(pic);
+                }
+
+                replayInfo.setGroupId(groups);
+                sendMessageUtil.sendGroupMsg(replayInfo);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+            }
+            Thread.sleep(new Random().nextInt(5) * 1000 + 1000);
+        }
+        doingBiliUpdate = false;
     }
 
     public DynamicDetail getDynamicDetail(Long DynamicId) {
@@ -166,36 +173,38 @@ public class BiliListeningService {
     @AngelinaGroup(keyWords = {"投稿", "视频", "查看投稿", "最新视频"}, description = "查询某个up最新的投稿视频", funcClass = FunctionType.BiliDynamic)
     public ReplayInfo getVideo(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        if (messageInfo.getArgs().size() > 1) {
-            BiliCount bili = biliMapper.getOneDynamicByName(messageInfo.getArgs().get(1));
-            String videoUrl = "&pn=1&ps=1&jsonp=jsonp";
-            String videoHead = "https://api.bilibili.com/x/space/arc/search?mid=";
-            String newBvstr = getStringByUrl(videoHead + bili.getUid() + videoUrl);
-            JSONObject newBvJson = new JSONObject(newBvstr);
-            String newBv = newBvJson.getJSONObject("data").getJSONObject("list").getJSONArray("vlist").getJSONObject(0).getString("bvid");
-            replayInfo.setReplayMessage("https://www.bilibili.com/video/" + newBv);
-        } else {
+        if (messageInfo.getArgs().size() <= 1) {
             replayInfo.setReplayMessage("请输入查询的up名称或UID");
+            return replayInfo;
         }
+        BiliCount bili = biliMapper.getOneDynamicByName(messageInfo.getArgs().get(1));
+        String videoUrl = "&pn=1&ps=1&jsonp=jsonp";
+        String videoHead = "https://api.bilibili.com/x/space/arc/search?mid=";
+        String newBvstr = getStringByUrl(videoHead + bili.getUid() + videoUrl);
+        JSONObject newBvJson = new JSONObject(newBvstr);
+        String newBv = newBvJson.getJSONObject("data").getJSONObject("list").getJSONArray("vlist").getJSONObject(0).getString("bvid");
+        replayInfo.setReplayMessage("https://www.bilibili.com/video/" + newBv);
         return replayInfo;
     }
 
     @AngelinaGroup(keyWords = {"动态", "B站动态", "查询动态", "查看动态"}, description = "查询某个up最新的动态", funcClass = FunctionType.BiliDynamic)
     public ReplayInfo getDynamic(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        if (messageInfo.getArgs().size() > 1) {
-            BiliCount dynamics = biliMapper.getOneDynamicByName(messageInfo.getArgs().get(1));
-            if (dynamics == null) {
-                replayInfo.setReplayMessage("机器人尚未监听该账号，请联系管理员监听");
-            } else {
-                DynamicDetail d = getDynamicDetail(dynamics.getFirst());
-                replayInfo.setReplayMessage(d.getName() + "的" + d.getType() + "动态\n" + d.getTitle() + "\n" + d.getText());
-                if (d.getPicUrl() != null) {
-                    replayInfo.setReplayImg(d.getPicUrl());
-                }
-            }
-        } else {
+        if (messageInfo.getArgs().size() <= 1) {
             replayInfo.setReplayMessage("请输入查询的up名称或UID");
+            return replayInfo;
+        }
+
+        BiliCount dynamics = biliMapper.getOneDynamicByName(messageInfo.getArgs().get(1));
+        if (dynamics == null) {
+            replayInfo.setReplayMessage("机器人尚未监听该账号，请联系管理员监听");
+            return replayInfo;
+        }
+
+        DynamicDetail d = getDynamicDetail(dynamics.getFirst());
+        replayInfo.setReplayMessage(d.getName() + "的" + d.getType() + "动态\n" + d.getTitle() + "\n" + d.getText());
+        if (d.getPicUrl() != null) {
+            replayInfo.setReplayImg(d.getPicUrl());
         }
         return replayInfo;
     }
@@ -204,15 +213,16 @@ public class BiliListeningService {
     public ReplayInfo getBiliList(MessageInfo messageInfo) {
         List<BiliCount> bilis = biliMapper.getBiliCountListByGroupId(messageInfo.getGroupId());
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        if (bilis.size() > 0) {
-            StringBuilder s = new StringBuilder("");
-            for (BiliCount bili : bilis) {
-                s.append("\n用户：").append(bili.getName()).append("\tUid:").append(bili.getUid());
-            }
-            replayInfo.setReplayMessage(s.substring(1));
-        }else {
+        if (bilis.size() == 0) {
             replayInfo.setReplayMessage("本群暂时还没有关注up哦~");
+            return replayInfo;
         }
+
+        StringBuilder s = new StringBuilder();
+        for (BiliCount bili : bilis) {
+            s.append("\n用户：").append(bili.getName()).append("\tUid:").append(bili.getUid());
+        }
+        replayInfo.setReplayMessage(s.substring(1));
         return replayInfo;
     }
 
@@ -221,31 +231,35 @@ public class BiliListeningService {
         String groupId = messageInfo.getGroupId();
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
 
-        if (messageInfo.getArgs().size() > 1) {
-            String biliId = messageInfo.getArgs().get(1);
-            Integer integer = groupAdminInfoMapper.existGroupId(groupId);
-            if (integer == 0) {
-                groupAdminInfoMapper.insertGroupId(groupId);
-            }
-            Long uid = Long.parseLong(biliId);
-            if (biliMapper.existBiliUid(uid) == 0) {
-                biliMapper.insertBiliUid(uid);
-            }
-
-            Integer relation = biliMapper.selectGroupBiliRel(groupId, uid);
-            if (relation == 0) {
-                if (biliMapper.getBiliCountListByGroupId(groupId).size() > 5) {
-                    replayInfo.setReplayMessage("本群关注数已超过上限5个");
-                } else {
-                    biliMapper.insertGroupBiliRel(groupId, uid);
-                    replayInfo.setReplayMessage("关注成功");
-                }
-            } else {
-                replayInfo.setReplayMessage("本群已经关注了这个uid");
-            }
-        } else {
+        if (messageInfo.getArgs().size() <= 1) {
             replayInfo.setReplayMessage("请输入关注Uid");
+            return replayInfo;
         }
+
+        String biliId = messageInfo.getArgs().get(1);
+        Integer integer = groupAdminInfoMapper.existGroupId(groupId);
+        if (integer == 0) {
+            groupAdminInfoMapper.insertGroupId(groupId);
+        }
+        Long uid = Long.parseLong(biliId);
+        if (biliMapper.existBiliUid(uid) == 0) {
+            replayInfo.setReplayMessage("只能关注bot已监听的账号");
+            return replayInfo;
+        }
+
+        Integer relation = biliMapper.selectGroupBiliRel(groupId, uid);
+        if (relation > 0) {
+            replayInfo.setReplayMessage("本群已经关注了这个uid");
+            return replayInfo;
+        }
+
+        if (biliMapper.getBiliCountListByGroupId(groupId).size() > 5) {
+            replayInfo.setReplayMessage("本群关注数已超过上限5个");
+            return replayInfo;
+        }
+
+        biliMapper.insertGroupBiliRel(groupId, uid);
+        replayInfo.setReplayMessage("关注成功");
         return replayInfo;
     }
 
@@ -254,15 +268,58 @@ public class BiliListeningService {
         String groupId = messageInfo.getGroupId();
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
 
-        if (messageInfo.getArgs().size() > 1) {
-            String biliId = messageInfo.getArgs().get(1);
-
-            Long uid = Long.parseLong(biliId);
-            biliMapper.deleteGroupBiliRel(groupId, uid);
-            replayInfo.setReplayMessage("取消关注成功");
-        } else {
+        if (messageInfo.getArgs().size() <= 1) {
             replayInfo.setReplayMessage("请输入需要取关的Uid");
+            return replayInfo;
         }
+
+        String biliId = messageInfo.getArgs().get(1);
+        Long uid = Long.parseLong(biliId);
+        biliMapper.deleteGroupBiliRel(groupId, uid);
+        replayInfo.setReplayMessage("取消关注成功");
+        return replayInfo;
+    }
+
+    @AngelinaGroup(keyWords = {"监听列表"}, description = "查看Bot监听的所有UID", funcClass = FunctionType.BiliDynamic)
+    public ReplayInfo getBiliList(MessageInfo messageInfo) {
+        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        List<BiliCount> bilis = biliMapper.getBiliCountList();
+
+        StringBuilder s = new StringBuilder("以下是Bot正在监听的用户：");
+        for (BiliCount bili : bilis) {
+            s.append("\n用户：").append(bili.getName()).append("\tUid:").append(bili.getUid());
+        }
+        replayInfo.setReplayMessage(s.substring(1));
+        return replayInfo;
+    }
+
+    @AngelinaGroup(keyWords = {"监听"}, description = "为Bot添加一个监听", funcClass = FunctionType.BiliDynamic, permission = PermissionEnum.Administrator)
+    public ReplayInfo getBiliList(MessageInfo messageInfo) {
+        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        if (messageInfo.getArgs().size() <= 1) {
+            replayInfo.setReplayMessage("请输入需要监听的Uid");
+            return replayInfo;
+        }
+        biliMapper.insertBiliUid(Long.parseLong(messageInfo.getArgs().get(1)));
+        replayInfo.setReplayMessage("监听成功，若本群需要推送动态，请再关注该账号");
+        return replayInfo;
+    }
+
+    @AngelinaGroup(keyWords = {"取消监听"}, description = "查看本群关注的所有UID", funcClass = FunctionType.BiliDynamic)
+    public ReplayInfo getBiliList(MessageInfo messageInfo) {
+        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+        if (messageInfo.getArgs().size() <= 1) {
+            replayInfo.setReplayMessage("请输入需要取消监听的Uid");
+            return replayInfo;
+        }
+        Long uid = Long.parseLong(messageInfo.getArgs().get(1));
+        List<String> groupList = biliMapper.selectGroupByUid(uid);
+        for (String groupId: groupList) {
+            biliMapper.deleteGroupBiliRel(groupId, uid);
+        }
+
+        biliMapper.deleteUid(uid);
+        replayInfo.setReplayMessage("取消监听成功，关注过该账号的群会自动取消关注");
         return replayInfo;
     }
 
