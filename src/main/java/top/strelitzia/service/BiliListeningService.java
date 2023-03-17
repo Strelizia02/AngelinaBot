@@ -305,7 +305,7 @@ public class BiliListeningService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"取消监听"}, description = "查看本群关注的所有UID", funcClass = FunctionType.BiliDynamic)
+    @AngelinaGroup(keyWords = {"取消监听"}, description = "查看本群关注的所有UID", funcClass = FunctionType.BiliDynamic, permission = PermissionEnum.Administrator)
     public ReplayInfo getBiliList(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() <= 1) {
