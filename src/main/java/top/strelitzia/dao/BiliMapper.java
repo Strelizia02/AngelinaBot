@@ -46,10 +46,10 @@ public interface BiliMapper {
     Integer insertBiliUid(@Param("uid") Long uid);
 
     //查询uid被哪些群关注
-    List<Long> selectGroupByUid(@Param("uid") Long uid);
+    List<String> selectGroupByUid(@Param("uid") Long uid);
 
     //查询uid没有被哪些群关注
-    List<Long> selectGroupByNotListenUid(@Param("uid") Long uid, @Param("groupId") String groupId);
+    List<String> selectGroupByNotListenUid(@Param("uid") Long uid, @Param("groupId") String groupId);
 
     Integer deleteUid(@Param("uid") Long uid);
 }
