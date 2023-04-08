@@ -36,6 +36,7 @@ userConfig:
   # 机器人令牌
   token: ''
   # 公域还是私域 public/private
+  type: ''
 scheduled:
   # 每5分钟监听一次B站动态
   biliJob: 0 */5 * * * ?
