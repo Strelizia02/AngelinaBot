@@ -79,7 +79,8 @@ public class BiliListeningService {
                     continue;
                 }
 
-                Long newId = dynamics.getJSONObject(0).getJSONObject("desc").getLong("dynamic_id");
+                JSONObject firstObject = dynamics.getJSONObject(0);
+                Long newId = firstObject.getJSONObject("desc").getLong("dynamic_id");
                 //对比第一条动态
                 Long first = bili.getFirst();
                 if (first != null && first.equals(newId)) {
@@ -89,7 +90,7 @@ public class BiliListeningService {
 
                 bili.setFirst(newId);
                 //获取最新动态详情
-                DynamicDetail newDetail = getDynamicDetail(newId);
+                DynamicDetail newDetail = getDynamicDetail(firstObject);
                 String name = newDetail.getName();
                 bili.setName(name);
                 biliMapper.updateNewDynamic(bili);
@@ -115,18 +116,21 @@ public class BiliListeningService {
         doingBiliUpdate = false;
     }
 
-    public DynamicDetail getDynamicDetail(Long DynamicId) {
+    public DynamicDetail getDynamicDetail(JSONObject detailJson) {
         DynamicDetail dynamicDetail = new DynamicDetail();
         //获取动态的Json消息
-        HttpEntity<String> httpEntity = new HttpEntity<>(new HttpHeaders());
-        String dynamicDetailUrl = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail?dynamic_id=";
-        String s = getStringByUrl(dynamicDetailUrl + DynamicId);
-        JSONObject detailJson = new JSONObject(s);
-        int type = detailJson.getJSONObject("data").getJSONObject("card").getJSONObject("desc").getInt("type");
-        String cardStr = detailJson.getJSONObject("data").getJSONObject("card").getString("card");
+//        HttpEntity<String> httpEntity = new HttpEntity<>(new HttpHeaders());
+
+//        夭寿啦，叔叔把接口关啦！
+//        String dynamicDetailUrl = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail?dynamic_id=";
+//        String s = getStringByUrl(dynamicDetailUrl + DynamicId);
+//        JSONObject detailJson = new JSONObject(s);
+
+        int type = detailJson.getJSONObject("desc").getInt("type");
+        String cardStr = detailJson.getString("card");
         JSONObject cardJson = new JSONObject(cardStr);
         String text = "";
-        String name = detailJson.getJSONObject("data").getJSONObject("card").getJSONObject("desc").getJSONObject("user_profile").getJSONObject("info").getString("uname");
+        String name = detailJson.getJSONObject("desc").getJSONObject("user_profile").getJSONObject("info").getString("uname");
         String dType = "";
         String title = "";
         String pic = null;
@@ -155,7 +159,7 @@ public class BiliListeningService {
                 dType = "视频";
                 title = cardJson.getString("title");
                 pic = cardJson.getString("pic");
-                text = "https://www.bilibili.com/video/" + detailJson.getJSONObject("data").getJSONObject("card").getJSONObject("desc").getString("bvid");
+                text = "https://www.bilibili.com/video/" + detailJson.getJSONObject("desc").getString("bvid");
                 break;
             default:
                 title = "请点击链接查看最新动态";
@@ -187,27 +191,27 @@ public class BiliListeningService {
         return replayInfo;
     }
 
-    @AngelinaGroup(keyWords = {"动态", "B站动态", "查询动态", "查看动态"}, description = "查询某个up最新的动态", funcClass = FunctionType.BiliDynamic)
-    public ReplayInfo getDynamic(MessageInfo messageInfo) {
-        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
-        if (messageInfo.getArgs().size() <= 1) {
-            replayInfo.setReplayMessage("请输入查询的up名称或UID");
-            return replayInfo;
-        }
-
-        BiliCount dynamics = biliMapper.getOneDynamicByName(messageInfo.getArgs().get(1));
-        if (dynamics == null) {
-            replayInfo.setReplayMessage("机器人尚未监听该账号，请联系管理员监听");
-            return replayInfo;
-        }
-
-        DynamicDetail d = getDynamicDetail(dynamics.getFirst());
-        replayInfo.setReplayMessage(d.getName() + "的" + d.getType() + "动态\n" + d.getTitle() + "\n" + d.getText());
-        if (d.getPicUrl() != null) {
-            replayInfo.setReplayImg(d.getPicUrl());
-        }
-        return replayInfo;
-    }
+//    @AngelinaGroup(keyWords = {"动态", "B站动态", "查询动态", "查看动态"}, description = "查询某个up最新的动态", funcClass = FunctionType.BiliDynamic)
+//    public ReplayInfo getDynamic(MessageInfo messageInfo) {
+//        ReplayInfo replayInfo = new ReplayInfo(messageInfo);
+//        if (messageInfo.getArgs().size() <= 1) {
+//            replayInfo.setReplayMessage("请输入查询的up名称或UID");
+//            return replayInfo;
+//        }
+//
+//        BiliCount dynamics = biliMapper.getOneDynamicByName(messageInfo.getArgs().get(1));
+//        if (dynamics == null) {
+//            replayInfo.setReplayMessage("机器人尚未监听该账号，请联系管理员监听");
+//            return replayInfo;
+//        }
+//
+//        DynamicDetail d = getDynamicDetail(dynamics.getFirst());
+//        replayInfo.setReplayMessage(d.getName() + "的" + d.getType() + "动态\n" + d.getTitle() + "\n" + d.getText());
+//        if (d.getPicUrl() != null) {
+//            replayInfo.setReplayImg(d.getPicUrl());
+//        }
+//        return replayInfo;
+//    }
 
     @AngelinaGroup(keyWords = {"关注列表"}, description = "查看本群关注的所有UID", funcClass = FunctionType.BiliDynamic)
     public ReplayInfo getBiliList(MessageInfo messageInfo) {
@@ -281,7 +285,7 @@ public class BiliListeningService {
     }
 
     @AngelinaGroup(keyWords = {"监听列表"}, description = "查看Bot监听的所有UID", funcClass = FunctionType.BiliDynamic)
-    public ReplayInfo getBiliList(MessageInfo messageInfo) {
+    public ReplayInfo monitoredList(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         List<BiliCount> bilis = biliMapper.getBiliCountList();
 
@@ -294,7 +298,7 @@ public class BiliListeningService {
     }
 
     @AngelinaGroup(keyWords = {"监听"}, description = "为Bot添加一个监听", funcClass = FunctionType.BiliDynamic, permission = PermissionEnum.Administrator)
-    public ReplayInfo getBiliList(MessageInfo messageInfo) {
+    public ReplayInfo monitored(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() <= 1) {
             replayInfo.setReplayMessage("请输入需要监听的Uid");
@@ -306,7 +310,7 @@ public class BiliListeningService {
     }
 
     @AngelinaGroup(keyWords = {"取消监听"}, description = "查看本群关注的所有UID", funcClass = FunctionType.BiliDynamic, permission = PermissionEnum.Administrator)
-    public ReplayInfo getBiliList(MessageInfo messageInfo) {
+    public ReplayInfo stopMonitored(MessageInfo messageInfo) {
         ReplayInfo replayInfo = new ReplayInfo(messageInfo);
         if (messageInfo.getArgs().size() <= 1) {
             replayInfo.setReplayMessage("请输入需要取消监听的Uid");
